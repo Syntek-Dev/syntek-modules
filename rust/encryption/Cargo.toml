@@ -1,0 +1,21 @@
+[package]
+name = "syntek-encryption"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Encryption/decryption module for Syntek (AES-256-GCM, ChaCha20-Poly1305)"
+
+[dependencies]
+ring.workspace = true
+chacha20poly1305.workspace = true
+zeroize.workspace = true
+secrecy.workspace = true
+thiserror.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+
+[dev-dependencies]
+proptest.workspace = true

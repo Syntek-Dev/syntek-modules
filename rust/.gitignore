@@ -1,0 +1,20 @@
+# Rust build artifacts
+target/
+Cargo.lock
+
+# Python PyO3 artifacts
+*.so
+*.pyd
+__pycache__/
+*.pyc
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,19 @@
+[package]
+name = "syntek-pyo3-bindings"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "PyO3 bindings for Django integration (exposes Rust functions to Python)"
+
+[lib]
+name = "syntek_rust"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3.workspace = true
+syntek-encryption = { path = "../encryption" }
+syntek-security = { path = "../security" }
+syntek-hashing = { path = "../hashing" }
+syntek-llm-gateway = { path = "../llm_gateway" }
