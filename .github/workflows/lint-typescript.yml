@@ -1,0 +1,63 @@
+name: Lint TypeScript
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'web/**/*.{ts,tsx,js,jsx}'
+      - 'mobile/**/*.{ts,tsx,js,jsx}'
+      - 'shared/**/*.{ts,tsx,js,jsx}'
+      - 'package.json'
+      - 'pnpm-workspace.yaml'
+      - 'turbo.json'
+      - '.github/workflows/lint-typescript.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'web/**/*.{ts,tsx,js,jsx}'
+      - 'mobile/**/*.{ts,tsx,js,jsx}'
+      - 'shared/**/*.{ts,tsx,js,jsx}'
+      - 'package.json'
+      - 'pnpm-workspace.yaml'
+      - 'turbo.json'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ['24.13']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint web
+        run: pnpm --filter web lint
+
+      - name: Lint mobile
+        run: pnpm --filter mobile lint
+
+      - name: Lint shared
+        run: pnpm --filter shared lint
+
+      - name: Check formatting
+        run: pnpm --filter web format:check
+
+      - name: Type check
+        run: pnpm --filter web type-check
+        continue-on-error: true
