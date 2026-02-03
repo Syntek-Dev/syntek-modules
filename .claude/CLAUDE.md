@@ -5,6 +5,7 @@
 **Syntek Modules** is a modular monorepo containing reusable Django, React, React Native, and Rust modules for installation into other projects.
 
 This is NOT a deployable application - these are **library modules** designed to be:
+
 - Installed via uv or pip (Django apps)
 - Installed via npm/pnpm (React/React Native packages)
 - Included via Cargo (Rust crates)
@@ -12,23 +13,28 @@ This is NOT a deployable application - these are **library modules** designed to
 ## Tech Stack
 
 ### Backend (Django)
+
 - Django 6.0.2 (Python 3.14), GraphQL (Strawberry 0.291.0)
 - PostgreSQL 18.1, uv package manager
 - Structure: Django apps packaged as pip/uv installables
 
 ### Web (Next.js)
+
 - Next.js 16.1.16, React 19.2.1, TypeScript 5.9
 - Node.js 24.13, Tailwind 4.1
 - Structure: NPM packages
 
 ### Mobile (React Native)
+
 - React Native 0.83.x, TypeScript 5.9, NativeWind 4
 - Structure: NPM packages
 
 ### Shared UI
+
 - Cross-platform components for web and mobile
 
 ### Security & Infrastructure
+
 - Rust: Encryption/decryption via PyO3 bindings
 - OpenBao: Secrets management
 - GlitchTip: External logging
@@ -66,23 +72,28 @@ syntek-modules/
 ## Module Categories
 
 ### Security Bundles (Backend)
+
 - **security-core**: HTTP security (middleware, headers, CORS, CSRF, rate limiting, cache)
 - **security-auth**: Authentication & sessions (MFA, TOTP, JWT, API keys)
 - **security-input**: Input protection (validation, SQL injection prevention)
 - **security-network**: Network security (IP filtering, OpenBao secrets)
 
 ### Security Bundles (Web/Mobile)
+
 - Similar structure for client-side security
 
 ### Feature Modules (Backend)
+
 groups, profiles, media, logging, accounting, ai_integration, email_marketing, payments, notifications, search, audit, forms_surveys, contact, bookings, comments_ratings, analytics, reporting, uploads, feature_flags, webhooks, i18n, cms_primitives
 
 ### UI Modules (Web/Mobile)
+
 Authentication, profiles, media, notifications, search, forms, comments, analytics, bookings, payments, webhooks, feature flags
 
 ## Installation
 
 ### Django Modules
+
 ```bash
 # Install security bundles (recommended)
 uv pip install syntek-security-core
@@ -94,6 +105,7 @@ uv pip install syntek-profiles
 ```
 
 ### Web/Mobile Modules
+
 ```json
 {
   "dependencies": {
@@ -105,6 +117,7 @@ uv pip install syntek-profiles
 ```
 
 ### Rust Modules
+
 ```toml
 [dependencies]
 syntek-encryption = { path = "../syntek-modules/rust/encryption" }
@@ -113,6 +126,7 @@ syntek-encryption = { path = "../syntek-modules/rust/encryption" }
 ## Configuration
 
 ### Django Settings
+
 ```python
 INSTALLED_APPS = [
     'syntek_security_core',      # Auto-includes all sub-modules
@@ -135,6 +149,7 @@ SYNTEK_SECURITY_AUTH = {
 ## Security Compliance
 
 **ALL code must comply with:**
+
 - OWASP Top 10
 - NIST Cybersecurity Framework
 - NCSC Guidelines
@@ -147,6 +162,7 @@ See `.claude/SECURITY-COMPLIANCE.md` for detailed requirements.
 ## Development
 
 ### Using Rust CLI
+
 ```bash
 # Install CLI
 cd rust/project-cli && cargo install --path .
@@ -160,6 +176,7 @@ syntek build         # Build for production
 ```
 
 ### Lock Files
+
 - Python: `uv.lock` (committed)
 - Rust: `Cargo.lock` (committed)
 - Node: `pnpm-lock.yaml` (gitignored for libraries)
@@ -186,6 +203,7 @@ syntek build         # Build for production
 7. **Security first** - Use Rust encryption layer for sensitive data
 
 ### Security Checklist (ALL code)
+
 - [ ] Input validation and sanitization
 - [ ] Parameterized queries (no SQL injection)
 - [ ] Strong authentication (MFA support)
@@ -199,7 +217,124 @@ syntek build         # Build for production
 - [ ] Dependencies scanned for vulnerabilities
 - [ ] GDPR data subject rights supported
 
+### Documentation & Code Quality Requirements
+
+**ALL code files MUST have docstrings and comments in their language-specific format:**
+
+#### Python (Django)
+
+```python
+"""Module docstring at top of file.
+
+Explains what the module does, what it contains, and how to use it.
+"""
+
+def function_name(arg: str) -> bool:
+    """Function docstring explaining purpose.
+
+    Args:
+        arg: Description of argument
+
+    Returns:
+        Description of return value
+    """
+    # Inline comments for complex logic
+    pass
+```
+
+#### TypeScript/JavaScript
+
+```typescript
+/**
+ * Module docstring at top of file.
+ *
+ * Explains what the module does, exports, and usage examples.
+ */
+
+/**
+ * Function docstring explaining purpose.
+ *
+ * @param arg - Description of argument
+ * @returns Description of return value
+ */
+function functionName(arg: string): boolean {
+  // Inline comments for complex logic
+  return true;
+}
+```
+
+#### Rust
+
+```rust
+//! Module-level documentation at top of file.
+//!
+//! Explains what the module does, what it contains, and usage examples.
+
+/// Function documentation explaining purpose.
+///
+/// # Arguments
+///
+/// * `arg` - Description of argument
+///
+/// # Returns
+///
+/// * Description of return value
+pub fn function_name(arg: &str) -> bool {
+    // Inline comments for complex logic
+    true
+}
+```
+
+**Exceptions:** `package.json`, lock files (`uv.lock`, `pnpm-lock.yaml`, `Cargo.lock`) do not require comments.
+
+#### File Length Limits
+
+**CRITICAL:** No coding file should exceed **750-800 lines**.
+
+- **Coding files** (`.py`, `.ts`, `.tsx`, `.rs`, `.js`, `.jsx`): **MAX 800 lines**
+- **Documentation files** (`.md`): No limit (can be longer for comprehensive docs)
+- **Package files** (`package.json`, `pyproject.toml`, `Cargo.toml`): No limit (can be longer for dependencies)
+
+**If a file approaches 750 lines:** Refactor into modules/smaller files.
+
+### Script Organization
+
+**ALL script files MUST be written in Rust** and placed in `rust/project-cli/`:
+
+- **Location:** `rust/project-cli/src/`
+- **Structure:** Follow modular architecture:
+  - `main.rs` - CLI definition and dispatch
+  - `commands/<command>.rs` - Individual command implementations
+  - `utils/<utility>.rs` - Shared helper functions
+
+**Example:**
+
+```rust
+// rust/project-cli/src/commands/my_command.rs
+//! My command documentation
+//!
+//! Explains what this command does and how to use it.
+
+use crate::utils::exec;
+
+/// Run the command
+pub fn run(args: Args) -> anyhow::Result<()> {
+    // Implementation
+    Ok(())
+}
+```
+
+**Call commands in main.rs:**
+
+```rust
+// rust/project-cli/src/main.rs
+Commands::MyCommand { args } => commands::my_command::run(args),
+```
+
+**Exception:** Only `install-cli.sh` is allowed as a bash script (for bootstrapping the CLI).
+
 ### File Locations
+
 - Backend bundles: `backend/security-<bundle>/`
 - Backend modules: `backend/<module>/`
 - Web bundles: `web/packages/security-<bundle>/`
@@ -208,11 +343,13 @@ syntek build         # Build for production
 - Mobile features: `mobile/packages/mobile-<feature>/`
 - Shared: `shared/{components,hooks,utils}/`
 - Rust: `rust/<crate>/`
+- **Scripts: `rust/project-cli/src/{commands,utils}/`**
 - GraphQL: `graphql/{middleware,schema}/`
 
 ## README Requirements
 
 Every module MUST include:
+
 1. Overview
 2. Features
 3. Installation

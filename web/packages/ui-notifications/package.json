@@ -32,6 +32,9 @@
     "tsup": "^8.3.0",
     "typescript": "^5.9.0"
   },
-  "keywords": ["syntek", "ui-notifications"],
+  "keywords": [
+    "syntek",
+    "ui-notifications"
+  ],
   "license": "MIT"
 }

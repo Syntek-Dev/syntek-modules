@@ -33,9 +33,9 @@ Edit `config.json` to control behavior:
 
 ```json
 {
-  "enabled": true,                    // Master switch
-  "auto_optimisation_enabled": true,  // Auto-apply improvements
-  "min_runs_for_analysis": 50        // Minimum runs before analysis
+  "enabled": true, // Master switch
+  "auto_optimisation_enabled": true, // Auto-apply improvements
+  "min_runs_for_analysis": 50 // Minimum runs before analysis
 }
 ```
 
@@ -50,6 +50,7 @@ After an agent runs, provide feedback:
 ```
 
 Choose:
+
 - 👍 **Good** - Agent met expectations
 - 👎 **Bad** - Agent didn't meet expectations
 - 🐛 **Bug** - Agent had errors or unexpected behavior

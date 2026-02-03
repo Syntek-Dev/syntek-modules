@@ -149,11 +149,11 @@ Maintain compatibility matrix:
 ```markdown
 ## Compatibility
 
-| Module           | Version | Django | React  | React Native |
-| ---------------- | ------- | ------ | ------ | ------------ |
-| Authentication   | 1.0.0   | 6.0+   | 19.0+  | 0.83+        |
-| Subscriptions    | 1.0.0   | 6.0+   | 19.0+  | 0.83+        |
-| Encryption       | 1.0.0   | 3.14+  | -      | -            |
+| Module         | Version | Django | React | React Native |
+| -------------- | ------- | ------ | ----- | ------------ |
+| Authentication | 1.0.0   | 6.0+   | 19.0+ | 0.83+        |
+| Subscriptions  | 1.0.0   | 6.0+   | 19.0+ | 0.83+        |
+| Encryption     | 1.0.0   | 3.14+  | -     | -            |
 ```
 
 ## Production Monitoring
@@ -195,12 +195,14 @@ npm run analyze --workspaces
 ### If Critical Bug Found
 
 1. **Immediate:** Notify all consumers
+
    ```bash
    # Slack/Email/GitHub issue
    echo "URGENT: Critical bug in syntek-authentication v1.0.0"
    ```
 
 2. **Yank bad version** (don't delete)
+
    ```bash
    # PyPI
    twine yank syntek-authentication==1.0.0
@@ -213,6 +215,7 @@ npm run analyze --workspaces
    ```
 
 3. **Publish patch immediately**
+
    ```bash
    # Fix bug
    # Bump to v1.0.1
@@ -220,6 +223,7 @@ npm run analyze --workspaces
    ```
 
 4. **Update consuming projects**
+
    ```bash
    # Emergency deploy to production with v1.0.1
    ```
@@ -248,8 +252,8 @@ gh security-advisory create \
 
 - **GitHub Issues:** Bug reports and feature requests
 - **Slack:** #syntek-modules-support
-- **Email:** support@syntek.com
-- **Documentation:** https://docs.syntek.com/modules
+- **Email:** <support@syntek.com>
+- **Documentation:** <https://docs.syntek.com/modules>
 
 ### SLA
 
@@ -278,21 +282,26 @@ open https://docs.syntek.com/modules
 ## Release v1.0.0 - 2024-02-03
 
 ### New Features
+
 - Subscription module with recurring billing
 - Enhanced encryption with field-level granularity
 
 ### Breaking Changes
+
 - Authentication module now requires Django 6.0+
 - Migration required: `python manage.py migrate authentication`
 
 ### Bug Fixes
+
 - Fixed memory leak in Rust encryption (#123)
 - Fixed React Native touch handling (#124)
 
 ### Deprecations
+
 - `old_login_method()` deprecated, use `new_login()` instead
 
 ### Upgrade Guide
+
 See MIGRATION.md for detailed upgrade instructions.
 ```
 
@@ -307,7 +316,7 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   publish-backend:

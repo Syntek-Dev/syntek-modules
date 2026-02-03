@@ -29,8 +29,5 @@
       "cache": false
     }
   },
-  "globalEnv": [
-    "NODE_ENV",
-    "CI"
-  ]
+  "globalEnv": ["NODE_ENV", "CI"]
 }

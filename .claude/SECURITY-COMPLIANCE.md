@@ -20,7 +20,9 @@ All code in this repository must comply with:
 ### OWASP Top 10 (2021)
 
 #### A01: Broken Access Control
+
 **Backend/API:**
+
 - Implement role-based access control (RBAC)
 - Enforce principle of least privilege
 - Validate permissions on every request
@@ -37,6 +39,7 @@ def view_profile(request, user_id):
 ```
 
 **Web/Mobile:**
+
 - Validate user permissions client-side (UI only)
 - Always enforce server-side (never trust client)
 - Hide/disable UI elements based on permissions
@@ -52,7 +55,9 @@ return (
 ```
 
 #### A02: Cryptographic Failures
+
 **Backend/Rust:**
+
 - Use only TLS 1.2+ for data in transit
 - Encrypt sensitive data at rest (see Rust encryption module)
 - Never store passwords in plaintext (use Argon2)
@@ -69,6 +74,7 @@ CSRF_COOKIE_SECURE = True
 ```
 
 **Rust:**
+
 ```rust
 // Use established crypto libraries
 use chacha20poly1305::{ChaCha20Poly1305, aead::Aead};
@@ -76,7 +82,9 @@ use argon2::{Argon2, PasswordHasher};
 ```
 
 #### A03: Injection
+
 **Backend:**
+
 - Use parameterized queries (Django ORM does this automatically)
 - Validate and sanitize all user inputs
 - Never use raw SQL with user input
@@ -90,6 +98,7 @@ User.objects.filter(username=username)
 ```
 
 **GraphQL:**
+
 - Use Strawberry's built-in input validation
 - Implement query depth limiting
 - Rate limit queries
@@ -105,14 +114,18 @@ schema = strawberry.Schema(
 ```
 
 #### A04: Insecure Design
+
 **Architecture:**
+
 - Threat model all features before implementation
 - Implement security by design, not as afterthought
 - Use secure defaults
 - Fail securely (deny by default)
 
 #### A05: Security Misconfiguration
+
 **Backend:**
+
 ```python
 # settings/production.py
 DEBUG = False
@@ -126,6 +139,7 @@ INSTALLED_APPS = [
 ```
 
 **Docker:**
+
 ```dockerfile
 # Run as non-root user
 USER appuser
@@ -135,7 +149,9 @@ RUN apt-get autoremove -y && apt-get clean
 ```
 
 #### A06: Vulnerable and Outdated Components
+
 **All Layers:**
+
 - Run dependency audits regularly
 - Keep all dependencies updated
 - Use Dependabot/Renovate for automation
@@ -155,7 +171,9 @@ cargo outdated
 ```
 
 #### A07: Identification and Authentication Failures
+
 **Backend:**
+
 - Enforce strong password requirements
 - Implement MFA/TOTP
 - Use secure session management
@@ -175,7 +193,9 @@ SYNTEK_AUTH = {
 ```
 
 #### A08: Software and Data Integrity Failures
+
 **CI/CD:**
+
 - Sign commits and releases
 - Verify dependencies (use lock files)
 - Implement code review requirements
@@ -188,7 +208,9 @@ SYNTEK_AUTH = {
 ```
 
 #### A09: Security Logging and Monitoring Failures
+
 **Backend:**
+
 - Log all authentication events
 - Log authorization failures
 - Monitor for suspicious activity
@@ -214,7 +236,9 @@ logger.debug(f"Password: {password}")  # NEVER DO THIS
 ```
 
 #### A10: Server-Side Request Forgery (SSRF)
+
 **Backend:**
+
 - Validate and sanitize URLs
 - Use allowlists for external requests
 - Disable URL redirects where possible
@@ -239,26 +263,31 @@ def fetch_external_resource(url):
 ## NIST Cybersecurity Framework
 
 ### Identify
+
 - Asset inventory (dependencies, services, data)
 - Risk assessment for each feature
 - Document security architecture
 
 ### Protect
+
 - Access control (authentication + authorization)
 - Data security (encryption at rest and in transit)
 - Protective technology (firewalls, WAF)
 
 ### Detect
+
 - Security monitoring (GlitchTip/Sentry)
 - Anomaly detection
 - Audit logs
 
 ### Respond
+
 - Incident response plan
 - Security patches within 24-48 hours for critical
 - Communication procedures
 
 ### Recover
+
 - Backup and recovery procedures
 - Business continuity plan
 - Post-incident analysis
@@ -266,6 +295,7 @@ def fetch_external_resource(url):
 ### NIST 800-63B (Digital Identity Guidelines)
 
 **Password Requirements:**
+
 - Minimum 8 characters (recommend 12+)
 - Check against breached password lists
 - No periodic password changes required
@@ -285,6 +315,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ```
 
 **MFA Requirements:**
+
 - Support TOTP (Time-based One-Time Password)
 - Support WebAuthn/FIDO2
 - SMS/Email as backup (not primary)
@@ -296,6 +327,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ### Cyber Essentials Plus
 
 #### Secure Configuration
+
 ```python
 # settings/production.py
 # 1. Disable unused features
@@ -313,6 +345,7 @@ X_FRAME_OPTIONS = 'DENY'
 ```
 
 #### Malware Protection
+
 - Scan uploaded files for malware
 - Validate file types and content
 - Use Content Security Policy (CSP)
@@ -325,6 +358,7 @@ CSP_IMG_SRC = ("'self'", "data:", "https:")
 ```
 
 #### Patch Management
+
 - Apply security patches within 14 days (critical: 24-48 hours)
 - Automated dependency updates
 - Regular vulnerability scanning
@@ -334,16 +368,19 @@ CSP_IMG_SRC = ("'self'", "data:", "https:")
 ## GDPR Compliance
 
 ### Lawfulness, Fairness, and Transparency (Article 5)
+
 - Clear privacy policy
 - Explicit consent for data processing
 - Document legal basis for processing
 
 ### Purpose Limitation (Article 5)
+
 - Collect only necessary data
 - Document purpose for each data field
 - Don't repurpose data without consent
 
 ### Data Minimization (Article 5)
+
 ```python
 class UserProfile(models.Model):
     # Only collect what's needed
@@ -354,11 +391,13 @@ class UserProfile(models.Model):
 ```
 
 ### Accuracy (Article 5)
+
 - Provide mechanisms to update data
 - Regular data validation
 - Allow users to correct inaccuracies
 
 ### Storage Limitation (Article 5)
+
 - Implement data retention policies
 - Automatic deletion after retention period
 - Document retention periods
@@ -376,11 +415,13 @@ class DataRetentionMixin:
 ```
 
 ### Security (Article 32)
+
 - Encryption at rest and in transit
 - Pseudonymization where appropriate
 - Regular security testing
 
 **Rust Encryption:**
+
 ```rust
 use syntek_encryption::Encryptor;
 
@@ -390,6 +431,7 @@ let encrypted_phone = encryptor.encrypt_field(phone.as_bytes())?;
 ```
 
 ### Accountability (Article 5)
+
 - Maintain records of processing activities
 - Conduct Data Protection Impact Assessments (DPIA)
 - Appoint Data Protection Officer if required
@@ -397,6 +439,7 @@ let encrypted_phone = encryptor.encrypt_field(phone.as_bytes())?;
 ### Rights of Data Subjects
 
 #### Right of Access (Article 15)
+
 ```python
 @strawberry.mutation
 def export_user_data(info, user_id: int) -> UserDataExport:
@@ -412,6 +455,7 @@ def export_user_data(info, user_id: int) -> UserDataExport:
 ```
 
 #### Right to Erasure (Article 17)
+
 ```python
 @strawberry.mutation
 def delete_user_account(info, user_id: int) -> bool:
@@ -428,11 +472,13 @@ def delete_user_account(info, user_id: int) -> bool:
 ```
 
 #### Right to Data Portability (Article 20)
+
 - Provide data in machine-readable format (JSON, CSV)
 - Include all personal data
 - Allow direct transfer to another controller
 
 ### Breach Notification (Article 33-34)
+
 - Detect breaches within 72 hours
 - Notify supervisory authority within 72 hours
 - Notify affected individuals if high risk
@@ -444,6 +490,7 @@ def delete_user_account(info, user_id: int) -> bool:
 ### CIS Controls v8
 
 #### Control 1: Inventory and Control of Enterprise Assets
+
 ```yaml
 # Document all services
 services:
@@ -456,11 +503,13 @@ services:
 ```
 
 #### Control 2: Inventory and Control of Software Assets
+
 - Maintain dependency manifests
 - Use lock files (requirements.txt, package-lock.json, Cargo.lock)
 - Regular dependency audits
 
 #### Control 3: Data Protection
+
 - Classify data (public, internal, confidential, restricted)
 - Encrypt sensitive data at rest
 - Secure data in transit (TLS 1.2+)
@@ -482,6 +531,7 @@ class Document(models.Model):
 ```
 
 #### Control 4: Secure Configuration
+
 - Harden configurations
 - Remove default credentials
 - Disable unnecessary services
@@ -496,16 +546,19 @@ log_disconnections = on
 ```
 
 #### Control 5: Account Management
+
 - Implement least privilege
 - Regular access reviews
 - Disable unused accounts
 
 #### Control 6: Access Control Management
+
 - Use MFA for all privileged accounts
 - Implement role-based access control
 - Log all access attempts
 
 #### Control 8: Audit Log Management
+
 ```python
 # Enable comprehensive logging
 LOGGING = {
@@ -534,21 +587,25 @@ LOGGING = {
 ### Trust Services Criteria
 
 #### CC1: Control Environment
+
 - Document security policies
 - Security awareness training
 - Code of conduct
 
 #### CC2: Communication and Information
+
 - Internal security communications
 - External security disclosures
 - Incident reporting procedures
 
 #### CC3: Risk Assessment
+
 - Regular risk assessments
 - Threat modeling for new features
 - Vulnerability management program
 
 #### CC4: Monitoring Activities
+
 ```python
 # Implement monitoring
 from django.core.signals import request_finished
@@ -566,6 +623,7 @@ def log_request(sender, **kwargs):
 #### CC5: Control Activities
 
 **Change Management:**
+
 - All changes via pull requests
 - Code review required
 - Automated testing
@@ -587,6 +645,7 @@ jobs:
 ```
 
 **Access Controls:**
+
 ```python
 # Implement RBAC
 class Permission(models.Model):
@@ -603,11 +662,13 @@ def check_permission(user, resource, action):
 ```
 
 #### CC6: Logical and Physical Access Controls
+
 - MFA for all production access
 - VPN required for remote access
 - Regular access reviews
 
 #### CC7: System Operations
+
 - Automated backups
 - Disaster recovery testing
 - Capacity monitoring
@@ -628,6 +689,7 @@ DATABASES = {
 ## Implementation Checklist
 
 ### Backend (Django)
+
 - [ ] Input validation on all endpoints
 - [ ] Parameterized queries only
 - [ ] Strong password policy (NIST 800-63B)
@@ -642,6 +704,7 @@ DATABASES = {
 - [ ] Breach notification procedures
 
 ### API (GraphQL)
+
 - [ ] Authentication required
 - [ ] Authorization on all queries/mutations
 - [ ] Query depth limiting
@@ -652,6 +715,7 @@ DATABASES = {
 - [ ] CORS properly configured
 
 ### Web (Next.js)
+
 - [ ] Content Security Policy
 - [ ] XSS protection
 - [ ] CSRF tokens
@@ -662,6 +726,7 @@ DATABASES = {
 - [ ] Dependency scanning
 
 ### Mobile (React Native)
+
 - [ ] Certificate pinning
 - [ ] Secure storage (Keychain/KeyStore)
 - [ ] No sensitive data in logs
@@ -671,6 +736,7 @@ DATABASES = {
 - [ ] API key protection
 
 ### Shared UI
+
 - [ ] XSS-safe component design
 - [ ] Input validation
 - [ ] No eval() or dangerouslySetInnerHTML
@@ -678,6 +744,7 @@ DATABASES = {
 - [ ] Accessibility (WCAG 2.1 AA)
 
 ### Rust Security
+
 - [ ] Memory safety (minimal unsafe)
 - [ ] Zeroize for sensitive data
 - [ ] Established crypto libraries
@@ -691,24 +758,29 @@ DATABASES = {
 ## Continuous Compliance
 
 ### Daily
+
 - Automated security tests in CI/CD
 - Dependency vulnerability scanning
 
 ### Weekly
+
 - Review security logs
 - Check for new CVEs
 
 ### Monthly
+
 - Security patch updates
 - Access reviews
 - Incident response drill
 
 ### Quarterly
+
 - Threat modeling for new features
 - Security training
 - Risk assessment update
 
 ### Annually
+
 - Full security audit
 - Penetration testing
 - Policy review
@@ -718,13 +790,15 @@ DATABASES = {
 
 ## Reporting Security Issues
 
-Report security vulnerabilities to: security@syntek.example (update with real email)
+Report security vulnerabilities to: <security@syntek.example> (update with real email)
 
 **Do not:**
+
 - Open public GitHub issues for vulnerabilities
 - Disclose vulnerabilities publicly before patch
 
 **Response timeline:**
+
 - Initial response: 24 hours
 - Assessment: 48 hours
 - Critical patch: 1-7 days

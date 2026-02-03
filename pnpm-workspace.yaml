@@ -3,15 +3,15 @@
 
 packages:
   # Web packages (Next.js/React modules)
-  - 'web/packages/*'
+  - "web/packages/*"
 
   # Mobile packages (React Native modules)
-  - 'mobile/packages/*'
+  - "mobile/packages/*"
 
   # Shared cross-platform UI library
-  - 'shared'
+  - "shared"
 
   # Example applications
-  - 'examples/nextjs-app'
-  - 'examples/expo-app'
-  - 'examples/django-app/frontend'
+  - "examples/nextjs-app"
+  - "examples/expo-app"
+  - "examples/django-app/frontend"

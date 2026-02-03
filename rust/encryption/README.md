@@ -154,13 +154,13 @@ def create_user(username: str, email: str) -> UserType:
 
 ## Configuration Options
 
-| Setting | Type | Default | Description |
-|---------|------|---------|-------------|
-| `KEY_PATH` | str | Required | Path to 32-byte encryption key |
-| `KEY_ROTATION_ENABLED` | bool | `False` | Enable key rotation support |
-| `ZEROIZE_ON_DELETE` | bool | `True` | Zeroize memory on deletion |
-| `MAX_FIELD_SIZE` | int | `10485760` | Max field size (10MB) |
-| `BATCH_SIZE_LIMIT` | int | `100` | Max fields in batch operation |
+| Setting                | Type | Default    | Description                    |
+| ---------------------- | ---- | ---------- | ------------------------------ |
+| `KEY_PATH`             | str  | Required   | Path to 32-byte encryption key |
+| `KEY_ROTATION_ENABLED` | bool | `False`    | Enable key rotation support    |
+| `ZEROIZE_ON_DELETE`    | bool | `True`     | Zeroize memory on deletion     |
+| `MAX_FIELD_SIZE`       | int  | `10485760` | Max field size (10MB)          |
+| `BATCH_SIZE_LIMIT`     | int  | `100`      | Max fields in batch operation  |
 
 ## Security Considerations
 
@@ -241,6 +241,7 @@ cargo bench
 ```
 
 Example results:
+
 - Single field encryption: ~10 μs
 - Batch encryption (10 fields): ~50 μs
 - Password hashing: ~100 ms (intentionally slow)
@@ -261,28 +262,34 @@ except EncryptionError as e:
 This module helps meet:
 
 **GDPR:**
+
 - **Article 32**: Security of processing (encryption at rest)
 - **Article 17**: Right to erasure (zeroization)
 - **Article 5(1)(f)**: Integrity and confidentiality
 
 **NIST:**
+
 - **NIST 800-53 SC-28**: Protection of information at rest
 - **NIST 800-63B**: Cryptographic key management
 - **NIST 800-175B**: Guideline for using cryptographic standards
 
 **OWASP:**
+
 - **OWASP A02:2021**: Cryptographic Failures prevention
 - **OWASP ASVS V6**: Stored Cryptography Verification
 
 **CIS Benchmarks:**
+
 - **CIS Control 3.11**: Encrypt sensitive data at rest
 - **CIS Control 3.10**: Encrypt sensitive data in transit
 
 **SOC 2:**
+
 - **CC6.1**: Logical and physical access controls
 - **CC6.7**: Information asset protection through encryption
 
 **Additional:**
+
 - **PCI DSS Requirement 3**: Protect stored cardholder data
 - **NCSC Guidance**: Cryptography for secure communications
 

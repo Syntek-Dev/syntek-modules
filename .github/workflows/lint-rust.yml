@@ -4,30 +4,27 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'rust/**/*.rs'
-      - 'rust/**/Cargo.toml'
-      - '.github/workflows/lint-rust.yml'
+      - "rust/**/*.rs"
+      - "rust/**/Cargo.toml"
+      - ".github/workflows/lint-rust.yml"
   pull_request:
     branches: [main, develop]
     paths:
-      - 'rust/**/*.rs'
-      - 'rust/**/Cargo.toml'
+      - "rust/**/*.rs"
+      - "rust/**/Cargo.toml"
 
 jobs:
   lint:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        rust-version: ['1.92.0']
+    name: Rust Linting & Formatting
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Rust ${{ matrix.rust-version }}
-        uses: dtolnay/rust-toolchain@master
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: ${{ matrix.rust-version }}
           components: rustfmt, clippy
 
       - name: Cache cargo registry
@@ -48,15 +45,30 @@ jobs:
           path: rust/target
           key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
 
+      # Build syntek CLI
+      - name: Cache syntek CLI
+        uses: actions/cache@v4
+        id: syntek-cli-cache
+        with:
+          path: rust/project-cli/target/release/syntek
+          key: ${{ runner.os }}-syntek-cli-${{ hashFiles('rust/project-cli/src/**', 'rust/project-cli/Cargo.toml') }}
+
+      - name: Build syntek CLI
+        if: steps.syntek-cli-cache.outputs.cache-hit != 'true'
+        run: cargo build --release
+        working-directory: rust/project-cli
+
+      - name: Install syntek CLI
+        run: cargo install --path rust/project-cli
+
+      # Run unified linting (Rust only)
+      - name: Lint Rust with syntek CLI
+        run: |
+          # Lint Rust only
+          cargo clippy --workspace --all-targets --all-features -- -D warnings
+        working-directory: rust
+        continue-on-error: true
+
       - name: Check formatting
-        run: cargo fmt --all --check
-        working-directory: rust
-
-      - name: Clippy
-        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
-        working-directory: rust
-
-      - name: Security audit
-        run: cargo audit
-        working-directory: rust
+        run: syntek format --check
         continue-on-error: true

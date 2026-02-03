@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 #### Backend Modules
+
 - Security bundles: `security-core`, `security-auth`, `security-input`, `security-network`
   - HTTP security middleware (headers, CORS, CSRF, rate limiting, cache security)
   - Authentication and session management (MFA, JWT, API keys, cookies)
@@ -25,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Feature flags and uploads modules
 
 #### Web Modules (Next.js/React)
+
 - Security bundles: `security-core`, `security-auth`, `security-input`
   - Client-side security headers, XSS protection, CSRF handling
   - Session management, JWT, cookies, request signing
@@ -35,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Webhooks and feature flags UI
 
 #### Mobile Modules (React Native)
+
 - Security bundles: `security-core`, `security-auth`
   - SSL certificate pinning, secure storage, jailbreak detection
   - Biometric authentication (Face ID, Touch ID, fingerprint)
@@ -42,11 +45,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Feature modules for mobile: auth, profiles, media, notifications, search, bookings, payments
 
 #### Shared Library
+
 - Cross-platform components (forms, security, validation, layouts, feedback, loading)
 - Shared hooks (useAuth, useNotifications, useFeatureFlags)
 - Utility functions (formatting, i18n, validation with Zod)
 
 #### Rust Crates
+
 - `encryption`: AES-256-GCM and ChaCha20-Poly1305 encryption with field-level and batch support
 - `security`: Memory safety, zeroization, secure random generation
 - `hashing`: Password hashing (Argon2id, bcrypt)
@@ -54,12 +59,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `pyo3_bindings`: PyO3 bridge for Django integration
 
 #### GraphQL Layer
+
 - Encryption middleware for transparent encrypt-on-write, decrypt-on-read
 - Custom directives: `@encrypted`, `@searchableEncrypted`
 - Per-field encryption configuration (individual vs batched)
 - Blind indexes for searchable encrypted fields
 
 #### Infrastructure
+
 - Docker Compose for local development (PostgreSQL, Redis, testing services)
 - Python workspace configuration with uv (PEP 621)
 - Node.js monorepo with pnpm workspaces and Turborepo
@@ -69,6 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive CLAUDE.md with security compliance requirements
 
 #### Security & Compliance
+
 - OWASP Top 10 protection across all modules
 - NIST Cybersecurity Framework alignment
 - NCSC best practices implementation
@@ -78,6 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Security compliance documentation in `docs/security/`
 
 #### Documentation
+
 - Comprehensive CLAUDE.md with project architecture and all module details
 - Security compliance guide with OWASP/NIST/NCSC/GDPR/CIS/SOC2 requirements
 - Rust security guide for memory safety and cryptography
@@ -85,18 +94,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Self-learning metrics system documentation
 
 ### Changed
+
 - N/A (initial release)
 
 ### Deprecated
+
 - N/A (initial release)
 
 ### Removed
+
 - N/A (initial release)
 
 ### Fixed
+
 - N/A (initial release)
 
 ### Security
+
 - All sensitive data encrypted via Rust layer (AES-256-GCM)
 - Memory safety with automatic zeroization of plaintext
 - JWT with short-lived access tokens (15min) and refresh rotation
@@ -119,21 +133,27 @@ When releasing a new version, copy this template:
 ## [X.Y.Z] - YYYY-MM-DD
 
 ### Added
+
 - New features or modules
 
 ### Changed
+
 - Changes to existing functionality
 
 ### Deprecated
+
 - Features marked for removal
 
 ### Removed
+
 - Features removed in this version
 
 ### Fixed
+
 - Bug fixes
 
 ### Security
+
 - Security patches and improvements
 ```
 

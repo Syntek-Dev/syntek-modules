@@ -5,6 +5,7 @@ Quick reference for security requirements across all layers. See `.claude/SECURI
 ## OWASP Top 10 Quick Checks
 
 ### A01: Broken Access Control
+
 ```python
 # ✅ GOOD
 @permission_required('app.view_resource')
@@ -17,6 +18,7 @@ def view_resource(request, resource_id):
 ```
 
 ### A02: Cryptographic Failures
+
 ```python
 # ✅ GOOD - Encrypted storage
 from syntek_encryption import get_encryptor
@@ -27,6 +29,7 @@ user.ssn = "123-45-6789"  # Never store sensitive data unencrypted!
 ```
 
 ### A03: Injection
+
 ```python
 # ✅ GOOD - Parameterized query
 User.objects.filter(username=username)
@@ -36,6 +39,7 @@ User.objects.raw(f"SELECT * FROM users WHERE username = '{username}'")
 ```
 
 ### A07: Identification and Authentication Failures
+
 ```python
 # ✅ GOOD - Strong password + MFA
 SYNTEK_AUTH = {
@@ -52,6 +56,7 @@ SYNTEK_AUTH = {
 ```
 
 ### A09: Security Logging and Monitoring Failures
+
 ```python
 # ✅ GOOD - Log security events
 logger.warning("Failed login", extra={'user': username, 'ip': ip_address})
@@ -65,6 +70,7 @@ logger.debug(f"Password: {password}")  # NEVER LOG PASSWORDS!
 ## GDPR Quick Checks
 
 ### Right to Access (Article 15)
+
 ```python
 # ✅ REQUIRED
 @strawberry.mutation
@@ -74,6 +80,7 @@ def export_user_data(user_id: int) -> UserDataExport:
 ```
 
 ### Right to Erasure (Article 17)
+
 ```python
 # ✅ REQUIRED
 @strawberry.mutation
@@ -85,6 +92,7 @@ def delete_user_account(user_id: int) -> bool:
 ```
 
 ### Data Minimization (Article 5)
+
 ```python
 # ✅ GOOD - Only collect necessary data
 class User(models.Model):
@@ -100,6 +108,7 @@ class User(models.Model):
 ```
 
 ### Encryption (Article 32)
+
 ```rust
 // ✅ GOOD - Encrypt before storage
 let encrypted = encryptor.encrypt_field(pii_data.as_bytes())?;
@@ -114,6 +123,7 @@ db.store(pii_data);  // GDPR violation!
 ## NIST 800-63B Quick Checks
 
 ### Password Requirements
+
 ```python
 # ✅ GOOD
 AUTH_PASSWORD_VALIDATORS = [
@@ -129,6 +139,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ```
 
 ### MFA Support
+
 ```python
 # ✅ GOOD - Support TOTP/WebAuthn
 SYNTEK_AUTH = {
@@ -147,6 +158,7 @@ SYNTEK_AUTH = {
 ## CIS Controls Quick Checks
 
 ### Control 3: Data Protection
+
 ```python
 # ✅ GOOD - Classify data
 class Document(models.Model):
@@ -161,6 +173,7 @@ class Document(models.Model):
 ```
 
 ### Control 4: Secure Configuration
+
 ```python
 # ✅ GOOD - Production settings
 DEBUG = False
@@ -178,6 +191,7 @@ SECRET_KEY = 'hardcoded-key-123'  # Never hardcode secrets!
 ## Rust Security Quick Checks
 
 ### Memory Safety
+
 ```rust
 // ✅ GOOD - Safe Rust
 fn process_data(data: &[u8]) -> Vec<u8> {
@@ -193,6 +207,7 @@ fn process_data(data: &[u8]) -> Vec<u8> {
 ```
 
 ### Zeroize Sensitive Data
+
 ```rust
 // ✅ GOOD - Auto-zeroize
 use zeroize::Zeroize;
@@ -207,6 +222,7 @@ let secret = String::from("password");
 ```
 
 ### Cryptography
+
 ```rust
 // ✅ GOOD - Established library
 use chacha20poly1305::ChaCha20Poly1305;
@@ -222,6 +238,7 @@ fn my_custom_encryption(data: &[u8]) -> Vec<u8> {
 ## Web/Mobile Quick Checks
 
 ### Content Security Policy
+
 ```typescript
 // ✅ GOOD - Strict CSP
 const cspHeader = `
@@ -238,6 +255,7 @@ const cspHeader = `
 ```
 
 ### XSS Prevention
+
 ```typescript
 // ✅ GOOD - Sanitize user input
 import DOMPurify from 'dompurify';
@@ -248,13 +266,14 @@ const clean = DOMPurify.sanitize(userInput);
 ```
 
 ### Secure Storage
+
 ```typescript
 // ✅ GOOD - Use secure storage
-import SecureStore from 'expo-secure-store';
-await SecureStore.setItemAsync('token', authToken);
+import SecureStore from "expo-secure-store";
+await SecureStore.setItemAsync("token", authToken);
 
 // ❌ BAD - Use localStorage for sensitive data
-localStorage.setItem('token', authToken);  // Not secure!
+localStorage.setItem("token", authToken); // Not secure!
 ```
 
 ---
@@ -326,6 +345,7 @@ Before merging any PR:
 ## Common Mistakes to Avoid
 
 ### ❌ Hardcoded Secrets
+
 ```python
 # WRONG
 SECRET_KEY = 'django-insecure-hardcoded-key-123'
@@ -337,6 +357,7 @@ DATABASE_PASSWORD = env('DATABASE_PASSWORD')
 ```
 
 ### ❌ Logging Sensitive Data
+
 ```python
 # WRONG
 logger.debug(f"User password: {password}")
@@ -348,6 +369,7 @@ logger.info(f"Payment processed for order {order_id}")
 ```
 
 ### ❌ Weak Password Validation
+
 ```python
 # WRONG
 if len(password) >= 6:
@@ -359,6 +381,7 @@ if len(password) >= 12 and check_against_breaches(password):
 ```
 
 ### ❌ Missing Authorization Checks
+
 ```python
 # WRONG
 def delete_resource(request, resource_id):
@@ -373,6 +396,7 @@ def delete_resource(request, resource_id):
 ```
 
 ### ❌ Storing Plaintext Passwords
+
 ```python
 # WRONG
 user.password = password
@@ -385,15 +409,15 @@ user.set_password(password)  # Hashes with Argon2
 
 ## Emergency Response
 
-### If You Discover a Security Vulnerability:
+### If You Discover a Security Vulnerability
 
 1. **DO NOT** create a public GitHub issue
 2. **DO NOT** commit a fix to main branch
-3. **DO** email info@syntekstudio.com immediately
+3. **DO** email <info@syntekstudio.com> immediately
 4. **DO** include: description, impact, reproduction steps
 5. **WAIT** for security team response before proceeding
 
-### If You Suspect a Data Breach:
+### If You Suspect a Data Breach
 
 1. **IMMEDIATELY** notify security team
 2. **DOCUMENT** what happened, when, and what data was affected
@@ -407,7 +431,7 @@ user.set_password(password)  # Hashes with Argon2
 - Full compliance guide: `.claude/SECURITY-COMPLIANCE.md`
 - Rust security: `.claude/SYNTEK-RUST-SECURITY-GUIDE.md`
 - Agent guidelines: `.claude/CLAUDE.md`
-- Reporting: security@syntek.example
+- Reporting: <security@syntek.example>
 
 ---
 

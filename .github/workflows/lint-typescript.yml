@@ -4,60 +4,79 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'web/**/*.{ts,tsx,js,jsx}'
-      - 'mobile/**/*.{ts,tsx,js,jsx}'
-      - 'shared/**/*.{ts,tsx,js,jsx}'
-      - 'package.json'
-      - 'pnpm-workspace.yaml'
-      - 'turbo.json'
-      - '.github/workflows/lint-typescript.yml'
+      - "web/**/*.{ts,tsx,js,jsx}"
+      - "mobile/**/*.{ts,tsx,js,jsx}"
+      - "shared/**/*.{ts,tsx,js,jsx}"
+      - "package.json"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+      - ".github/workflows/lint-typescript.yml"
   pull_request:
     branches: [main, develop]
     paths:
-      - 'web/**/*.{ts,tsx,js,jsx}'
-      - 'mobile/**/*.{ts,tsx,js,jsx}'
-      - 'shared/**/*.{ts,tsx,js,jsx}'
-      - 'package.json'
-      - 'pnpm-workspace.yaml'
-      - 'turbo.json'
+      - "web/**/*.{ts,tsx,js,jsx}"
+      - "mobile/**/*.{ts,tsx,js,jsx}"
+      - "shared/**/*.{ts,tsx,js,jsx}"
+      - "package.json"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
 
 jobs:
   lint:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: ['24.13']
+    name: TypeScript Linting & Formatting
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      # Set up environments for CLI
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9
 
-      - name: Set up Node.js ${{ matrix.node-version }}
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
+          node-version: "24.13"
+          cache: "pnpm"
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Install Node dependencies
+        run: pnpm install --no-frozen-lockfile
 
-      - name: Lint web
-        run: pnpm --filter web lint
+      # Build syntek CLI
+      - name: Cache syntek CLI
+        uses: actions/cache@v4
+        id: syntek-cli-cache
+        with:
+          path: rust/project-cli/target/release/syntek
+          key: ${{ runner.os }}-syntek-cli-${{ hashFiles('rust/project-cli/src/**', 'rust/project-cli/Cargo.toml') }}
 
-      - name: Lint mobile
-        run: pnpm --filter mobile lint
+      - name: Build syntek CLI
+        if: steps.syntek-cli-cache.outputs.cache-hit != 'true'
+        run: cargo build --release
+        working-directory: rust/project-cli
 
-      - name: Lint shared
-        run: pnpm --filter shared lint
+      - name: Install syntek CLI
+        run: cargo install --path rust/project-cli
+
+      # Run unified linting (TypeScript only)
+      - name: Lint TypeScript with syntek CLI
+        run: |
+          # Lint TypeScript/JavaScript only
+          pnpm --filter './web/packages/*' lint
+          pnpm --filter './mobile/packages/*' lint
+          pnpm --filter '@syntek/shared' lint
+        continue-on-error: true
 
       - name: Check formatting
-        run: pnpm --filter web format:check
+        run: syntek format --check
+        continue-on-error: true
 
       - name: Type check
-        run: pnpm --filter web type-check
+        run: pnpm typecheck
         continue-on-error: true

@@ -5,7 +5,9 @@ This directory contains security-critical Rust crates for the Syntek ecosystem.
 ## Modules
 
 ### `encryption/` - Encryption and Decryption
+
 PyO3-based encryption/decryption module for Django integration. Handles:
+
 - Field-level encryption (individual fields like IP addresses)
 - Batch encryption (multiple fields together)
 - Authenticated encryption using ChaCha20-Poly1305
@@ -13,7 +15,9 @@ PyO3-based encryption/decryption module for Django integration. Handles:
 - Automatic zeroization of sensitive data
 
 ### `security/` - Security Primitives
+
 Core security utilities including:
+
 - Zeroize integration
 - Secure memory handling
 - Secret type wrappers

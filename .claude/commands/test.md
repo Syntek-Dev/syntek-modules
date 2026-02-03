@@ -3,16 +3,19 @@
 ## Test Strategy
 
 ### Unit Tests
+
 - Each module has its own test suite
 - Tests are located within module directories
 - Tests should not depend on other modules
 
 ### Integration Tests
+
 - Located in `tests/integration/`
 - Test how modules work together
 - Use example applications for realistic testing
 
 ### End-to-End Tests
+
 - Located in `tests/e2e/`
 - Test complete workflows across multiple modules
 - Use example applications
@@ -90,6 +93,7 @@ cargo tarpaulin
 ## Test Requirements
 
 ### Backend Tests (Django)
+
 - Use Django TestCase or pytest-django
 - Mock external services (Cloudinary, GlitchTip)
 - Test GraphQL queries/mutations
@@ -97,6 +101,7 @@ cargo tarpaulin
 - Test permissions
 
 ### Web/Mobile Tests (React)
+
 - Use Jest + React Testing Library
 - Test component rendering
 - Test user interactions
@@ -104,6 +109,7 @@ cargo tarpaulin
 - Mock API calls
 
 ### Rust Tests
+
 - Use Cargo's built-in testing
 - Test encryption/decryption
 - Test memory zeroization
@@ -131,10 +137,10 @@ def test_django_rust_integration():
 
 ```typescript
 // tests/integration/auth.test.ts
-test('login flow with backend', async () => {
+test("login flow with backend", async () => {
   const response = await graphqlClient.mutate({
     mutation: LOGIN,
-    variables: { email: 'test@example.com', password: 'pass123' }
+    variables: { email: "test@example.com", password: "pass123" },
   });
 
   expect(response.data.login.token).toBeDefined();
@@ -177,6 +183,7 @@ npm run dev
 ## CI/CD Testing
 
 GitHub Actions runs tests on:
+
 - Every commit
 - Every PR
 - Before releases

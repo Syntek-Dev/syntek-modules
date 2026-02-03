@@ -88,6 +88,7 @@ pnpm publish
 ### Shared Dependencies
 
 All packages share these peer dependencies:
+
 - `react@^19.0.0`
 - `next@^16.0.0` (for Next.js specific packages)
 

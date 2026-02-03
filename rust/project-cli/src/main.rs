@@ -1,7 +1,38 @@
+//! Syntek Modules CLI
+//!
+//! A comprehensive command-line interface for managing the Syntek Modules monorepo.
+//! This CLI provides commands for development, testing, building, deployment, and
+//! maintenance across Python (Django), TypeScript (Next.js/React Native), and Rust ecosystems.
+//!
+//! # Commands
+//!
+//! - `dev` - Start development environment (Docker, Django, Next.js)
+//! - `test` - Run test suite across all ecosystems
+//! - `install` - Install dependencies (Python, Node, Rust)
+//! - `init` - Initialize project (Git hooks, secrets, dev tools)
+//! - `coverage` - Generate and manage code coverage reports
+//! - `lint` - Lint code (Ruff, ESLint, Clippy)
+//! - `format` - Format code (Ruff, Prettier, rustfmt)
+//! - `build` - Build projects for development or production
+//! - `clean` - Clean build artifacts and dependencies
+//! - `audit` - Security audit across all package managers
+//! - `staging` - Deploy to staging environment
+//! - `production` - Deploy to production environment (with confirmation)
+//!
+//! # Architecture
+//!
+//! The CLI is organized into modules:
+//! - `commands/` - Individual command implementations
+//! - `utils/` - Shared utilities (exec, env, tools)
+//!
+//! This modular structure keeps the codebase maintainable and testable.
+
 use clap::{Parser, Subcommand};
-use colored::*;
 use std::path::PathBuf;
-use std::process::Command;
+
+// Module declarations
+mod commands;
+mod utils;
 
 #[derive(Parser)]
 #[command(name = "syntek")]
@@ -87,6 +118,51 @@ enum Commands {
         #[arg(long)]
         deps: bool,
     },
+
+    /// Security audit - scan for vulnerabilities in all dependencies
+    Audit {
+        /// Output format (text, json, markdown)
+        #[arg(short, long, value_enum, default_value = "text")]
+        format: AuditFormat,
+
+        /// Minimum severity level to report (low, moderate, high, critical)
+        #[arg(short, long, default_value = "moderate")]
+        severity: String,
+
+        /// Generate a report file
+        #[arg(short, long)]
+        output: Option<PathBuf>,
+    },
+
+    /// Initialize project setup (Git hooks, secrets baseline, dev tools)
+    Init {
+        /// Skip pre-commit hooks setup
+        #[arg(long)]
+        skip_hooks: bool,
+
+        /// Skip secrets baseline creation
+        #[arg(long)]
+        skip_secrets: bool,
+
+        /// Skip dev tools installation
+        #[arg(long)]
+        skip_dev_tools: bool,
+    },
+
+    /// Generate and manage code coverage reports
+    Coverage {
+        /// Generate coverage baseline for comparison
+        #[arg(long)]
+        baseline: bool,
+
+        /// Compare current coverage with baseline
+        #[arg(long)]
+        compare: bool,
+
+        /// Output file for coverage report
+        #[arg(short, long)]
+        output: Option<PathBuf>,
+    },
 }
 
 #[derive(clap::ValueEnum, Clone)]
@@ -105,337 +181,40 @@ enum BuildMode {
     Production,
 }
 
+#[derive(clap::ValueEnum, Clone)]
+enum AuditFormat {
+    Text,
+    Json,
+    Markdown,
+}
+
 fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Dev { env } => run_dev(env),
-        Commands::Test { env, module, watch } => run_test(env, module, watch),
-        Commands::Staging { env } => run_staging(env),
-        Commands::Production { env, force } => run_production(env, force),
-        Commands::Install { target } => run_install(target),
-        Commands::Lint { fix } => run_lint(fix),
-        Commands::Format { check } => run_format(check),
-        Commands::Build { mode } => run_build(mode),
-        Commands::Clean { deps } => run_clean(deps),
+        Commands::Dev { env } => commands::dev::run(env),
+        Commands::Test { env, module, watch } => commands::test::run(env, module, watch),
+        Commands::Staging { env } => commands::staging::run(env),
+        Commands::Production { env, force } => commands::production::run(env, force),
+        Commands::Install { target } => commands::install::run(target),
+        Commands::Lint { fix } => commands::lint::run(fix),
+        Commands::Format { check } => commands::format::run(check),
+        Commands::Build { mode } => commands::build::run(mode),
+        Commands::Clean { deps } => commands::clean::run(deps),
+        Commands::Audit {
+            format,
+            severity,
+            output,
+        } => commands::audit::run(format, severity, output),
+        Commands::Init {
+            skip_hooks,
+            skip_secrets,
+            skip_dev_tools,
+        } => commands::init::run(skip_hooks, skip_secrets, skip_dev_tools),
+        Commands::Coverage {
+            baseline,
+            compare,
+            output,
+        } => commands::coverage::run(baseline, compare, output),
     }
-}
-
-fn run_dev(env: PathBuf) -> anyhow::Result<()> {
-    println!(
-        "{}",
-        "🚀 Starting development environment...".green().bold()
-    );
-
-    // Load environment
-    load_env(&env)?;
-
-    // Start Docker services
-    println!("{}", "📦 Starting Docker services...".cyan());
-    run_command("docker-compose", &["up", "-d"])?;
-
-    // Start backend (uv)
-    println!("{}", "🐍 Starting Django backend...".cyan());
-    run_command("uv", &["run", "python", "manage.py", "runserver"])?;
-
-    // Start web frontend (pnpm)
-    println!("{}", "⚛️  Starting Next.js frontend...".cyan());
-    run_command("pnpm", &["--filter", "web", "dev"])?;
-
-    println!("{}", "✅ Development environment ready!".green().bold());
-    Ok(())
-}
-
-fn run_test(env: PathBuf, module: Option<String>, watch: bool) -> anyhow::Result<()> {
-    println!("{}", "🧪 Running test suite...".green().bold());
-
-    load_env(&env)?;
-
-    // Backend tests (pytest)
-    println!("{}", "🐍 Running Python tests...".cyan());
-    let mut args = vec!["run", "pytest"];
-    if let Some(ref m) = module {
-        args.push(m);
-    }
-    if watch {
-        args.push("--watch");
-    }
-    run_command("uv", &args)?;
-
-    // Web tests (vitest)
-    println!("{}", "⚛️  Running web tests...".cyan());
-    let mut args = vec!["--filter", "web", "test"];
-    if watch {
-        args.push("--watch");
-    }
-    run_command("pnpm", &args)?;
-
-    // Rust tests
-    println!("{}", "🦀 Running Rust tests...".cyan());
-    run_command_in_dir("cargo", &["test", "--workspace"], "rust")?;
-
-    println!("{}", "✅ All tests passed!".green().bold());
-    Ok(())
-}
-
-fn run_staging(env: PathBuf) -> anyhow::Result<()> {
-    println!("{}", "🚢 Deploying to staging...".yellow().bold());
-
-    load_env(&env)?;
-
-    // Build all projects
-    println!("{}", "📦 Building projects...".cyan());
-    run_build(BuildMode::Production)?;
-
-    // Deploy logic here (placeholder)
-    println!("{}", "🚀 Deploying to staging servers...".cyan());
-    println!("{}", "   (Deployment logic to be implemented)".dimmed());
-
-    println!("{}", "✅ Staging deployment complete!".green().bold());
-    Ok(())
-}
-
-fn run_production(env: PathBuf, force: bool) -> anyhow::Result<()> {
-    if !force {
-        println!("{}", "⚠️  PRODUCTION DEPLOYMENT".red().bold());
-        println!("{}", "This will deploy to production servers.".yellow());
-        print!("Are you sure? [y/N]: ");
-
-        let mut input = String::new();
-        std::io::stdin().read_line(&mut input)?;
-
-        if !input.trim().eq_ignore_ascii_case("y") {
-            println!("{}", "❌ Deployment cancelled.".red());
-            return Ok(());
-        }
-    }
-
-    println!("{}", "🚀 Deploying to production...".red().bold());
-
-    load_env(&env)?;
-
-    // Build all projects
-    println!("{}", "📦 Building projects...".cyan());
-    run_build(BuildMode::Production)?;
-
-    // Deploy logic here (placeholder)
-    println!("{}", "🚀 Deploying to production servers...".cyan());
-    println!("{}", "   (Deployment logic to be implemented)".dimmed());
-
-    println!("{}", "✅ Production deployment complete!".green().bold());
-    Ok(())
-}
-
-fn run_install(target: InstallTarget) -> anyhow::Result<()> {
-    println!("{}", "📦 Installing dependencies...".green().bold());
-
-    match target {
-        InstallTarget::All => {
-            install_backend()?;
-            install_pnpm_workspace()?;
-            install_rust()?;
-        }
-        InstallTarget::Backend => install_backend()?,
-        InstallTarget::Web | InstallTarget::Mobile | InstallTarget::Shared => {
-            install_pnpm_workspace()?;
-        }
-        InstallTarget::Rust => install_rust()?,
-    }
-
-    println!("{}", "✅ Dependencies installed!".green().bold());
-    Ok(())
-}
-
-fn install_backend() -> anyhow::Result<()> {
-    println!("{}", "🐍 Installing Python dependencies...".cyan());
-    run_command("uv", &["sync"])?;
-    Ok(())
-}
-
-fn install_pnpm_workspace() -> anyhow::Result<()> {
-    println!(
-        "{}",
-        "📦 Installing pnpm workspace (web/mobile/shared)...".cyan()
-    );
-    run_command("pnpm", &["install"])?;
-    Ok(())
-}
-
-fn install_rust() -> anyhow::Result<()> {
-    println!("{}", "🦀 Building Rust crates...".cyan());
-    run_command_in_dir("cargo", &["build", "--workspace"], "rust")?;
-    Ok(())
-}
-
-fn run_lint(fix: bool) -> anyhow::Result<()> {
-    println!("{}", "🔍 Linting code...".green().bold());
-
-    // Python (ruff)
-    println!("{}", "🐍 Linting Python...".cyan());
-    let mut args = vec!["run", "ruff", "check", "."];
-    if fix {
-        args.push("--fix");
-    }
-    run_command("uv", &args)?;
-
-    // TypeScript (ESLint)
-    println!("{}", "⚛️  Linting TypeScript...".cyan());
-    let mut args = vec!["--filter", "web", "lint"];
-    if fix {
-        args.push("--fix");
-    }
-    run_command("pnpm", &args)?;
-
-    // Rust (clippy)
-    println!("{}", "🦀 Linting Rust...".cyan());
-    let mut args = vec!["clippy", "--workspace", "--all-targets"];
-    if fix {
-        args.push("--fix");
-        args.push("--allow-dirty");
-    }
-    run_command_in_dir("cargo", &args, "rust")?;
-
-    println!("{}", "✅ Linting complete!".green().bold());
-    Ok(())
-}
-
-fn run_format(check: bool) -> anyhow::Result<()> {
-    println!("{}", "✨ Formatting code...".green().bold());
-
-    // Python (ruff)
-    println!("{}", "🐍 Formatting Python...".cyan());
-    let mut args = vec!["run", "ruff", "format"];
-    if check {
-        args.push("--check");
-    }
-    args.push(".");
-    run_command("uv", &args)?;
-
-    // TypeScript (Prettier)
-    println!("{}", "⚛️  Formatting TypeScript...".cyan());
-    let mut args = vec!["--filter", "web", "format"];
-    if check {
-        args.push("--check");
-    }
-    run_command("pnpm", &args)?;
-
-    // Rust (rustfmt)
-    println!("{}", "🦀 Formatting Rust...".cyan());
-    let mut args = vec!["fmt", "--all"];
-    if check {
-        args.push("--check");
-    }
-    run_command_in_dir("cargo", &args, "rust")?;
-
-    println!("{}", "✅ Formatting complete!".green().bold());
-    Ok(())
-}
-
-fn run_build(mode: BuildMode) -> anyhow::Result<()> {
-    println!("{}", "🔨 Building projects...".green().bold());
-
-    // Build web
-    println!("{}", "⚛️  Building web...".cyan());
-    let args = match mode {
-        BuildMode::Dev => vec!["--filter", "web", "build:dev"],
-        BuildMode::Production => vec!["--filter", "web", "build"],
-    };
-    run_command("pnpm", &args)?;
-
-    // Build mobile
-    println!("{}", "📱 Building mobile...".cyan());
-    let args = match mode {
-        BuildMode::Dev => vec!["--filter", "mobile", "build:dev"],
-        BuildMode::Production => vec!["--filter", "mobile", "build"],
-    };
-    run_command("pnpm", &args)?;
-
-    // Build Rust
-    println!("{}", "🦀 Building Rust...".cyan());
-    let args = match mode {
-        BuildMode::Dev => vec!["build", "--workspace"],
-        BuildMode::Production => vec!["build", "--workspace", "--release"],
-    };
-    run_command("cargo", &args)?;
-
-    println!("{}", "✅ Build complete!".green().bold());
-    Ok(())
-}
-
-fn run_clean(deps: bool) -> anyhow::Result<()> {
-    println!("{}", "🧹 Cleaning build artifacts...".green().bold());
-
-    // Clean Python
-    println!("{}", "🐍 Cleaning Python...".cyan());
-    run_command(
-        "find",
-        &[
-            ".",
-            "-type",
-            "d",
-            "-name",
-            "__pycache__",
-            "-exec",
-            "rm",
-            "-rf",
-            "{}",
-            "+",
-        ],
-    )?;
-    run_command("find", &[".", "-type", "f", "-name", "*.pyc", "-delete"])?;
-
-    // Clean Node
-    println!("{}", "⚛️  Cleaning Node...".cyan());
-    run_command("pnpm", &["--filter", "web", "clean"])?;
-    run_command("pnpm", &["--filter", "mobile", "clean"])?;
-
-    if deps {
-        run_command("rm", &["-rf", "node_modules"])?;
-    }
-
-    // Clean Rust
-    println!("{}", "🦀 Cleaning Rust...".cyan());
-    run_command("cargo", &["clean"])?;
-
-    println!("{}", "✅ Clean complete!".green().bold());
-    Ok(())
-}
-
-fn load_env(env_file: &PathBuf) -> anyhow::Result<()> {
-    if env_file.exists() {
-        dotenvy::from_path(env_file)?;
-        println!(
-            "{} {}",
-            "📝 Loaded environment:".dimmed(),
-            env_file.display().to_string().cyan()
-        );
-    } else {
-        println!(
-            "{} {}",
-            "⚠️  Environment file not found:".yellow(),
-            env_file.display()
-        );
-        println!("{}", "   Continuing without environment file...".dimmed());
-    }
-    Ok(())
-}
-
-fn run_command(cmd: &str, args: &[&str]) -> anyhow::Result<()> {
-    let status = Command::new(cmd).args(args).status()?;
-
-    if !status.success() {
-        anyhow::bail!("Command failed: {} {}", cmd, args.join(" "));
-    }
-
-    Ok(())
-}
-
-fn run_command_in_dir(cmd: &str, args: &[&str], dir: &str) -> anyhow::Result<()> {
-    let status = Command::new(cmd).args(args).current_dir(dir).status()?;
-
-    if !status.success() {
-        anyhow::bail!("Command failed: {} {} (in {})", cmd, args.join(" "), dir);
-    }
-
-    Ok(())
 }

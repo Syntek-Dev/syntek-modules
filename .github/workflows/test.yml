@@ -7,11 +7,9 @@ on:
     branches: [main, develop]
 
 jobs:
-  test-python:
+  test-all:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ['3.14']
+    name: Test All Projects
 
     services:
       postgres:
@@ -42,119 +40,145 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
+      # Set up all environments
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.14"
 
       - name: Install uv
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-      - name: Install dependencies
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.13"
+          cache: "pnpm"
+
+      # Install dependencies
+      - name: Install Python dependencies
         run: uv sync
 
-      - name: Run tests
-        run: uv run pytest backend/ graphql/ --cov --cov-report=xml
+      - name: Install Node dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      # Build syntek CLI
+      - name: Cache syntek CLI
+        uses: actions/cache@v4
+        id: syntek-cli-cache
+        with:
+          path: rust/project-cli/target/release/syntek
+          key: ${{ runner.os }}-syntek-cli-${{ hashFiles('rust/project-cli/src/**', 'rust/project-cli/Cargo.toml') }}
+
+      - name: Build syntek CLI
+        if: steps.syntek-cli-cache.outputs.cache-hit != 'true'
+        run: cargo build --release
+        working-directory: rust/project-cli
+
+      - name: Install syntek CLI
+        run: cargo install --path rust/project-cli
+
+      # Copy test environment
+      - name: Set up test environment
+        run: |
+          if [ -f .env.test.example ]; then
+            cp .env.test.example .env.test
+          fi
+
+      # Run unified tests using syntek CLI
+      - name: Run all tests with syntek CLI
+        run: syntek test --env .env.test
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/syntek_test
           REDIS_URL: redis://localhost:6379/0
 
-      - name: Upload coverage
+      # Generate coverage reports (individual ecosystems)
+      - name: Generate Python coverage
+        run: uv run pytest backend/ graphql/ --cov --cov-report=xml --cov-report=html --cov-report=json
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/syntek_test
+          REDIS_URL: redis://localhost:6379/0
+        continue-on-error: true
+
+      - name: Check Python coverage threshold
+        run: |
+          COVERAGE=$(python3 -c "import json; data=json.load(open('coverage.json')); print(f\"{data['totals']['percent_covered']:.2f}\")")
+          echo "📊 Current Python coverage: ${COVERAGE}%"
+
+          # If baseline exists, compare
+          if [ -f "coverage-baseline.json" ]; then
+            BASELINE=$(python3 -c "import json; data=json.load(open('coverage-baseline.json')); print(f\"{data['totals']['percent_covered']:.2f}\")")
+            echo "📈 Baseline coverage: ${BASELINE}%"
+
+            # Check if coverage dropped by more than 1%
+            DIFF=$(python3 -c "print(${COVERAGE} - ${BASELINE})")
+            if (( $(echo "$DIFF < -1.0" | bc -l) )); then
+              echo "❌ Coverage dropped by more than 1%!"
+              echo "::error::Coverage dropped from ${BASELINE}% to ${COVERAGE}%"
+              exit 1
+            elif (( $(echo "$DIFF > 0" | bc -l) )); then
+              echo "✅ Coverage improved by ${DIFF}%!"
+            else
+              echo "✅ Coverage maintained"
+            fi
+          else
+            echo "ℹ️  No baseline found, skipping comparison"
+          fi
+        continue-on-error: false
+
+      - name: Generate TypeScript coverage
+        run: |
+          pnpm --filter './web/packages/*' test -- --coverage
+          pnpm --filter './mobile/packages/*' test -- --coverage
+          pnpm --filter '@syntek/shared' test -- --coverage
+        continue-on-error: true
+
+      - name: Generate Rust coverage
+        run: |
+          cargo install cargo-tarpaulin
+          cargo tarpaulin --workspace --all-features --out Xml --output-dir .
+        working-directory: rust
+        continue-on-error: true
+
+      # Upload coverage reports
+      - name: Upload Python coverage
         uses: codecov/codecov-action@v4
         with:
           files: ./coverage.xml
           flags: python
         continue-on-error: true
 
-  test-typescript:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: ['24.13']
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Test web
-        run: pnpm --filter web test:coverage
-
-      - name: Test mobile
-        run: pnpm --filter mobile test:coverage
-
-      - name: Test shared
-        run: pnpm --filter shared test:coverage
-
-      - name: Upload coverage
+      - name: Upload TypeScript coverage
         uses: codecov/codecov-action@v4
         with:
           files: ./coverage/coverage-final.json
           flags: typescript
         continue-on-error: true
 
-  test-rust:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        rust-version: ['1.92.0']
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install Rust ${{ matrix.rust-version }}
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: ${{ matrix.rust-version }}
-
-      - name: Cache cargo registry
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Cache cargo index
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-git-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Cache cargo build
-        uses: actions/cache@v4
-        with:
-          path: rust/target
-          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Run tests
-        run: cargo test --workspace --all-features
-        working-directory: rust
-
-      - name: Install cargo-tarpaulin
-        run: cargo install cargo-tarpaulin
-
-      - name: Generate coverage
-        run: cargo tarpaulin --workspace --all-features --out Xml
-        working-directory: rust
-
-      - name: Upload coverage
+      - name: Upload Rust coverage
         uses: codecov/codecov-action@v4
         with:
           files: ./rust/cobertura.xml
           flags: rust
         continue-on-error: true
+
+      # Upload HTML coverage reports as artifacts
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            htmlcov/
+            coverage/
+            rust/target/tarpaulin/
+        if: always()

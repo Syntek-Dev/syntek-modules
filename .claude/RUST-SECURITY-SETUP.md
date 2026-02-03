@@ -22,6 +22,7 @@ rust/
 ```
 
 **Key Features:**
+
 - Workspace-level dependency management
 - Release profile with overflow checks enabled
 - LTO and optimization for production builds
@@ -30,6 +31,7 @@ rust/
 ### 2. Security Guidelines (`.claude/SYNTEK-RUST-SECURITY-GUIDE.md`)
 
 Comprehensive security guide covering:
+
 - Memory safety patterns and unsafe code requirements
 - Cryptographic best practices (ring, RustCrypto, ChaCha20-Poly1305)
 - PyO3 FFI safety and input validation
@@ -51,6 +53,7 @@ Six Rust security analysis tools:
 6. **`compliance_tool.rs`** - Generate security compliance reports
 
 **Build with:**
+
 ```bash
 cd .claude/plugins
 cargo build --release
@@ -86,6 +89,7 @@ Added Rust-specific configuration:
 ### 5. Updated CLAUDE.md
 
 Added references to:
+
 - Rust security guide in documentation section
 - Memory safety requirements in custom instructions
 - Cryptographic best practices for Rust modules
@@ -117,12 +121,14 @@ cargo init --lib
 ### 3. Set Up CI/CD
 
 Add GitHub Actions for:
+
 - Cargo audit on every push
 - Cargo clippy with security lints
 - Cargo test for all modules
 - Fuzzing integration
 
 Example workflow:
+
 ```yaml
 name: Rust Security
 on: [push, pull_request]
@@ -149,6 +155,7 @@ maturin develop
 ```
 
 Then use in Django:
+
 ```python
 import syntek_encryption as enc
 encryptor = enc.Encryptor(key)
@@ -187,19 +194,23 @@ ls -la .claude/SYNTEK-RUST-SECURITY-GUIDE.md
 The following Rust crates are configured:
 
 **Cryptography:**
+
 - ring 0.17
 - chacha20poly1305 0.10
 - argon2 0.5
 - blake3 1.5
 
 **Memory Safety:**
+
 - zeroize 1.8 (with derive feature)
 - secrecy 0.10
 
 **Python Bindings:**
+
 - pyo3 0.23 (with extension-module)
 
 **Testing:**
+
 - proptest 1.6
 
 ## Security Principles
@@ -227,6 +238,7 @@ All Rust code in this repository must follow:
 ## Support
 
 For Rust security questions:
+
 1. Check `.claude/SYNTEK-RUST-SECURITY-GUIDE.md`
 2. Review module-specific READMEs
 3. Use security agents (`/crypto-review`, `/memory-audit`, etc.)

@@ -5,6 +5,7 @@ This guide provides security guidelines and best practices for developing Rust s
 ## Overview
 
 The `rust/` directory contains security-critical Rust crates that provide:
+
 - **encryption/** - Encryption/decryption with PyO3 bindings for Django
 - **security/** - Zeroize, memory safety, and secure primitives
 
@@ -13,6 +14,7 @@ All Rust modules handle sensitive data and must follow strict security guideline
 ## Compliance Requirements
 
 **All Rust code must comply with:**
+
 - **OWASP ASVS** - Application Security Verification Standard
 - **NIST 800-53** - Security and Privacy Controls
 - **NIST 800-63B** - Digital Identity Guidelines
@@ -27,6 +29,7 @@ All Rust modules handle sensitive data and must follow strict security guideline
 ## Memory Safety
 
 ### Safe Rust First
+
 Always prefer safe Rust patterns. Only use `unsafe` when absolutely necessary.
 
 ```rust
@@ -44,9 +47,11 @@ fn process_data_unsafe(data: &[u8]) -> Vec<u8> {
 ```
 
 ### Unsafe Code Requirements
+
 When `unsafe` is unavoidable:
 
 1. **Document the safety invariants**
+
    ```rust
    /// SAFETY: `ptr` must be valid for reads of `len` bytes
    unsafe fn read_bytes(ptr: *const u8, len: usize) -> &[u8] {
@@ -55,6 +60,7 @@ When `unsafe` is unavoidable:
    ```
 
 2. **Keep unsafe blocks minimal**
+
    ```rust
    // Good - minimal unsafe scope
    fn example(data: &[u8]) -> Result<String, Error> {
@@ -68,6 +74,7 @@ When `unsafe` is unavoidable:
    ```
 
 3. **Add safety tests**
+
    ```rust
    #[test]
    fn test_unsafe_boundary() {
@@ -130,12 +137,14 @@ impl fmt::Debug for Secret {
 ### Use Established Libraries
 
 **Prefer:**
+
 - `ring` - Fast, audited cryptographic primitives
 - `RustCrypto` - Pure Rust implementations
 - `chacha20poly1305` - Authenticated encryption
 - `argon2` - Password hashing
 
 **Avoid:**
+
 - Custom crypto implementations
 - Outdated algorithms (MD5, SHA1 for security)
 - Unauthenticated encryption modes
@@ -580,6 +589,7 @@ pub fn log_security_event(event: SecurityEvent) {
 Before committing Rust security code, verify:
 
 ### Memory Safety
+
 - [ ] No unnecessary `unsafe` blocks
 - [ ] All `unsafe` blocks have SAFETY comments
 - [ ] Sensitive data uses `Zeroize` / `ZeroizeOnDrop`
@@ -587,6 +597,7 @@ Before committing Rust security code, verify:
 - [ ] No panics in production code paths
 
 ### Cryptography
+
 - [ ] Using established libraries (ring, RustCrypto)
 - [ ] Authenticated encryption (not raw encryption)
 - [ ] Proper key derivation (not raw passwords as keys)
@@ -594,18 +605,21 @@ Before committing Rust security code, verify:
 - [ ] Random nonces/IVs generated securely
 
 ### FFI/PyO3
+
 - [ ] Input validation on all Python inputs
 - [ ] Size limits on heap allocations
 - [ ] Generic error messages (no internal details)
 - [ ] Memory properly zeroized before return
 
 ### Dependencies
+
 - [ ] `cargo audit` passes
 - [ ] No known vulnerable versions
 - [ ] Minimal dependency tree
 - [ ] Dependencies actively maintained
 
 ### Testing
+
 - [ ] Unit tests for all public functions
 - [ ] Negative tests (wrong keys, invalid input)
 - [ ] Fuzzing for parsing/decryption
@@ -653,6 +667,7 @@ Use these commands for security analysis:
 ## Getting Help
 
 For security concerns:
+
 1. Check this guide first
 2. Review module-specific READMEs
 3. Consult the Rust security agents:

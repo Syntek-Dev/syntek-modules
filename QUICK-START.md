@@ -26,9 +26,18 @@ cd syntek-modules
 
 ---
 
-## 2. Install the Rust CLI Tool
+## 2. Install the Rust CLI Tool (Bootstrap)
 
-The Syntek CLI (`syntek`) is a Rust-based tool that replaces traditional shell scripts.
+The Syntek CLI (`syntek`) is a Rust-based tool that replaces traditional shell scripts. **You must install the CLI first** before you can use `syntek` commands.
+
+### Quick Install (Recommended)
+
+```bash
+chmod +x install-cli.sh
+./install-cli.sh
+```
+
+### Manual Install
 
 ```bash
 cd rust/project-cli
@@ -36,7 +45,7 @@ cargo install --path .
 cd ../..
 ```
 
-Verify installation:
+### Verify Installation
 
 ```bash
 syntek --help
@@ -55,10 +64,12 @@ Commands:
   staging     Deploy to staging
   production  Deploy to production
   install     Install all dependencies
+  init        Initialize project setup (Git hooks, secrets baseline, dev tools)
   lint        Lint all code
   format      Format all code
   build       Build all projects
   clean       Clean build artifacts
+  audit       Security audit
   help        Print this message or the help of the given subcommand(s)
 ```
 
@@ -73,7 +84,8 @@ syntek install
 ```
 
 This will:
-- Install Python dependencies with `uv`
+
+- Install Python dependencies with `uv` (creates venv automatically)
 - Install Node.js dependencies with `pnpm`
 - Build Rust crates
 - Generate lock files
@@ -93,7 +105,43 @@ cd rust && cargo build && cd ..
 
 ---
 
-## 4. Set Up Environment Files
+## 4. Initialize Project Setup
+
+Set up Git hooks, secrets baseline, and development tools:
+
+```bash
+syntek init
+```
+
+This will:
+
+- Check for required tools (uv, git, node, pnpm, cargo)
+- Ensure Python virtual environment exists
+- Install Python dev tools:
+  - `pre-commit` - Git hooks framework
+  - `detect-secrets` - Secret scanning
+  - `pytest` - Testing framework (TDD)
+  - `pytest-bdd` - BDD support (Gherkin scenarios)
+  - `pytest-cov` - Coverage reporting
+  - `pytest-django` - Django integration
+- Install Rust components (rustfmt, clippy)
+- Install Node dependencies (including `pyright` for Python type checking)
+- Setup pre-commit Git hooks
+- Create `.secrets.baseline` for secret scanning
+
+**Optional: Skip specific steps:**
+
+```bash
+syntek init --skip-hooks      # Skip Git hooks setup
+syntek init --skip-secrets    # Skip secrets baseline
+syntek init --skip-dev-tools  # Skip dev tools installation
+```
+
+> **Note:** This replaces the old `scripts/setup-pre-commit.sh` script with a cross-platform Rust implementation.
+
+---
+
+## 5. Set Up Environment Files
 
 Copy example environment files:
 
@@ -122,7 +170,7 @@ DEBUG=true
 
 ---
 
-## 5. Start Development Environment
+## 6. Start Development Environment
 
 ### Using the Rust CLI (Recommended)
 
@@ -131,6 +179,7 @@ syntek dev
 ```
 
 This will:
+
 1. Load `.env.dev`
 2. Start Docker services (PostgreSQL, Redis)
 3. Start Django backend (`uv run python manage.py runserver`)
@@ -151,7 +200,7 @@ pnpm --filter web dev
 
 ---
 
-## 6. Run Tests
+## 7. Run Tests
 
 ```bash
 # All tests
@@ -179,7 +228,7 @@ cd rust && cargo test
 
 ---
 
-## 7. Lint and Format Code
+## 8. Lint and Format Code
 
 ### Lint
 
@@ -203,13 +252,14 @@ syntek format --check
 
 ---
 
-## 8. Build for Production
+## 9. Build for Production
 
 ```bash
 syntek build --mode production
 ```
 
 This builds:
+
 - Web packages (Next.js)
 - Mobile packages (React Native)
 - Rust crates (release mode)
@@ -218,15 +268,25 @@ This builds:
 
 ## 🎯 Common Commands
 
-| Task | Command |
-|------|---------|
-| Start development | `syntek dev` |
-| Run tests | `syntek test` |
-| Lint code | `syntek lint --fix` |
-| Format code | `syntek format` |
+### First-Time Setup
+
+| Step | Task                    | Command            |
+| ---- | ----------------------- | ------------------ |
+| 1    | Install CLI (bootstrap) | `./install-cli.sh` |
+| 2    | Install dependencies    | `syntek install`   |
+| 3    | Initialize project      | `syntek init`      |
+
+### Daily Development
+
+| Task             | Command                          |
+| ---------------- | -------------------------------- |
+| Start dev server | `syntek dev`                     |
+| Run tests        | `syntek test`                    |
+| Lint code        | `syntek lint --fix`              |
+| Format code      | `syntek format`                  |
 | Build production | `syntek build --mode production` |
-| Clean artifacts | `syntek clean` |
-| Install dependencies | `syntek install` |
+| Security audit   | `syntek audit`                   |
+| Clean artifacts  | `syntek clean`                   |
 
 ---
 

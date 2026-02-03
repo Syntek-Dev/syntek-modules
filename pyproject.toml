@@ -36,6 +36,8 @@ dev = [
     "mypy>=1.10.0",
     "django-stubs>=5.0.0",
     "ipython>=8.20.0",
+    "pre-commit>=4.0.0",
+    "detect-secrets>=1.5.0",
 ]
 test = [
     "pytest>=8.0.0",
@@ -112,10 +114,16 @@ select = [
     "B",   # flake8-bugbear
     "C4",  # flake8-comprehensions
     "UP",  # pyupgrade
+    "S",   # flake8-bandit (security)
+    "A",   # flake8-builtins
+    "DTZ", # flake8-datetimez
 ]
 ignore = [
     "E501",  # line too long (handled by black)
     "B008",  # do not perform function calls in argument defaults
+    "S101",  # use of assert (OK in tests)
+    "S105",  # possible hardcoded password (often false positives)
+    "S106",  # possible hardcoded password (often false positives)
 ]
 
 [tool.ruff.lint.per-file-ignores]

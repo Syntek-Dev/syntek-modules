@@ -84,6 +84,7 @@ audit::log_sensitive_operation("decrypt_field", "user_123");
 ### `Secret<T>`
 
 Wrapper type for sensitive data that ensures:
+
 - No accidental logging (no Debug/Display implementation)
 - Explicit access via closure
 - Automatic zeroization on drop
@@ -206,10 +207,10 @@ fn verify_password(provided: &[u8], stored_hash: &[u8]) -> bool {
 
 ## Configuration Options
 
-| Feature Flag | Description |
-|--------------|-------------|
-| `audit-logging` | Enable security audit logging |
-| `paranoid` | Extra security checks (performance impact) |
+| Feature Flag    | Description                                |
+| --------------- | ------------------------------------------ |
+| `audit-logging` | Enable security audit logging              |
+| `paranoid`      | Extra security checks (performance impact) |
 
 ```toml
 [dependencies]
@@ -270,6 +271,7 @@ valgrind --leak-check=full cargo test
 ## Performance
 
 Zeroization has minimal performance impact:
+
 - SecureVec operations: ~1% overhead vs Vec
 - Zeroization on drop: ~100ns for typical data sizes
 
@@ -282,6 +284,7 @@ Zeroization has minimal performance impact:
 ## Best Practices
 
 1. **Use Secret<T> for all sensitive data**
+
    ```rust
    // Bad
    let api_key: String = "...";
@@ -291,6 +294,7 @@ Zeroization has minimal performance impact:
    ```
 
 2. **Minimize exposure scope**
+
    ```rust
    secret.expose_secret(|value| {
        // Use value only within this closure
@@ -299,6 +303,7 @@ Zeroization has minimal performance impact:
    ```
 
 3. **Use constant-time comparisons for secrets**
+
    ```rust
    // Bad - timing leak
    if token1 == token2 { ... }
@@ -308,6 +313,7 @@ Zeroization has minimal performance impact:
    ```
 
 4. **Avoid cloning secrets unnecessarily**
+
    ```rust
    // Prefer references
    fn process(secret: &Secret<String>) { ... }
@@ -319,6 +325,7 @@ Zeroization has minimal performance impact:
 ## Compliance
 
 This module helps meet:
+
 - **GDPR Article 32**: Secure processing of personal data
 - **GDPR Article 17**: Right to erasure (secure deletion)
 - **PCI DSS Requirement 3**: Protect stored cardholder data

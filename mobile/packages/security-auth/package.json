@@ -32,6 +32,10 @@
     "tsup": "^8.3.0",
     "typescript": "^5.9.0"
   },
-  "keywords": ["syntek", "security-auth", "react-native"],
+  "keywords": [
+    "syntek",
+    "security-auth",
+    "react-native"
+  ],
   "license": "MIT"
 }

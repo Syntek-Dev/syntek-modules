@@ -111,22 +111,22 @@ uv pip compile --upgrade pyproject.toml -o requirements.txt
 
 uv is significantly faster than pip:
 
-| Operation | pip | uv | Speedup |
-|-----------|-----|-----|---------|
-| Install Django | 5.2s | 0.3s | 17x |
-| Install from cache | 2.1s | 0.02s | 105x |
-| Large project (100+ deps) | 45s | 2s | 22x |
+| Operation                 | pip  | uv    | Speedup |
+| ------------------------- | ---- | ----- | ------- |
+| Install Django            | 5.2s | 0.3s  | 17x     |
+| Install from cache        | 2.1s | 0.02s | 105x    |
+| Large project (100+ deps) | 45s  | 2s    | 22x     |
 
 ## Comparison with pip
 
-| Feature | pip | uv |
-|---------|-----|-----|
-| Speed | Slow | Very Fast |
-| Dependency resolution | Slow | Fast |
-| Parallel downloads | No | Yes |
-| Cache | Basic | Advanced |
-| Written in | Python | Rust |
-| Drop-in replacement | - | Yes |
+| Feature               | pip    | uv        |
+| --------------------- | ------ | --------- |
+| Speed                 | Slow   | Very Fast |
+| Dependency resolution | Slow   | Fast      |
+| Parallel downloads    | No     | Yes       |
+| Cache                 | Basic  | Advanced  |
+| Written in            | Python | Rust      |
+| Drop-in replacement   | -      | Yes       |
 
 ## Common Workflows
 
@@ -346,7 +346,7 @@ uv pip install git+https://github.com/...
 
 ## Resources
 
-- **Official Docs:** https://github.com/astral-sh/uv
-- **Benchmarks:** https://github.com/astral-sh/uv#benchmarks
-- **Changelog:** https://github.com/astral-sh/uv/releases
-- **Discord:** https://discord.gg/astral-sh
+- **Official Docs:** <https://github.com/astral-sh/uv>
+- **Benchmarks:** <https://github.com/astral-sh/uv#benchmarks>
+- **Changelog:** <https://github.com/astral-sh/uv/releases>
+- **Discord:** <https://discord.gg/astral-sh>

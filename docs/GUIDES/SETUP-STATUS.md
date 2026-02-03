@@ -21,36 +21,36 @@ The Syntek Modules repository is now fully configured with:
 
 ## ✅ Dotfiles & Configuration (Complete)
 
-| File | Status | Purpose |
-|------|--------|---------|
-| `.gitignore` | ✅ Complete | Python, Node, Rust, Docker, metrics |
-| `.gitattributes` | ✅ Complete | Line ending normalization |
-| `.dockerignore` | ✅ **NEW** | Docker build optimization |
-| `.editorconfig` | ✅ Complete | Cross-editor formatting |
-| `.python-version` | ✅ Complete | Python 3.14 |
-| `.node-version` | ✅ Complete | Node 24.13 |
-| `.nvmrc` | ✅ Complete | Node version manager |
-| `.env.dev.example` | ✅ Complete | Development environment |
-| `.env.test.example` | ✅ Complete | Test environment |
-| `.env.staging.example` | ✅ Complete | Staging environment |
-| `.env.production.example` | ✅ Complete | Production environment |
+| File                      | Status      | Purpose                             |
+| ------------------------- | ----------- | ----------------------------------- |
+| `.gitignore`              | ✅ Complete | Python, Node, Rust, Docker, metrics |
+| `.gitattributes`          | ✅ Complete | Line ending normalization           |
+| `.dockerignore`           | ✅ **NEW**  | Docker build optimization           |
+| `.editorconfig`           | ✅ Complete | Cross-editor formatting             |
+| `.python-version`         | ✅ Complete | Python 3.14                         |
+| `.node-version`           | ✅ Complete | Node 24.13                          |
+| `.nvmrc`                  | ✅ Complete | Node version manager                |
+| `.env.dev.example`        | ✅ Complete | Development environment             |
+| `.env.test.example`       | ✅ Complete | Test environment                    |
+| `.env.staging.example`    | ✅ Complete | Staging environment                 |
+| `.env.production.example` | ✅ Complete | Production environment              |
 
 ---
 
 ## ✅ Project Structure (Complete)
 
-| Directory | Modules/Packages | Status |
-|-----------|-----------------|--------|
-| `backend/` | 44 modules | ✅ All have `__init__.py` |
-| `web/packages/` | 15 packages | ✅ Structure complete |
-| `mobile/packages/` | 9 packages | ✅ Structure complete |
-| `shared/` | Components, hooks, utils | ✅ Complete |
-| `rust/` | 6 crates | ✅ Workspace configured |
-| `graphql/` | Middleware, schema | ✅ Complete |
-| `.claude/` | Config, plugins | ✅ Complete |
-| `docs/` | Architecture, security, metrics | ✅ Complete |
-| `examples/` | Example integrations | ✅ Present |
-| `.github/workflows/` | 5 workflows | ✅ **NEW** |
+| Directory            | Modules/Packages                | Status                    |
+| -------------------- | ------------------------------- | ------------------------- |
+| `backend/`           | 44 modules                      | ✅ All have `__init__.py` |
+| `web/packages/`      | 15 packages                     | ✅ Structure complete     |
+| `mobile/packages/`   | 9 packages                      | ✅ Structure complete     |
+| `shared/`            | Components, hooks, utils        | ✅ Complete               |
+| `rust/`              | 6 crates                        | ✅ Workspace configured   |
+| `graphql/`           | Middleware, schema              | ✅ Complete               |
+| `.claude/`           | Config, plugins                 | ✅ Complete               |
+| `docs/`              | Architecture, security, metrics | ✅ Complete               |
+| `examples/`          | Example integrations            | ✅ Present                |
+| `.github/workflows/` | 5 workflows                     | ✅ **NEW**                |
 
 ---
 
@@ -59,6 +59,7 @@ The Syntek Modules repository is now fully configured with:
 ### Security Bundles (Complete)
 
 **security-core/** (6 modules):
+
 - ✅ middleware/
 - ✅ headers/
 - ✅ cors/
@@ -67,6 +68,7 @@ The Syntek Modules repository is now fully configured with:
 - ✅ cache/
 
 **security-auth/** (5 modules):
+
 - ✅ authentication/
 - ✅ sessions/
 - ✅ cookies/
@@ -74,16 +76,19 @@ The Syntek Modules repository is now fully configured with:
 - ✅ api_keys/
 
 **security-input/** (3 modules):
+
 - ✅ validation/
 - ✅ sql_injection/
 - ✅ content_filtering/
 
 **security-network/** (3 modules):
+
 - ✅ ip_filtering/
 - ✅ request_signing/
 - ✅ secrets_management/
 
 ### Feature Modules (27 Total)
+
 - ✅ profiles/
 - ✅ groups/
 - ✅ media/
@@ -114,11 +119,13 @@ The Syntek Modules repository is now fully configured with:
 ## ✅ Web Packages (15 Total)
 
 ### Security Bundles (3)
+
 - ✅ security-core/
 - ✅ security-auth/
 - ✅ security-input/
 
 ### UI Components (12)
+
 - ✅ ui-auth/
 - ✅ ui-profiles/
 - ✅ ui-media/
@@ -137,10 +144,12 @@ The Syntek Modules repository is now fully configured with:
 ## ✅ Mobile Packages (9 Total)
 
 ### Security Bundles (2)
+
 - ✅ security-core/
 - ✅ security-auth/
 
 ### Feature Modules (7)
+
 - ✅ mobile-auth/
 - ✅ mobile-profiles/
 - ✅ mobile-media/
@@ -154,6 +163,7 @@ The Syntek Modules repository is now fully configured with:
 ## ✅ Shared Library (Complete)
 
 ### Components
+
 - ✅ forms/
 - ✅ security/
 - ✅ validation/
@@ -162,11 +172,13 @@ The Syntek Modules repository is now fully configured with:
 - ✅ loading/
 
 ### Hooks
+
 - ✅ useAuth/
 - ✅ useNotifications/
 - ✅ useFeatureFlags/
 
 ### Utils
+
 - ✅ formatting/
 - ✅ i18n/
 - ✅ validation/
@@ -175,14 +187,14 @@ The Syntek Modules repository is now fully configured with:
 
 ## ✅ Rust Workspace (6 Crates)
 
-| Crate | Purpose | Status |
-|-------|---------|--------|
-| `encryption` | AES-256-GCM, ChaCha20-Poly1305 | ✅ Complete |
-| `security` | Memory safety, zeroization | ✅ Complete |
-| `hashing` | Argon2id, bcrypt | ✅ Complete |
-| `llm_gateway` | LLM abstraction layer | ✅ Complete |
-| `pyo3_bindings` | PyO3 bridge for Django | ✅ Complete |
-| `project-cli` | **Rust project management CLI** | ✅ **NEW** |
+| Crate           | Purpose                         | Status      |
+| --------------- | ------------------------------- | ----------- |
+| `encryption`    | AES-256-GCM, ChaCha20-Poly1305  | ✅ Complete |
+| `security`      | Memory safety, zeroization      | ✅ Complete |
+| `hashing`       | Argon2id, bcrypt                | ✅ Complete |
+| `llm_gateway`   | LLM abstraction layer           | ✅ Complete |
+| `pyo3_bindings` | PyO3 bridge for Django          | ✅ Complete |
+| `project-cli`   | **Rust project management CLI** | ✅ **NEW**  |
 
 ---
 
@@ -199,27 +211,35 @@ The Syntek Modules repository is now fully configured with:
 - ✅ Staging deployment (`syntek staging`)
 - ✅ Production deployment (`syntek production`)
 - ✅ Dependency installation (`syntek install`)
+- ✅ **Project initialization (`syntek init`)** - **NEW**
 - ✅ Code linting (`syntek lint`)
 - ✅ Code formatting (`syntek format`)
 - ✅ Project building (`syntek build`)
+- ✅ Security auditing (`syntek audit`)
 - ✅ Cleanup (`syntek clean`)
 
 ### Replaces Shell Scripts
 
 **Traditional approach:**
+
 ```bash
 ./dev.sh
 ./test.sh
 ./staging.sh
 ./production.sh
+./scripts/setup-pre-commit.sh  # DEPRECATED
 ```
 
 **Rust CLI approach:**
+
 ```bash
-syntek dev
-syntek test
-syntek staging
-syntek production
+syntek install   # Install dependencies
+syntek init      # Setup hooks, secrets, dev tools (replaces setup-pre-commit.sh)
+syntek dev       # Start development
+syntek test      # Run tests
+syntek staging   # Deploy to staging
+syntek production # Deploy to production
+syntek audit     # Security audits across all ecosystems
 ```
 
 ### Installation
@@ -227,6 +247,10 @@ syntek production
 ```bash
 cd rust/project-cli
 cargo install --path .
+
+# Then initialize the project
+syntek install
+syntek init
 ```
 
 See `rust/project-cli/README.md` for full documentation.
@@ -235,14 +259,14 @@ See `rust/project-cli/README.md` for full documentation.
 
 ## ✅ GitHub Workflows (5 Workflows)
 
-| Workflow | File | Purpose | Status |
-|----------|------|---------|--------|
-| Lint Python | `lint-python.yml` | Ruff, mypy, bandit | ✅ **NEW** |
-| Lint TypeScript | `lint-typescript.yml` | ESLint, Prettier | ✅ **NEW** |
-| Lint Rust | `lint-rust.yml` | clippy, rustfmt, audit | ✅ **NEW** |
-| Test | `test.yml` | pytest, vitest, cargo test | ✅ **NEW** |
-| Security | `security.yml` | CodeQL, Gitleaks, audits | ✅ **NEW** |
-| Build | `build.yml` | Multi-platform builds | ✅ **NEW** |
+| Workflow        | File                  | Purpose                    | Status     |
+| --------------- | --------------------- | -------------------------- | ---------- |
+| Lint Python     | `lint-python.yml`     | Ruff, mypy, bandit         | ✅ **NEW** |
+| Lint TypeScript | `lint-typescript.yml` | ESLint, Prettier           | ✅ **NEW** |
+| Lint Rust       | `lint-rust.yml`       | clippy, rustfmt, audit     | ✅ **NEW** |
+| Test            | `test.yml`            | pytest, vitest, cargo test | ✅ **NEW** |
+| Security        | `security.yml`        | CodeQL, Gitleaks, audits   | ✅ **NEW** |
+| Build           | `build.yml`           | Multi-platform builds      | ✅ **NEW** |
 
 ### Workflow Triggers
 
@@ -265,30 +289,33 @@ See `rust/project-cli/README.md` for full documentation.
 
 ## ✅ Documentation (Complete)
 
-| Document | Location | Status |
-|----------|----------|--------|
-| CHANGELOG.md | Root | ✅ **NEW** |
-| README.md | Root | ✅ Complete |
-| CLAUDE.md | `.claude/` | ✅ Complete |
-| METRICS/ | `docs/METRICS/` | ✅ Complete |
-| CLI README | `rust/project-cli/README.md` | ✅ **NEW** |
-| Setup Status | `docs/SETUP-STATUS.md` | ✅ **THIS FILE** |
+| Document     | Location                     | Status           |
+| ------------ | ---------------------------- | ---------------- |
+| CHANGELOG.md | Root                         | ✅ **NEW**       |
+| README.md    | Root                         | ✅ Complete      |
+| CLAUDE.md    | `.claude/`                   | ✅ Complete      |
+| METRICS/     | `docs/METRICS/`              | ✅ Complete      |
+| CLI README   | `rust/project-cli/README.md` | ✅ **NEW**       |
+| Setup Status | `docs/SETUP-STATUS.md`       | ✅ **THIS FILE** |
 
 ---
 
 ## ⚠️ Lock Files (Generated on First Install)
 
-| Lock File | Location | Status | Notes |
-|-----------|----------|--------|-------|
-| `uv.lock` | Root | ⚠️ Run `uv sync` | Python dependencies |
-| `pnpm-lock.yaml` | Root | ⚠️ Run `pnpm install` | Node dependencies (gitignored for libraries) |
-| `Cargo.lock` | `rust/` | ⚠️ Run `cargo build` | Rust dependencies |
+| Lock File        | Location | Status                | Notes                                        |
+| ---------------- | -------- | --------------------- | -------------------------------------------- |
+| `uv.lock`        | Root     | ⚠️ Run `uv sync`      | Python dependencies                          |
+| `pnpm-lock.yaml` | Root     | ⚠️ Run `pnpm install` | Node dependencies (gitignored for libraries) |
+| `Cargo.lock`     | `rust/`  | ⚠️ Run `cargo build`  | Rust dependencies                            |
 
 **Action Required:**
 
 ```bash
 # Install all dependencies and generate lock files
 syntek install
+
+# Initialize project (Git hooks, secrets, dev tools)
+syntek init
 
 # Or manually:
 uv sync
@@ -353,6 +380,7 @@ syntek build --mode production
 ### Rust-Based Tooling
 
 The project now uses a **Rust CLI** (`syntek`) instead of shell scripts for:
+
 - Cross-platform compatibility (Linux, macOS, Windows)
 - Type safety and error handling
 - Better performance
@@ -364,6 +392,7 @@ The project now uses a **Rust CLI** (`syntek`) instead of shell scripts for:
 ### Comprehensive CI/CD
 
 GitHub Actions workflows cover:
+
 - **Linting** - Python (ruff), TypeScript (ESLint), Rust (clippy)
 - **Testing** - Full test suite with coverage reporting
 - **Security** - CodeQL, Gitleaks, dependency audits, daily scans

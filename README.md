@@ -26,6 +26,7 @@
 ### Related Repositories
 
 This repository pairs with:
+
 - **syntek-dev/platform** - Main application platform
 - **syntek-dev/infrastructure** - Infrastructure as Code (NixOS, Terraform, Ansible)
 
@@ -260,77 +261,77 @@ syntek-modules/
 
 **Security Bundles** (installable as a group or individually):
 
-| Bundle | Description | Modules Included |
-|--------|-------------|------------------|
-| `security-core` | HTTP security, middleware, headers, CORS, CSRF, rate limiting, cache | Core security middleware |
-| `security-auth` | Authentication, sessions, JWT, API keys, MFA, TOTP | Authentication and session management |
-| `security-input` | Input validation, SQL injection prevention, sanitization | Input protection |
-| `security-network` | IP filtering, request signing, OpenBao secrets integration | Network security |
+| Bundle             | Description                                                          | Modules Included                      |
+| ------------------ | -------------------------------------------------------------------- | ------------------------------------- |
+| `security-core`    | HTTP security, middleware, headers, CORS, CSRF, rate limiting, cache | Core security middleware              |
+| `security-auth`    | Authentication, sessions, JWT, API keys, MFA, TOTP                   | Authentication and session management |
+| `security-input`   | Input validation, SQL injection prevention, sanitization             | Input protection                      |
+| `security-network` | IP filtering, request signing, OpenBao secrets integration           | Network security                      |
 
 **Feature Modules**:
 
-| Module | Description |
-|--------|-------------|
-| `authentication` | User authentication with MFA, TOTP, WebAuthn passkeys |
-| `groups` | Django groups for role-based access control |
-| `profiles` | User profile management |
-| `media` | Cloudinary integration for media storage |
-| `logging` | GlitchTip + file-based logging |
-| `accounting` | Xero, QuickBooks, Zapier integration |
-| `ai_integration` | AI/LLM integration (OpenAI, Anthropic, custom gateway) |
-| `email_marketing` | Email campaigns (Mailchimp-like) |
-| `payments` | Stripe, Square, PayPal, SumUp integration |
-| `notifications` | In-app notifications |
-| `search` | Full-text search and filtering |
-| `audit` | Audit trails and activity logs |
-| `forms_surveys` | Form builder and survey tools |
-| `bookings` | Booking and event management |
-| `comments_ratings` | Comments and rating system |
-| `analytics` | Analytics and feedback |
-| `reporting` | Report generation and exports |
-| `uploads` | File upload/download management |
-| `feature_flags` | Feature toggles and A/B testing |
-| `webhooks` | Webhook management |
-| `contact` | Contact forms |
-| `i18n` | Internationalization |
-| `cms_primitives` | CMS building blocks |
+| Module             | Description                                            |
+| ------------------ | ------------------------------------------------------ |
+| `authentication`   | User authentication with MFA, TOTP, WebAuthn passkeys  |
+| `groups`           | Django groups for role-based access control            |
+| `profiles`         | User profile management                                |
+| `media`            | Cloudinary integration for media storage               |
+| `logging`          | GlitchTip + file-based logging                         |
+| `accounting`       | Xero, QuickBooks, Zapier integration                   |
+| `ai_integration`   | AI/LLM integration (OpenAI, Anthropic, custom gateway) |
+| `email_marketing`  | Email campaigns (Mailchimp-like)                       |
+| `payments`         | Stripe, Square, PayPal, SumUp integration              |
+| `notifications`    | In-app notifications                                   |
+| `search`           | Full-text search and filtering                         |
+| `audit`            | Audit trails and activity logs                         |
+| `forms_surveys`    | Form builder and survey tools                          |
+| `bookings`         | Booking and event management                           |
+| `comments_ratings` | Comments and rating system                             |
+| `analytics`        | Analytics and feedback                                 |
+| `reporting`        | Report generation and exports                          |
+| `uploads`          | File upload/download management                        |
+| `feature_flags`    | Feature toggles and A/B testing                        |
+| `webhooks`         | Webhook management                                     |
+| `contact`          | Contact forms                                          |
+| `i18n`             | Internationalization                                   |
+| `cms_primitives`   | CMS building blocks                                    |
 
 ### Web Modules
 
-| Module | Description |
-|--------|-------------|
-| `security-core` | Client-side security (CSP, XSS protection) |
-| `security-auth` | Client authentication and session management |
-| `ui-auth` | Authentication UI components |
-| `ui-profiles` | Profile management UI |
-| `ui-media` | Media upload/display UI |
-| `ui-notifications` | Notifications UI |
-| `ui-search` | Search and filtering UI |
-| `ui-forms` | Form builder UI |
-| `ui-comments` | Comments and ratings UI |
-| `ui-analytics` | Analytics dashboard UI |
-| `ui-bookings` | Bookings UI |
-| `ui-payments` | Payment integration UI |
-| `ui-webhooks` | Webhooks management UI |
-| `ui-feature-flags` | Feature flags UI |
+| Module             | Description                                  |
+| ------------------ | -------------------------------------------- |
+| `security-core`    | Client-side security (CSP, XSS protection)   |
+| `security-auth`    | Client authentication and session management |
+| `ui-auth`          | Authentication UI components                 |
+| `ui-profiles`      | Profile management UI                        |
+| `ui-media`         | Media upload/display UI                      |
+| `ui-notifications` | Notifications UI                             |
+| `ui-search`        | Search and filtering UI                      |
+| `ui-forms`         | Form builder UI                              |
+| `ui-comments`      | Comments and ratings UI                      |
+| `ui-analytics`     | Analytics dashboard UI                       |
+| `ui-bookings`      | Bookings UI                                  |
+| `ui-payments`      | Payment integration UI                       |
+| `ui-webhooks`      | Webhooks management UI                       |
+| `ui-feature-flags` | Feature flags UI                             |
 
 ### Mobile Modules
 
-| Module | Description |
-|--------|-------------|
-| `security-core` | Mobile security (cert pinning, secure storage) |
-| `security-auth` | Mobile authentication with biometrics |
-| `mobile-auth` | Authentication components |
-| `mobile-profiles` | Profile management |
-| `mobile-media` | Media components |
-| `mobile-notifications` | Push notifications |
-| `mobile-search` | Search components |
-| `mobile-forms` | Form components |
-| `mobile-comments` | Comments and ratings |
-| `mobile-analytics` | Analytics |
-| `mobile-bookings` | Bookings |
-| `mobile-payments` | Mobile payments |
-| `mobile-feature-flags` | Feature flags |
+| Module                 | Description                                    |
+| ---------------------- | ---------------------------------------------- |
+| `security-core`        | Mobile security (cert pinning, secure storage) |
+| `security-auth`        | Mobile authentication with biometrics          |
+| `mobile-auth`          | Authentication components                      |
+| `mobile-profiles`      | Profile management                             |
+| `mobile-media`         | Media components                               |
+| `mobile-notifications` | Push notifications                             |
+| `mobile-search`        | Search components                              |
+| `mobile-forms`         | Form components                                |
+| `mobile-comments`      | Comments and ratings                           |
+| `mobile-analytics`     | Analytics                                      |
+| `mobile-bookings`      | Bookings                                       |
+| `mobile-payments`      | Mobile payments                                |
+| `mobile-feature-flags` | Feature flags                                  |
 
 ### Shared Modules
 
@@ -341,13 +342,13 @@ syntek-modules/
 
 ### Rust Modules
 
-| Crate | Description |
-|-------|-------------|
-| `encryption` | High-performance encryption/decryption |
-| `security` | Zeroization, secure hashing, memory protection |
-| `llm-gateway` | AI LLM gateway with rate limiting |
-| `pyo3-bindings` | Python bindings for Django integration |
-| `project-cli` | CLI tool for development workflows |
+| Crate           | Description                                    |
+| --------------- | ---------------------------------------------- |
+| `encryption`    | High-performance encryption/decryption         |
+| `security`      | Zeroization, secure hashing, memory protection |
+| `llm-gateway`   | AI LLM gateway with rate limiting              |
+| `pyo3-bindings` | Python bindings for Django integration         |
+| `project-cli`   | CLI tool for development workflows             |
 
 ---
 
@@ -370,23 +371,44 @@ syntek-modules/
    cd syntek-modules
    ```
 
-2. **Set up environment:**
+2. **Install the Syntek CLI (Bootstrap):**
+
+   First, you need to install the CLI tool itself:
 
    ```bash
-   # Copy environment template
-   cp .env.dev.example .env
+   # Quick install (recommended)
+   chmod +x install-cli.sh
+   ./install-cli.sh
 
-   # Install Python dependencies
-   uv sync
-
-   # Install Node.js dependencies
-   pnpm install
-
-   # Build Rust components
-   cd rust && cargo build --release
+   # Or install manually
+   cd rust/project-cli
+   cargo install --path .
+   cd ../..
    ```
 
-3. **Set up database:**
+   This installs the `syntek` command to `~/.cargo/bin/syntek`.
+
+3. **Install project dependencies:**
+
+   ```bash
+   # Install all dependencies (Python, Node, Rust)
+   syntek install
+   ```
+
+4. **Initialize the project:**
+
+   ```bash
+   # Set up Git hooks, secrets baseline, and dev tools
+   # Installs: pre-commit, detect-secrets, pytest (TDD/BDD), pyright (type checking)
+   syntek init
+
+   # Or skip specific steps
+   syntek init --skip-hooks      # Skip Git hooks
+   syntek init --skip-secrets    # Skip secrets baseline
+   syntek init --skip-dev-tools  # Skip dev tools
+   ```
+
+5. **Set up database:**
 
    ```bash
    # Using Docker
@@ -402,18 +424,40 @@ syntek-modules/
 The Rust CLI provides convenience commands for development:
 
 ```bash
-# Install CLI
-cd rust/project-cli
-cargo install --path .
+# Setup commands
+syntek install       # Install all dependencies
+syntek init          # Setup hooks, secrets, and dev tools
 
-# Available commands
+# Development commands
 syntek dev           # Start development server
 syntek test          # Run all tests
 syntek lint          # Run linters
 syntek lint --fix    # Lint and auto-fix
 syntek format        # Format code
 syntek build         # Build for production
+syntek audit         # Security audit (NPM, Python, Rust)
+syntek clean         # Clean build artifacts
 ```
+
+**Security Auditing:**
+
+The unified `syntek audit` command scans for vulnerabilities across all ecosystems:
+
+```bash
+# Run security audit (text output)
+syntek audit
+
+# Generate JSON report for CI/CD
+syntek audit --format json --output audit.json
+
+# Only show critical vulnerabilities
+syntek audit --severity critical
+
+# Generate markdown report
+syntek audit --format markdown --output SECURITY-AUDIT.md
+```
+
+See [docs/SECURITY-AUDIT.md](docs/SECURITY-AUDIT.md) for comprehensive auditing guide.
 
 See [QUICK-START.md](QUICK-START.md) for detailed setup instructions.
 
@@ -572,15 +616,16 @@ ANTHROPIC_API_KEY=sk-ant-...
 
 ```typescript
 // next.config.ts
-import { NextConfig } from 'next';
+import { NextConfig } from "next";
 
 const config: NextConfig = {
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
-    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME:
+      process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
   },
   images: {
-    domains: ['res.cloudinary.com'],
+    domains: ["res.cloudinary.com"],
   },
 };
 
@@ -590,6 +635,24 @@ export default config;
 ---
 
 ## Development
+
+### Pre-commit Hooks
+
+This repository uses pre-commit hooks to ensure code quality. **Install them first:**
+
+```bash
+# Install pre-commit
+pip install pre-commit
+
+# Install git hooks
+pre-commit install
+pre-commit install --hook-type commit-msg
+
+# Run manually on all files
+pre-commit run --all-files
+```
+
+See [docs/PRE-COMMIT-SETUP.md](docs/PRE-COMMIT-SETUP.md) for detailed setup and usage.
 
 ### Backend Development
 
@@ -751,6 +814,7 @@ We welcome contributions! Please follow these guidelines:
    - [.claude/SECURITY-COMPLIANCE.md](.claude/SECURITY-COMPLIANCE.md) - Security requirements
 
 2. **Create a feature branch:**
+
    ```bash
    git checkout -b feature/your-feature-name
    ```

@@ -235,6 +235,7 @@ pnpm --filter @syntek/ui-auth add @syntek/security-core --workspace
 ```
 
 This will add to package.json:
+
 ```json
 {
   "dependencies": {
@@ -247,10 +248,10 @@ This will add to package.json:
 
 ```typescript
 // In @syntek/ui-auth/src/LoginForm.tsx
-import { useCSRF } from '@syntek/security-core'
+import { useCSRF } from "@syntek/security-core";
 
 export function LoginForm() {
-  const { token } = useCSRF()
+  const { token } = useCSRF();
   // ...
 }
 ```
@@ -354,10 +355,10 @@ Defines which directories contain packages:
 
 ```yaml
 packages:
-  - 'web/packages/*'
-  - 'mobile/packages/*'
-  - 'shared'
-  - 'examples/*'
+  - "web/packages/*"
+  - "mobile/packages/*"
+  - "shared"
+  - "examples/*"
 ```
 
 ### .npmrc

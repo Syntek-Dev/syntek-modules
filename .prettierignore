@@ -1,0 +1,65 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Build outputs
+dist
+build
+.next
+out
+*.tsbuildinfo
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info
+.pytest_cache
+.mypy_cache
+.ruff_cache
+
+# Rust
+target
+Cargo.lock
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Coverage
+coverage
+.coverage
+htmlcov
+*.lcov
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Lock files (for libraries, not applications)
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+
+# Generated files
+*.min.js
+*.min.css

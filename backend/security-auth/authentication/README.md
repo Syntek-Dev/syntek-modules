@@ -151,8 +151,8 @@ mutation LoginWithTOTP {
 mutation EnableTOTP {
   enableTotp {
     success
-    qrCode  # Data URL for QR code
-    secret  # Manual entry secret
+    qrCode # Data URL for QR code
+    secret # Manual entry secret
     backupCodes
   }
 }
@@ -246,47 +246,48 @@ urlpatterns = [
 
 ### Password Requirements
 
-| Setting | Type | Default | Description |
-|---------|------|---------|-------------|
-| `PASSWORD_LENGTH` | int | 12 | Minimum password length |
-| `SPECIAL_CHARS_REQUIRED` | bool | True | Require special characters |
-| `UPPERCASE_REQUIRED` | bool | True | Require uppercase letters |
-| `LOWERCASE_REQUIRED` | bool | True | Require lowercase letters |
-| `NUMBERS_REQUIRED` | bool | True | Require numbers |
-| `COMMON_PASSWORD_CHECK` | bool | True | Check against common passwords |
-| `PASSWORD_HISTORY_COUNT` | int | 5 | Number of previous passwords to remember |
+| Setting                  | Type | Default | Description                              |
+| ------------------------ | ---- | ------- | ---------------------------------------- |
+| `PASSWORD_LENGTH`        | int  | 12      | Minimum password length                  |
+| `SPECIAL_CHARS_REQUIRED` | bool | True    | Require special characters               |
+| `UPPERCASE_REQUIRED`     | bool | True    | Require uppercase letters                |
+| `LOWERCASE_REQUIRED`     | bool | True    | Require lowercase letters                |
+| `NUMBERS_REQUIRED`       | bool | True    | Require numbers                          |
+| `COMMON_PASSWORD_CHECK`  | bool | True    | Check against common passwords           |
+| `PASSWORD_HISTORY_COUNT` | int  | 5       | Number of previous passwords to remember |
 
 ### TOTP Configuration
 
-| Setting | Type | Default | Description |
-|---------|------|---------|-------------|
-| `TOTP_REQUIRED` | bool | False | Require TOTP for all users |
-| `TOTP_ISSUER_NAME` | str | 'Syntek' | Issuer name in TOTP apps |
-| `TOTP_BACKUP_CODES_COUNT` | int | 10 | Number of backup codes |
+| Setting                   | Type | Default  | Description                |
+| ------------------------- | ---- | -------- | -------------------------- |
+| `TOTP_REQUIRED`           | bool | False    | Require TOTP for all users |
+| `TOTP_ISSUER_NAME`        | str  | 'Syntek' | Issuer name in TOTP apps   |
+| `TOTP_BACKUP_CODES_COUNT` | int  | 10       | Number of backup codes     |
 
 ### Login Security
 
-| Setting | Type | Default | Description |
-|---------|------|---------|-------------|
-| `MAX_LOGIN_ATTEMPTS` | int | 5 | Max failed attempts before lockout |
-| `LOCKOUT_DURATION` | int | 300 | Lockout duration in seconds |
-| `LOCKOUT_INCREMENT` | bool | True | Increase lockout with each violation |
-| `LOG_LOGIN_ATTEMPTS` | bool | True | Log all login attempts |
+| Setting              | Type | Default | Description                          |
+| -------------------- | ---- | ------- | ------------------------------------ |
+| `MAX_LOGIN_ATTEMPTS` | int  | 5       | Max failed attempts before lockout   |
+| `LOCKOUT_DURATION`   | int  | 300     | Lockout duration in seconds          |
+| `LOCKOUT_INCREMENT`  | bool | True    | Increase lockout with each violation |
+| `LOG_LOGIN_ATTEMPTS` | bool | True    | Log all login attempts               |
 
 ### JWT Configuration
 
-| Setting | Type | Default | Description |
-|---------|------|---------|-------------|
-| `JWT_EXPIRY` | int | 3600 | Token expiry in seconds |
-| `REFRESH_TOKEN_EXPIRY` | int | 86400 | Refresh token expiry |
-| `JWT_ALGORITHM` | str | 'HS256' | JWT algorithm |
-| `JWT_SECRET_KEY` | str | required | JWT signing key |
+| Setting                | Type | Default  | Description             |
+| ---------------------- | ---- | -------- | ----------------------- |
+| `JWT_EXPIRY`           | int  | 3600     | Token expiry in seconds |
+| `REFRESH_TOKEN_EXPIRY` | int  | 86400    | Refresh token expiry    |
+| `JWT_ALGORITHM`        | str  | 'HS256'  | JWT algorithm           |
+| `JWT_SECRET_KEY`       | str  | required | JWT signing key         |
 
 ## Security Features
 
 ### Encrypted Storage
 
 All sensitive authentication data is encrypted using the Rust encryption module:
+
 - Passwords (hashed with Argon2 + encrypted)
 - TOTP secrets (encrypted)
 - Backup codes (encrypted)
@@ -295,6 +296,7 @@ All sensitive authentication data is encrypted using the Rust encryption module:
 ### Login Attempt Tracking
 
 The module tracks all login attempts and provides:
+
 - IP-based rate limiting
 - Progressive lockout periods
 - Email notifications for suspicious activity

@@ -5,14 +5,17 @@ This directory contains CLI tools for Rust security analysis, used by Claude Cod
 ## Tools
 
 ### `cargo-metadata-tool`
+
 Extracts Cargo.toml metadata and dependency information.
 
 **Usage:**
+
 ```bash
 cargo-metadata-tool [manifest-path]
 ```
 
 **Output:**
+
 ```json
 {
   "workspace_root": "/path/to/workspace",
@@ -29,14 +32,17 @@ cargo-metadata-tool [manifest-path]
 ```
 
 ### `rustc-version-tool`
+
 Detects installed Rust toolchain version and configuration.
 
 **Usage:**
+
 ```bash
 rustc-version-tool
 ```
 
 **Output:**
+
 ```json
 {
   "version": "1.92.0",
@@ -47,9 +53,11 @@ rustc-version-tool
 ```
 
 ### `vuln-db-tool`
+
 Manages RustSec vulnerability database and checks packages.
 
 **Usage:**
+
 ```bash
 # Fetch latest advisory database
 vuln-db-tool fetch
@@ -59,6 +67,7 @@ vuln-db-tool check <package-name> <version>
 ```
 
 **Output:**
+
 ```json
 {
   "package": "openssl",
@@ -75,14 +84,17 @@ vuln-db-tool check <package-name> <version>
 ```
 
 ### `audit-tool`
+
 Orchestrates cargo-audit security scanning.
 
 **Usage:**
+
 ```bash
 audit-tool [manifest-path]
 ```
 
 **Output:**
+
 ```json
 {
   "status": "success",
@@ -93,9 +105,11 @@ audit-tool [manifest-path]
 ```
 
 ### `fuzzer-tool`
+
 Manages fuzzing infrastructure setup.
 
 **Usage:**
+
 ```bash
 # Initialize fuzzing
 fuzzer-tool init <project-path>
@@ -105,6 +119,7 @@ fuzzer-tool status <project-path>
 ```
 
 **Output:**
+
 ```json
 {
   "status": "initialized",
@@ -113,14 +128,17 @@ fuzzer-tool status <project-path>
 ```
 
 ### `compliance-tool`
+
 Generates compliance reports for security audits.
 
 **Usage:**
+
 ```bash
 compliance-tool <project-path>
 ```
 
 **Output:**
+
 ```json
 {
   "project_path": "/path/to/project",
@@ -179,6 +197,7 @@ These tools are automatically invoked by Claude Code security agents:
 ## Security
 
 All tools:
+
 - Run read-only operations (no modifications)
 - Output JSON for machine parsing
 - Exit with non-zero code on errors

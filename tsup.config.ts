@@ -1,11 +1,11 @@
-import { defineConfig } from 'tsup'
+import { defineConfig } from "tsup";
 
 export default defineConfig({
   // Entry points
-  entry: ['src/index.ts'],
+  entry: ["src/index.ts"],
 
   // Output formats
-  format: ['cjs', 'esm'],
+  format: ["cjs", "esm"],
 
   // Generate declaration files
   dts: true,
@@ -26,19 +26,14 @@ export default defineConfig({
   treeshake: true,
 
   // Target environment
-  target: 'es2022',
+  target: "es2022",
 
   // External dependencies (don't bundle)
-  external: [
-    'react',
-    'react-dom',
-    'react-native',
-    'next',
-  ],
+  external: ["react", "react-dom", "react-native", "next"],
 
   // Output directory
-  outDir: 'dist',
+  outDir: "dist",
 
   // Enable watch mode in development
-  watch: process.env.NODE_ENV === 'development',
-})
+  watch: process.env.NODE_ENV === "development",
+});

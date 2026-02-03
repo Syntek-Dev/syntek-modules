@@ -7,12 +7,27 @@ on:
     branches: [main, develop]
 
 jobs:
-  build-web:
+  build-all:
     runs-on: ubuntu-latest
+    name: Build All Projects
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      # Set up all environments
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -22,21 +37,37 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24.13'
-          cache: 'pnpm'
+          node-version: "24.13"
+          cache: "pnpm"
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      # Install dependencies
+      - name: Install Python dependencies
+        run: uv sync
 
-      - name: Build web packages
-        run: pnpm --filter web build
+      - name: Install Node dependencies
+        run: pnpm install --no-frozen-lockfile
 
-      - name: Build mobile packages
-        run: pnpm --filter mobile build
+      # Build syntek CLI
+      - name: Cache syntek CLI
+        uses: actions/cache@v4
+        id: syntek-cli-cache
+        with:
+          path: rust/project-cli/target/release/syntek
+          key: ${{ runner.os }}-syntek-cli-${{ hashFiles('rust/project-cli/src/**', 'rust/project-cli/Cargo.toml') }}
 
-      - name: Build shared library
-        run: pnpm --filter shared build
+      - name: Build syntek CLI
+        if: steps.syntek-cli-cache.outputs.cache-hit != 'true'
+        run: cargo build --release
+        working-directory: rust/project-cli
 
+      - name: Install syntek CLI
+        run: cargo install --path rust/project-cli
+
+      # Build all projects using syntek CLI
+      - name: Build all projects (production mode)
+        run: syntek build --mode production
+
+      # Upload artifacts
       - name: Upload web build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -49,8 +80,61 @@ jobs:
           name: mobile-build
           path: mobile/packages/*/dist
 
-  build-rust:
+      - name: Upload shared build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: shared-build
+          path: shared/dist
+
+      - name: Upload Rust binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: rust-binaries
+          path: |
+            rust/target/release/syntek
+            rust/*/target/release/*
+
+  build-python-packages:
     runs-on: ubuntu-latest
+    name: Build Python Distribution Packages
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install build dependencies
+        run: uv pip install build wheel hatchling
+
+      - name: Build backend packages
+        run: |
+          for module in backend/*/; do
+            if [ -f "$module/pyproject.toml" ]; then
+              echo "Building $module"
+              cd "$module"
+              python -m build
+              cd -
+            fi
+          done
+
+      - name: Upload Python packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-packages
+          path: backend/*/dist/*.whl
+
+  build-multi-arch-rust:
+    runs-on: ubuntu-latest
+    name: Build Rust (Multi-Architecture)
     strategy:
       matrix:
         target:
@@ -96,41 +180,3 @@ jobs:
         with:
           name: rust-binaries-${{ matrix.target }}
           path: rust/target/${{ matrix.target }}/release/syntek
-
-  build-python-packages:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.14'
-
-      - name: Install uv
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-
-      - name: Install build dependencies
-        run: uv pip install build wheel
-
-      - name: Build backend packages
-        run: |
-          for module in backend/*/; do
-            if [ -f "$module/pyproject.toml" ]; then
-              echo "Building $module"
-              cd "$module"
-              uv pip install -e .
-              python -m build
-              cd -
-            fi
-          done
-
-      - name: Upload Python packages
-        uses: actions/upload-artifact@v4
-        with:
-          name: python-packages
-          path: backend/*/dist/*.whl

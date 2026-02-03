@@ -1,7 +1,7 @@
 # Optional Docker Compose for Module Development and Testing
 # This is NOT for production deployment - modules are meant to be installed in other projects
 
-version: '3.8'
+version: "3.8"
 
 services:
   # PostgreSQL for backend module testing

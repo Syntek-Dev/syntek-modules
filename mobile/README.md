@@ -96,12 +96,14 @@ pnpm publish
 ### Shared Dependencies
 
 All packages share these peer dependencies:
+
 - `react@^19.0.0`
 - `react-native@^0.83.0`
 
 ### Native Dependencies
 
 Some packages require native modules:
+
 - `react-native-keychain` (secure storage)
 - `react-native-ssl-pinning` (certificate pinning)
 - `react-native-biometrics` (Face ID, Touch ID, fingerprint)
