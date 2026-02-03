@@ -7,11 +7,10 @@ Returns structured JSON output for integration with setup, cicd, and backend age
 Supports project listing, service status, and configuration detection.
 """
 
-import subprocess
 import json
-import sys
 import shutil
-from typing import Optional
+import subprocess
+import sys
 
 
 def is_ddev_installed() -> bool:
@@ -88,7 +87,7 @@ def get_ddev_status() -> dict:
         return {"error": f"Failed to parse DDEV output: {e}", "installed": True}
 
 
-def get_project_config(project_name: Optional[str] = None) -> dict:
+def get_project_config(project_name: str | None = None) -> dict:
     """
     Get detailed configuration for a specific DDEV project.
 

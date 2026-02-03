@@ -8,14 +8,12 @@ Supports reading, comparing, and validating environment files across environment
 """
 
 import json
-import sys
-import os
 import re
+import sys
 from pathlib import Path
-from typing import Optional
 
 
-def find_env_files(directory: Optional[str] = None) -> dict:
+def find_env_files(directory: str | None = None) -> dict:
     """
     Find all environment files in the specified directory.
 
@@ -126,7 +124,7 @@ def parse_env_file(file_path: str) -> dict:
     ]
 
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             for line_num, line in enumerate(f, 1):
                 line_count += 1
                 stripped = line.strip()
@@ -247,7 +245,7 @@ def compare_env_files(file1: str, file2: str) -> dict:
     }
 
 
-def validate_env_file(file_path: str, example_file: Optional[str] = None) -> dict:
+def validate_env_file(file_path: str, example_file: str | None = None) -> dict:
     """
     Validate an environment file against an example file or common requirements.
 

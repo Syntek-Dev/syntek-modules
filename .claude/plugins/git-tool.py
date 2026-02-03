@@ -7,12 +7,11 @@ Returns structured JSON output for integration with cicd, setup, and code-review
 Supports repository status, branch info, remote detection, and commit history.
 """
 
-import subprocess
 import json
-import sys
-import shutil
 import os
-from typing import Optional
+import shutil
+import subprocess
+import sys
 
 
 def is_git_installed() -> bool:
@@ -20,7 +19,7 @@ def is_git_installed() -> bool:
     return shutil.which("git") is not None
 
 
-def is_git_repo(path: Optional[str] = None) -> bool:
+def is_git_repo(path: str | None = None) -> bool:
     """
     Check if the current or specified directory is a Git repository.
 
@@ -45,7 +44,7 @@ def is_git_repo(path: Optional[str] = None) -> bool:
 
 
 def run_git_command(
-    args: list[str], cwd: Optional[str] = None, timeout: int = 30
+    args: list[str], cwd: str | None = None, timeout: int = 30
 ) -> tuple[bool, str, str]:
     """
     Execute a Git command and return the result.
@@ -100,14 +99,14 @@ def get_git_status() -> dict:
     # Check for uncommitted changes
     success, stdout, _ = run_git_command(["status", "--porcelain"])
     if success:
-        lines = [l for l in stdout.strip().split("\n") if l]
+        lines = [line for line in stdout.strip().split("\n") if line]
         result["has_changes"] = len(lines) > 0
         result["changes_count"] = len(lines)
 
         # Categorise changes
-        staged = sum(1 for l in lines if l[0] != " " and l[0] != "?")
-        unstaged = sum(1 for l in lines if l[1] != " " and l[0] != "?")
-        untracked = sum(1 for l in lines if l.startswith("??"))
+        staged = sum(1 for line in lines if line[0] != " " and line[0] != "?")
+        unstaged = sum(1 for line in lines if line[1] != " " and line[0] != "?")
+        untracked = sum(1 for line in lines if line.startswith("??"))
 
         result["staged"] = staged
         result["unstaged"] = unstaged

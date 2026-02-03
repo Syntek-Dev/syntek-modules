@@ -9,12 +9,10 @@ Supports framework detection, directory structure analysis, and technology stack
 
 import json
 import sys
-import os
 from pathlib import Path
-from typing import Optional, Any
 
 
-def detect_language(directory: Optional[str] = None) -> dict:
+def detect_language(directory: str | None = None) -> dict:
     """
     Detect the primary programming language of a project.
 
@@ -97,7 +95,7 @@ def detect_language(directory: Optional[str] = None) -> dict:
     }
 
 
-def detect_framework(directory: Optional[str] = None) -> dict:
+def detect_framework(directory: str | None = None) -> dict:
     """
     Detect the web framework used in the project.
 
@@ -332,7 +330,7 @@ def detect_framework(directory: Optional[str] = None) -> dict:
     }
 
 
-def detect_container_type(directory: Optional[str] = None) -> dict:
+def detect_container_type(directory: str | None = None) -> dict:
     """
     Detect the container/deployment setup.
 
@@ -381,7 +379,7 @@ def detect_container_type(directory: Optional[str] = None) -> dict:
 
     detected = []
 
-    for name, config in containers.items():
+    for _name, config in containers.items():
         for indicator in config["indicators"]:
             if "*" in indicator:
                 matches = list(search_dir.glob(indicator))
@@ -405,7 +403,7 @@ def detect_container_type(directory: Optional[str] = None) -> dict:
     }
 
 
-def analyse_structure(directory: Optional[str] = None) -> dict:
+def analyse_structure(directory: str | None = None) -> dict:
     """
     Analyse the project directory structure.
 
@@ -518,7 +516,7 @@ def analyse_structure(directory: Optional[str] = None) -> dict:
     }
 
 
-def get_project_info(directory: Optional[str] = None) -> dict:
+def get_project_info(directory: str | None = None) -> dict:
     """
     Get comprehensive project information.
 

@@ -7,12 +7,11 @@ Supports PHP (phpstan/pint), Python (ruff/black), and JavaScript/TypeScript (esl
 Used to track quality changes before and after agent modifications.
 """
 
-import subprocess
 import json
-import sys
 import os
+import subprocess
+import sys
 from pathlib import Path
-from typing import Optional
 
 
 def detect_stack() -> dict:
@@ -58,7 +57,7 @@ def detect_stack() -> dict:
     elif (cwd / "package.json").exists():
         stack["language"] = "javascript"
         pkg_json = cwd / "package.json"
-        with open(pkg_json, "r") as f:
+        with open(pkg_json) as f:
             pkg = json.load(f)
         deps = {**pkg.get("dependencies", {}), **pkg.get("devDependencies", {})}
 
@@ -82,7 +81,7 @@ def detect_stack() -> dict:
     return stack
 
 
-def run_linter(files: Optional[list] = None) -> dict:
+def run_linter(files: list | None = None) -> dict:
     """
     Run the detected linter and return error counts.
 
@@ -197,7 +196,7 @@ def run_linter(files: Optional[list] = None) -> dict:
         return {"success": False, "error": str(e)}
 
 
-def check_quality(files: Optional[list] = None) -> dict:
+def check_quality(files: list | None = None) -> dict:
     """
     Run a comprehensive quality check.
 

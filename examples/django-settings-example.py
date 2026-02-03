@@ -4,8 +4,9 @@ Example Django settings showing how to configure Syntek modules.
 This would typically be in your Django project's settings/base.py file.
 """
 
-from pathlib import Path
 import os
+from pathlib import Path
+
 from dotenv import load_dotenv
 
 load_dotenv()

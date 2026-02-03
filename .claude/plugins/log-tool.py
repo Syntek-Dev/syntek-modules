@@ -8,15 +8,13 @@ Supports log file discovery, configuration detection, and recent log entry extra
 """
 
 import json
-import sys
-import os
 import re
+import sys
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Optional
-from datetime import datetime
 
 
-def find_log_files(directory: Optional[str] = None) -> dict:
+def find_log_files(directory: str | None = None) -> dict:
     """
     Find log files in common locations.
 
@@ -58,7 +56,7 @@ def find_log_files(directory: Optional[str] = None) -> dict:
                                 "directory": log_dir,
                                 "size": stat.st_size,
                                 "size_human": _format_size(stat.st_size),
-                                "modified": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                                "modified": datetime.fromtimestamp(stat.st_mtime, tz=UTC).isoformat(),
                             }
                         )
                     except PermissionError:
@@ -83,7 +81,7 @@ def find_log_files(directory: Optional[str] = None) -> dict:
                         "directory": ".",
                         "size": stat.st_size,
                         "size_human": _format_size(stat.st_size),
-                        "modified": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                        "modified": datetime.fromtimestamp(stat.st_mtime, tz=UTC).isoformat(),
                     }
                 )
             except PermissionError:
@@ -108,7 +106,7 @@ def _format_size(size_bytes: int) -> str:
     return f"{size_bytes:.1f} TB"
 
 
-def detect_logging_config(directory: Optional[str] = None) -> dict:
+def detect_logging_config(directory: str | None = None) -> dict:
     """
     Detect logging configuration in the project.
 
@@ -208,7 +206,7 @@ def detect_logging_config(directory: Optional[str] = None) -> dict:
     return detected
 
 
-def read_recent_logs(file_path: str, lines: int = 50, level_filter: Optional[str] = None) -> dict:
+def read_recent_logs(file_path: str, lines: int = 50, level_filter: str | None = None) -> dict:
     """
     Read recent entries from a log file.
 
@@ -366,7 +364,7 @@ def analyse_errors(file_path: str, max_entries: int = 100) -> dict:
     }
 
 
-def check_log_health(directory: Optional[str] = None) -> dict:
+def check_log_health(directory: str | None = None) -> dict:
     """
     Check the health of logging in the project.
 
