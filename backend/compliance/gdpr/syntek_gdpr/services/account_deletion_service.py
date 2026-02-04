@@ -31,12 +31,12 @@ from django.utils import timezone
 
 # Import models - these need to be available in the target environment
 try:
-    from syntek_audit.models import AuditLog
+    from syntek_audit.models import AuditLog  # type: ignore[import]
 except ImportError:
     AuditLog = None  # type: ignore[assignment, misc]
 
 try:
-    from syntek_authentication.models import (
+    from syntek_authentication.models import (  # type: ignore[import]
         BackupCode,
         EmailVerificationToken,
         PasswordHistory,
@@ -55,7 +55,7 @@ except ImportError:
     EmailVerificationToken = None  # type: ignore[assignment, misc]
 
 try:
-    from syntek_sessions.models import SessionToken
+    from syntek_sessions.models import SessionToken  # type: ignore[import]
 except ImportError:
     SessionToken = None  # type: ignore[assignment, misc]
 
@@ -63,12 +63,12 @@ from syntek_gdpr.models import ConsentRecord
 
 # Import services if available
 try:
-    from syntek_audit.services import AuditService
+    from syntek_audit.services import AuditService  # type: ignore[import]
 except ImportError:
     AuditService = None  # type: ignore[assignment, misc]
 
 try:
-    from syntek_authentication.services import EmailService
+    from syntek_authentication.services import EmailService  # type: ignore[import]
 except ImportError:
     EmailService = None  # type: ignore[assignment, misc]
 
@@ -345,7 +345,9 @@ class AccountDeletionService:
 
         # Delete password reset tokens
         if PasswordResetToken:
-            counts["password_reset_tokens"] = PasswordResetToken.objects.filter(user=user).delete()[0]
+            counts["password_reset_tokens"] = PasswordResetToken.objects.filter(user=user).delete()[
+                0
+            ]
 
         # Delete email verification tokens
         if EmailVerificationToken:
@@ -358,7 +360,7 @@ class AccountDeletionService:
             counts["password_history"] = PasswordHistory.objects.filter(user=user).delete()[0]
 
         # Delete consent records
-        counts["consent_records"] = ConsentRecord.objects.filter(user=user).delete()[0]
+        counts["consent_records"] = ConsentRecord.objects.filter(user=user).delete()[0]  # type: ignore[attr-defined]
 
         # Delete data export requests (and their files)
         # TODO: Implement when DataExportRequest model is available

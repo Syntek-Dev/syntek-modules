@@ -23,7 +23,7 @@ from syntek_gdpr.models import ConsentRecord
 
 # Import audit service if available
 try:
-    from syntek_audit.services import AuditService
+    from syntek_audit.services import AuditService  # type: ignore[import]
 except ImportError:
     AuditService = None  # type: ignore[assignment, misc]
 
@@ -85,7 +85,7 @@ class ConsentService:
             raise ValueError(f"Invalid consent type: {consent_type}. Must be one of {valid_types}")
 
         # Withdraw any previous consent for this type
-        ConsentRecord.objects.filter(
+        ConsentRecord.objects.filter(  # type: ignore[attr-defined]
             user=user,
             consent_type=consent_type,
             granted=True,
@@ -100,7 +100,7 @@ class ConsentService:
             consent_metadata["ip_address"] = ip_address
 
         # Create new consent record
-        consent = ConsentRecord.objects.create(
+        consent = ConsentRecord.objects.create(  # type: ignore[attr-defined]
             user=user,
             consent_type=consent_type,
             granted=True,
@@ -155,13 +155,13 @@ class ConsentService:
 
         # Find active consent record
         try:
-            consent = ConsentRecord.objects.get(
+            consent = ConsentRecord.objects.get(  # type: ignore[attr-defined]
                 user=user,
                 consent_type=consent_type,
                 granted=True,
                 withdrawn_at__isnull=True,
             )
-        except ConsentRecord.DoesNotExist:
+        except ConsentRecord.DoesNotExist:  # type: ignore[attr-defined]
             return None
 
         # Mark as withdrawn
@@ -195,7 +195,7 @@ class ConsentService:
         Returns:
             True if user has active consent, False otherwise.
         """
-        return ConsentRecord.objects.filter(
+        return ConsentRecord.objects.filter(  # type: ignore[attr-defined]
             user=user,
             consent_type=consent_type,
             granted=True,
@@ -212,17 +212,21 @@ class ConsentService:
         Returns:
             Dictionary mapping consent types to their status (True/False).
         """
-        active_consents = ConsentRecord.objects.filter(
+        active_consents = ConsentRecord.objects.filter(  # type: ignore[attr-defined]
             user=user,
             granted=True,
             withdrawn_at__isnull=True,
         ).values_list("consent_type", flat=True)
 
         return {
-            ConsentRecord.ConsentType.ESSENTIAL: ConsentRecord.ConsentType.ESSENTIAL in active_consents,
-            ConsentRecord.ConsentType.FUNCTIONAL: ConsentRecord.ConsentType.FUNCTIONAL in active_consents,
-            ConsentRecord.ConsentType.ANALYTICS: ConsentRecord.ConsentType.ANALYTICS in active_consents,
-            ConsentRecord.ConsentType.MARKETING: ConsentRecord.ConsentType.MARKETING in active_consents,
+            ConsentRecord.ConsentType.ESSENTIAL: ConsentRecord.ConsentType.ESSENTIAL
+            in active_consents,
+            ConsentRecord.ConsentType.FUNCTIONAL: ConsentRecord.ConsentType.FUNCTIONAL
+            in active_consents,
+            ConsentRecord.ConsentType.ANALYTICS: ConsentRecord.ConsentType.ANALYTICS
+            in active_consents,
+            ConsentRecord.ConsentType.MARKETING: ConsentRecord.ConsentType.MARKETING
+            in active_consents,
         }
 
     @staticmethod
@@ -236,7 +240,7 @@ class ConsentService:
         Returns:
             List of ConsentRecord instances ordered by grant date (newest first).
         """
-        queryset = ConsentRecord.objects.filter(user=user)
+        queryset = ConsentRecord.objects.filter(user=user)  # type: ignore[attr-defined]
 
         if consent_type:
             queryset = queryset.filter(consent_type=consent_type)
@@ -275,7 +279,7 @@ class ConsentService:
         )
 
         # Grant new consent with new version
-        return ConsentService.grant_consent(  # pyright: ignore[reportCallIssue]
+        return ConsentService.grant_consent(  # type: ignore[return-value]  # pyright: ignore[reportCallIssue]
             user=user,  # pyright: ignore[reportCallIssue]
             consent_type=consent_type,  # pyright: ignore[reportCallIssue]
             version=new_version,  # pyright: ignore[reportCallIssue]
@@ -332,12 +336,12 @@ class ConsentService:
             True if user's consent version is outdated, False otherwise.
         """
         try:
-            consent = ConsentRecord.objects.get(
+            consent = ConsentRecord.objects.get(  # type: ignore[attr-defined]
                 user=user,
                 consent_type=consent_type,
                 granted=True,
                 withdrawn_at__isnull=True,
             )
             return consent.version != current_version
-        except ConsentRecord.DoesNotExist:
+        except ConsentRecord.DoesNotExist:  # type: ignore[attr-defined]
             return True  # No consent granted, requires new consent

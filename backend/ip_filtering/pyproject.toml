@@ -3,16 +3,16 @@ requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "syntek-forms_surveys"
+name = "syntek-ip-filtering"
 version = "0.1.0"
-description = "Syntek forms_surveys module for Django"
+description = "IP allowlist/blocklist middleware for Django"
 readme = "README.md"
 requires-python = ">=3.14"
 license = {text = "MIT"}
 authors = [
     {name = "Syntek Team", email = "dev@syntek.io"}
 ]
-keywords = ["syntek", "django", "forms_surveys"]
+keywords = ["syntek", "django", "security", "ip-filtering", "firewall"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Framework :: Django",
@@ -42,10 +42,7 @@ Repository = "https://github.com/syntek/syntek-modules"
 Issues = "https://github.com/syntek/syntek-modules/issues"
 
 [tool.setuptools]
-packages = ["syntek_forms_surveys"]
-
-[tool.setuptools.package-dir]
-syntek_forms_surveys = "."
+packages = ["syntek_ip_filtering", "syntek_ip_filtering.middleware"]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "tests.settings"

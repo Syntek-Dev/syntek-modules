@@ -34,7 +34,7 @@ if TYPE_CHECKING:
 
 # Import services if available
 try:
-    from syntek_audit.services import AuditService
+    from syntek_audit.services import AuditService  # type: ignore[import]
 except ImportError:
     AuditService = None  # type: ignore[assignment, misc]
 

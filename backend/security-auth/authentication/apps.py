@@ -6,7 +6,7 @@ from django.apps import AppConfig
 class AuthenticationConfig(AppConfig):
     """Configuration for the Syntek Authentication app."""
 
-    default_auto_field = "django.db.models.BigAutoField"
+    default_auto_field = "django.db.models.BigAutoField"  # type: ignore[assignment]
     name = "syntek_authentication"
     verbose_name = "Syntek Authentication"
 

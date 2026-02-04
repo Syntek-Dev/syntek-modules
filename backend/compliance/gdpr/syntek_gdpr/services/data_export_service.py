@@ -31,12 +31,12 @@ if TYPE_CHECKING:
 
 # Import models - these need to be available in the target environment
 try:
-    from syntek_audit.models import AuditLog
+    from syntek_audit.models import AuditLog  # type: ignore[import]
 except ImportError:
     AuditLog = None  # type: ignore[assignment, misc]
 
 try:
-    from syntek_authentication.models import (
+    from syntek_authentication.models import (  # type: ignore[import]
         BackupCode,
         PasswordHistory,
         TOTPDevice,
@@ -51,21 +51,21 @@ except ImportError:
     PasswordHistory = None  # type: ignore[assignment, misc]
 
 try:
-    from syntek_sessions.models import SessionToken
+    from syntek_sessions.models import SessionToken  # type: ignore[import]
 except ImportError:
     SessionToken = None  # type: ignore[assignment, misc]
 
-from syntek_gdpr.models import ConsentRecord
+from syntek_gdpr.models import ConsentRecord  # type: ignore[import]
 
 # Import services if available
 try:
-    from syntek_audit.services import AuditService
+    from syntek_audit.services import AuditService  # type: ignore[import]
 except ImportError:
     AuditService = None  # type: ignore[assignment, misc]
 
 # Import encryption utilities if available
 try:
-    from syntek_authentication.utils.encryption import IPEncryption
+    from syntek_authentication.utils.encryption import IPEncryption  # type: ignore[import]
 except ImportError:
     IPEncryption = None  # type: ignore[assignment, misc]
 
@@ -308,8 +308,12 @@ class DataExportService:
             "first_name": getattr(user, "first_name", ""),
             "last_name": getattr(user, "last_name", ""),
             "is_active": user.is_active,
-            "created_at": user.created_at.isoformat() if hasattr(user, "created_at") and user.created_at else None,
-            "updated_at": user.updated_at.isoformat() if hasattr(user, "updated_at") and user.updated_at else None,
+            "created_at": user.created_at.isoformat()
+            if hasattr(user, "created_at") and user.created_at
+            else None,
+            "updated_at": user.updated_at.isoformat()
+            if hasattr(user, "updated_at") and user.updated_at
+            else None,
             "last_login": user.last_login.isoformat() if user.last_login else None,
         }
 
@@ -339,7 +343,9 @@ class DataExportService:
             "name": user.organisation.name,
             "slug": getattr(user.organisation, "slug", ""),
             "role": "Member",
-            "joined_at": user.created_at.isoformat() if hasattr(user, "created_at") and user.created_at else None,
+            "joined_at": user.created_at.isoformat()
+            if hasattr(user, "created_at") and user.created_at
+            else None,
         }
 
     @staticmethod
@@ -375,7 +381,9 @@ class DataExportService:
                 }
                 for device in devices
             ],
-            "backup_codes_remaining": BackupCode.objects.filter(user=user, is_used=False).count() if BackupCode else 0,
+            "backup_codes_remaining": BackupCode.objects.filter(user=user, is_used=False).count()
+            if BackupCode
+            else 0,
         }
 
     @staticmethod
@@ -391,7 +399,9 @@ class DataExportService:
                 "device_fingerprint": getattr(session, "device_fingerprint", ""),
                 "user_agent": session.user_agent,
                 "created_at": session.created_at.isoformat(),
-                "last_activity_at": session.last_activity_at.isoformat() if hasattr(session, "last_activity_at") else None,
+                "last_activity_at": session.last_activity_at.isoformat()
+                if hasattr(session, "last_activity_at")
+                else None,
                 "expires_at": session.expires_at.isoformat(),
             }
             for session in sessions
@@ -438,7 +448,7 @@ class DataExportService:
     @staticmethod
     def _get_consent_data(user) -> list[dict[str, Any]]:
         """Get consent records."""
-        consents = ConsentRecord.objects.filter(user=user).order_by("-granted_at")
+        consents = ConsentRecord.objects.filter(user=user).order_by("-granted_at")  # type: ignore[attr-defined]
 
         return [
             {

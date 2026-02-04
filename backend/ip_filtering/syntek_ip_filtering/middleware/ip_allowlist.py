@@ -77,20 +77,20 @@ class IPAllowlistMiddleware:
         Returns:
             dict: Configuration dictionary
         """
-        ip_config = getattr(settings, 'SYNTEK_IP_FILTERING', {})
+        ip_config = getattr(settings, "SYNTEK_IP_FILTERING", {})
 
         # Default configuration
         defaults = {
-            'MODE': 'allowlist',
-            'ALLOWED_IPS': ['127.0.0.1', '::1'],
-            'BLOCKED_IPS': [],
-            'PROTECTED_PATHS': ['/admin/', '/api/admin/'],
-            'ENABLE_CACHING': True,
-            'CACHE_TTL': 300,
-            'RESPONSE_MESSAGE': 'Access denied from your IP address',
-            'RESPONSE_STATUS': 403,
-            'LOG_BLOCKED': True,
-            'ENABLED': True,
+            "MODE": "allowlist",
+            "ALLOWED_IPS": ["127.0.0.1", "::1"],
+            "BLOCKED_IPS": [],
+            "PROTECTED_PATHS": ["/admin/", "/api/admin/"],
+            "ENABLE_CACHING": True,
+            "CACHE_TTL": 300,
+            "RESPONSE_MESSAGE": "Access denied from your IP address",
+            "RESPONSE_STATUS": 403,
+            "LOG_BLOCKED": True,
+            "ENABLED": True,
         }
 
         # Merge with user configuration
@@ -106,7 +106,7 @@ class IPAllowlistMiddleware:
         Returns:
             HttpResponse: Response, or 403 if IP is blocked
         """
-        if not self.config.get('ENABLED', True):
+        if not self.config.get("ENABLED", True):
             return self.get_response(request)
 
         # Check if path is protected
@@ -132,18 +132,18 @@ class IPAllowlistMiddleware:
             str: Client IP address
         """
         # Check X-Forwarded-For header (proxy/load balancer)
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
         if x_forwarded_for:
             # Take the first IP in the chain (original client)
-            return x_forwarded_for.split(',')[0].strip()
+            return x_forwarded_for.split(",")[0].strip()
 
         # Check X-Real-IP header
-        x_real_ip = request.META.get('HTTP_X_REAL_IP')
+        x_real_ip = request.META.get("HTTP_X_REAL_IP")
         if x_real_ip:
             return x_real_ip.strip()
 
         # Fallback to REMOTE_ADDR
-        return request.META.get('REMOTE_ADDR', '0.0.0.0')
+        return request.META.get("REMOTE_ADDR", "0.0.0.0")
 
     def _is_protected_path(self, path: str) -> bool:
         """Check if request path requires IP filtering.
@@ -154,7 +154,7 @@ class IPAllowlistMiddleware:
         Returns:
             bool: True if path is protected
         """
-        protected_paths = self.config.get('PROTECTED_PATHS', [])
+        protected_paths = self.config.get("PROTECTED_PATHS", [])
 
         # If no protected paths specified, protect all paths
         if not protected_paths:
@@ -172,26 +172,26 @@ class IPAllowlistMiddleware:
             bool: True if IP is allowed
         """
         # Check cache first
-        if self.config.get('ENABLE_CACHING', True):
+        if self.config.get("ENABLE_CACHING", True):
             cache_key = f"ip_allowed:{client_ip}"
             cached_result = cache.get(cache_key)
             if cached_result is not None:
                 return cached_result
 
         # Determine based on mode
-        mode = self.config.get('MODE', 'allowlist')
+        mode = self.config.get("MODE", "allowlist")
 
-        if mode == 'allowlist':
+        if mode == "allowlist":
             result = self._is_ip_in_allowlist(client_ip)
-        elif mode == 'blocklist':
+        elif mode == "blocklist":
             result = not self._is_ip_in_blocklist(client_ip)
         else:
             logger.error(f"Invalid IP filtering mode: {mode}")
             result = False  # Fail closed
 
         # Cache result
-        if self.config.get('ENABLE_CACHING', True):
-            cache_ttl = self.config.get('CACHE_TTL', 300)
+        if self.config.get("ENABLE_CACHING", True):
+            cache_ttl = self.config.get("CACHE_TTL", 300)
             cache.set(cache_key, result, cache_ttl)
 
         return result
@@ -205,7 +205,7 @@ class IPAllowlistMiddleware:
         Returns:
             bool: True if IP is allowed
         """
-        allowed_ips = self.config.get('ALLOWED_IPS', [])
+        allowed_ips = self.config.get("ALLOWED_IPS", [])
 
         # Parse client IP
         try:
@@ -234,7 +234,7 @@ class IPAllowlistMiddleware:
         Returns:
             bool: True if IP is blocked
         """
-        blocked_ips = self.config.get('BLOCKED_IPS', [])
+        blocked_ips = self.config.get("BLOCKED_IPS", [])
 
         # Parse client IP
         try:
@@ -254,10 +254,7 @@ class IPAllowlistMiddleware:
 
         return False
 
-    def _parse_ip_list(
-        self,
-        ip_list: List[str]
-    ) -> List[ipaddress.IPv4Network]:
+    def _parse_ip_list(self, ip_list: List[str]) -> List[ipaddress.IPv4Network]:
         """Parse list of IPs/CIDR ranges into network objects.
 
         Args:
@@ -271,7 +268,7 @@ class IPAllowlistMiddleware:
         for ip_or_cidr in ip_list:
             try:
                 # Try parsing as network (CIDR)
-                if '/' in ip_or_cidr:
+                if "/" in ip_or_cidr:
                     network = ipaddress.ip_network(ip_or_cidr, strict=False)
                 else:
                     # Individual IP - create /32 network
@@ -285,11 +282,7 @@ class IPAllowlistMiddleware:
 
         return networks
 
-    def _access_denied_response(
-        self,
-        request: HttpRequest,
-        client_ip: str
-    ) -> HttpResponse:
+    def _access_denied_response(self, request: HttpRequest, client_ip: str) -> HttpResponse:
         """Generate response for blocked IP.
 
         Args:
@@ -300,16 +293,11 @@ class IPAllowlistMiddleware:
             HttpResponse: 403 Forbidden response
         """
         # Log blocked access
-        if self.config.get('LOG_BLOCKED', True):
-            logger.warning(
-                f"Access denied for IP {client_ip} to {request.method} {request.path}"
-            )
+        if self.config.get("LOG_BLOCKED", True):
+            logger.warning(f"Access denied for IP {client_ip} to {request.method} {request.path}")
 
         # Get response message
-        message = self.config.get(
-            'RESPONSE_MESSAGE',
-            'Access denied from your IP address'
-        )
+        message = self.config.get("RESPONSE_MESSAGE", "Access denied from your IP address")
 
         # Return forbidden response
         return HttpResponseForbidden(message)
