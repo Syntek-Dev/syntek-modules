@@ -7,8 +7,8 @@
 //!
 //! Optionally removes dependencies (node_modules) with --deps flag.
 
-use colored::*;
 use crate::utils::exec;
+use colored::*;
 
 pub fn run(deps: bool) -> anyhow::Result<()> {
     println!("{}", "🧹 Cleaning build artifacts...".green().bold());

@@ -8,8 +8,8 @@
 //!
 //! Each ecosystem uses its appropriate package manager for optimal performance.
 
-use colored::*;
 use crate::utils::exec;
+use colored::*;
 
 /// Run dependency installation for specified target
 ///

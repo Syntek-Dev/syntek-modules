@@ -12,6 +12,8 @@
 //! - `init` - Initialize project (Git hooks, secrets, dev tools)
 //! - `coverage` - Generate and manage code coverage reports
 //! - `lint` - Lint code (Ruff, ESLint, Clippy)
+//! - `typecheck` - Type check code (Pyright, tsc, cargo check)
+//! - `validate` - Validate code (lint + typecheck combined)
 //! - `format` - Format code (Ruff, Prettier, rustfmt)
 //! - `build` - Build projects for development or production
 //! - `clean` - Clean build artifacts and dependencies
@@ -91,9 +93,19 @@ enum Commands {
         target: InstallTarget,
     },
 
-    /// Lint all code
+    /// Lint all code (style, security, best practices)
     Lint {
         /// Fix automatically where possible
+        #[arg(short, long)]
+        fix: bool,
+    },
+
+    /// Type check all code (static type safety)
+    Typecheck,
+
+    /// Validate all code (lint + typecheck)
+    Validate {
+        /// Fix linting issues automatically where possible
         #[arg(short, long)]
         fix: bool,
     },
@@ -198,6 +210,8 @@ fn main() -> anyhow::Result<()> {
         Commands::Production { env, force } => commands::production::run(env, force),
         Commands::Install { target } => commands::install::run(target),
         Commands::Lint { fix } => commands::lint::run(fix),
+        Commands::Typecheck => commands::typecheck::run(),
+        Commands::Validate { fix } => commands::validate::run(fix),
         Commands::Format { check } => commands::format::run(check),
         Commands::Build { mode } => commands::build::run(mode),
         Commands::Clean { deps } => commands::clean::run(deps),

@@ -10,3 +10,5 @@ pub mod lint;
 pub mod production;
 pub mod staging;
 pub mod test;
+pub mod typecheck;
+pub mod validate;
