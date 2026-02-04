@@ -9,7 +9,7 @@ This example demonstrates the full authentication flow:
 6. Logout
 """
 
-import requests
+import requests  # type: ignore[import]
 
 # Base URL for GraphQL endpoint
 GRAPHQL_URL = "http://localhost:8000/graphql/"
@@ -31,10 +31,7 @@ def graphql_request(query, variables=None, access_token=None):
         headers["Authorization"] = f"Bearer {access_token}"
 
     response = requests.post(
-        GRAPHQL_URL,
-        json={"query": query, "variables": variables},
-        headers=headers,
-        timeout=30
+        GRAPHQL_URL, json={"query": query, "variables": variables}, headers=headers, timeout=30
     )
     return response.json()
 

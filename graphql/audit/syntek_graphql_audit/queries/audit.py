@@ -18,9 +18,9 @@ import strawberry
 if TYPE_CHECKING:
     from strawberry.types import Info
 
-from syntek_graphql_core.permissions import IsAuthenticated
+from syntek_graphql_core.permissions import IsAuthenticated  # type: ignore[import]
 
-from syntek_graphql_audit.types import (
+from syntek_graphql_audit.types import (  # type: ignore[import]
     AuditLogConnection,
     AuditLogFilterInput,
     AuditLogType,
@@ -56,7 +56,7 @@ class AuditQuery:
         """
         # Import dynamically to avoid circular imports
         try:
-            from syntek_audit.models import AuditLog
+            from syntek_audit.models import AuditLog  # type: ignore[import]
         except ImportError as e:
             raise ImportError(
                 "syntek-audit package is required for audit log queries. "
@@ -127,7 +127,7 @@ class AuditQuery:
         """
         # Import dynamically to avoid circular imports
         try:
-            from syntek_audit.models import AuditLog
+            from syntek_audit.models import AuditLog  # type: ignore[import]
         except ImportError as e:
             raise ImportError(
                 "syntek-audit package is required for audit log queries. "
@@ -138,7 +138,9 @@ class AuditQuery:
 
         # Check permission (adjust permission string to match your setup)
         if not user.has_perm("audit.view_auditlog"):
-            from syntek_graphql_core.errors import PermissionError as GraphQLPermissionError
+            from syntek_graphql_core.errors import (  # type: ignore[import]
+                PermissionError as GraphQLPermissionError,
+            )
 
             raise GraphQLPermissionError(
                 message="You do not have permission to view organisation audit logs"
@@ -199,7 +201,7 @@ class AuditQuery:
         """
         # Import dynamically to avoid circular imports
         try:
-            from syntek_sessions.services import SessionManagementService
+            from syntek_sessions.services import SessionManagementService  # type: ignore[import]
         except ImportError as e:
             raise ImportError(
                 "syntek-sessions package is required for session queries. "
@@ -241,7 +243,7 @@ class AuditQuery:
         """
         # Import dynamically to avoid circular imports
         try:
-            from syntek_audit.models import AuditLog
+            from syntek_audit.models import AuditLog  # type: ignore[import]
         except ImportError as e:
             raise ImportError(
                 "syntek-audit package is required for audit log queries. "

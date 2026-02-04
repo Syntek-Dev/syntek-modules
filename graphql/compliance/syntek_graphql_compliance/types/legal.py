@@ -19,8 +19,12 @@ from uuid import UUID  # noqa: TC003 - Required at runtime for Strawberry GraphQ
 import strawberry
 
 if TYPE_CHECKING:
-    from apps.core.models.legal_acceptance import LegalAcceptance as LegalAcceptanceModel
-    from apps.core.models.legal_document import LegalDocument as LegalDocumentModel
+    from apps.core.models.legal_acceptance import (  # type: ignore[import]
+        LegalAcceptance as LegalAcceptanceModel,
+    )
+    from apps.core.models.legal_document import (  # type: ignore[import]
+        LegalDocument as LegalDocumentModel,
+    )
 
 
 @strawberry.enum

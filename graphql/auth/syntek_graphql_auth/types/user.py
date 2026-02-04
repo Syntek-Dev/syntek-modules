@@ -111,6 +111,7 @@ class UserType:
             except (AttributeError, Exception) as e:
                 # Log the exception for debugging
                 import logging
+
                 logger = logging.getLogger(__name__)
                 logger.warning(f"Failed to get organisation for user: {e}")
 
@@ -119,7 +120,7 @@ class UserType:
             return None
 
         # Use DataLoader to batch organisation lookup
-        from api.dataloaders import get_dataloaders
+        from api.dataloaders import get_dataloaders  # type: ignore[import]
 
         loaders = get_dataloaders(info.context)
         org = await loaders.organisation.load(organisation_id)
@@ -171,6 +172,7 @@ class UserType:
             except (AttributeError, Exception) as e:
                 # Log the exception for debugging
                 import logging
+
                 logger = logging.getLogger(__name__)
                 logger.warning(f"Failed to get profile for user: {e}")
 
@@ -182,7 +184,7 @@ class UserType:
                 return None
 
         # Use DataLoader to batch profile lookup
-        from api.dataloaders import get_dataloaders
+        from api.dataloaders import get_dataloaders  # type: ignore[import]
 
         loaders = get_dataloaders(info.context)
         profile = await loaders.user_profile.load(user_id)
