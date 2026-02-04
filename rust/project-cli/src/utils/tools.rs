@@ -52,32 +52,23 @@ pub fn ensure_venv_exists() -> anyhow::Result<()> {
 pub fn install_python_dev_tools() -> anyhow::Result<()> {
     println!("{}", "   🐍 Installing Python dev tools...".dimmed());
 
-    let packages = vec![
-        "pre-commit",
-        "detect-secrets",
-        "pytest",
-        "pytest-bdd",
-        "pytest-cov",
-        "pytest-django",
-    ];
+    print!("      Syncing dev dependencies...");
+    std::io::Write::flush(&mut std::io::stdout())?;
 
-    for package in packages {
-        print!("      Installing {}...", package);
-        std::io::Write::flush(&mut std::io::stdout())?;
+    let output = Command::new("uv")
+        .args(["sync", "--extra", "dev"])
+        .output()?;
 
-        let output = Command::new("uv")
-            .args(["pip", "install", package, "--quiet"])
-            .output()?;
-
-        if output.status.success() {
-            println!(" {}", "✓".green());
-        } else {
-            println!(" {}", "✗".red());
-            anyhow::bail!("Failed to install {}", package);
-        }
+    if output.status.success() {
+        println!(" {}", "✓".green());
+        println!("{}", "   ✓ Python dev tools installed".green());
+    } else {
+        println!(" {}", "✗".red());
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        eprintln!("{}", stderr);
+        anyhow::bail!("Failed to sync dev dependencies");
     }
 
-    println!("{}", "   ✓ Python dev tools installed".green());
     Ok(())
 }
 

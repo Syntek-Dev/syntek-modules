@@ -91,6 +91,10 @@ enum Commands {
         /// Install type
         #[arg(value_enum, default_value = "all")]
         target: InstallTarget,
+
+        /// Install dev dependencies (pre-commit, ruff, pyright, pytest, etc.)
+        #[arg(long)]
+        dev: bool,
     },
 
     /// Lint all code (style, security, best practices)
@@ -208,7 +212,7 @@ fn main() -> anyhow::Result<()> {
         Commands::Test { env, module, watch } => commands::test::run(env, module, watch),
         Commands::Staging { env } => commands::staging::run(env),
         Commands::Production { env, force } => commands::production::run(env, force),
-        Commands::Install { target } => commands::install::run(target),
+        Commands::Install { target, dev } => commands::install::run(target, dev),
         Commands::Lint { fix } => commands::lint::run(fix),
         Commands::Typecheck => commands::typecheck::run(),
         Commands::Validate { fix } => commands::validate::run(fix),

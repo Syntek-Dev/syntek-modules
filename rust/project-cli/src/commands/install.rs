@@ -16,21 +16,22 @@ use colored::*;
 /// # Arguments
 ///
 /// * `target` - Installation target (All, Backend, Web, Mobile, Shared, Rust)
+/// * `dev` - Install dev dependencies (pre-commit, ruff, pyright, pytest, etc.)
 ///
 /// # Returns
 ///
 /// * `Ok(())` if installation succeeds
 /// * `Err` if any installation fails
-pub fn run(target: crate::InstallTarget) -> anyhow::Result<()> {
+pub fn run(target: crate::InstallTarget, dev: bool) -> anyhow::Result<()> {
     println!("{}", "📦 Installing dependencies...".green().bold());
 
     match target {
         crate::InstallTarget::All => {
-            install_backend()?;
+            install_backend(dev)?;
             install_pnpm_workspace()?;
             install_rust()?;
         }
-        crate::InstallTarget::Backend => install_backend()?,
+        crate::InstallTarget::Backend => install_backend(dev)?,
         crate::InstallTarget::Web | crate::InstallTarget::Mobile | crate::InstallTarget::Shared => {
             install_pnpm_workspace()?;
         }
@@ -41,9 +42,15 @@ pub fn run(target: crate::InstallTarget) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn install_backend() -> anyhow::Result<()> {
+fn install_backend(dev: bool) -> anyhow::Result<()> {
     println!("{}", "🐍 Installing Python dependencies...".cyan());
-    exec::run_command("uv", &["sync"])?;
+
+    if dev {
+        exec::run_command("uv", &["sync", "--extra", "dev"])?;
+    } else {
+        exec::run_command("uv", &["sync"])?;
+    }
+
     Ok(())
 }
 
