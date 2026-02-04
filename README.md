@@ -203,9 +203,13 @@ syntek-modules/
 │   ├── project-cli/               # CLI tool (syntek dev/test/build)
 │   └── README.md
 │
-├── graphql/                       # GraphQL layer
-│   ├── middleware/                # Encryption/decryption middleware
-│   └── schema/                    # GraphQL schema definitions
+├── graphql/                       # GraphQL modules (modular architecture)
+│   ├── core/                      # Security foundation (errors, permissions, middleware)
+│   ├── auth/                      # Authentication & sessions GraphQL layer
+│   ├── audit/                     # Audit logging queries
+│   ├── compliance/                # GDPR & legal document operations
+│   ├── examples/                  # GraphQL integration examples
+│   └── tests/                     # GraphQL tests
 │
 ├── examples/                      # Example integrations
 │   ├── django-example/            # Django project using modules
@@ -349,6 +353,32 @@ syntek-modules/
 | `llm-gateway`   | AI LLM gateway with rate limiting              |
 | `pyo3-bindings` | Python bindings for Django integration         |
 | `project-cli`   | CLI tool for development workflows             |
+
+### GraphQL Modules
+
+| Module                      | Version | Description                                           |
+| --------------------------- | ------- | ----------------------------------------------------- |
+| `syntek-graphql-core`       | 1.0.0   | Security foundation (errors, permissions, middleware) |
+| `syntek-graphql-auth`       | 2.0.0   | Authentication & sessions - register, login, JWT, 2FA |
+| `syntek-graphql-audit`      | 1.0.0   | Audit logging - user/org audit logs, session queries  |
+| `syntek-graphql-compliance` | 1.0.0   | GDPR & legal - data export, consent, legal documents  |
+
+**Key Features:**
+
+- 🔐 **Modular Architecture** - Install only the GraphQL modules you need
+- 🛡️ **Security-First** - Query depth/complexity limiting, CSRF protection, rate limiting
+- 📊 **Audit Logging** - Track all security events and user actions
+- ⚖️ **GDPR Compliant** - Data export, deletion, consent management
+- 🔑 **JWT Authentication** - Secure token-based authentication with refresh tokens
+- 🔐 **2FA Support** - TOTP-based two-factor authentication
+- 📝 **Legal Document Management** - Terms of service, privacy policy acceptance tracking
+
+**Documentation:**
+
+- [Installation Guide](docs/GRAPHQL-INSTALLATION.md)
+- [Schema Composition Guide](docs/GRAPHQL-SCHEMA-COMPOSITION.md)
+- [Migration Guide](docs/GRAPHQL-MIGRATION-GUIDE.md)
+- [Examples](examples/graphql/)
 
 ---
 
@@ -528,6 +558,58 @@ Add to `Cargo.toml`:
 syntek-encryption = { path = "../syntek-modules/rust/encryption" }
 syntek-security = { path = "../syntek-modules/rust/security" }
 ```
+
+### GraphQL Modules
+
+Install via uv or pip:
+
+```bash
+# Minimal (Auth only)
+uv pip install syntek-graphql-core syntek-graphql-auth
+
+# Auth + Audit
+uv pip install syntek-graphql-core syntek-graphql-auth syntek-graphql-audit
+
+# Full (All modules)
+uv pip install syntek-graphql-core \
+               syntek-graphql-auth \
+               syntek-graphql-audit \
+               syntek-graphql-compliance
+```
+
+**Compose GraphQL Schema:**
+
+```python
+# myproject/schema.py
+import strawberry
+from syntek_graphql_core.security import (
+    QueryDepthLimitExtension,
+    QueryComplexityLimitExtension,
+    IntrospectionControlExtension,
+)
+from syntek_graphql_auth.mutations.auth import AuthMutations
+from syntek_graphql_auth.queries.user import UserQueries
+
+@strawberry.type
+class Query(UserQueries):
+    pass
+
+@strawberry.type
+class Mutation(AuthMutations):
+    pass
+
+schema = strawberry.Schema(
+    query=Query,
+    mutation=Mutation,
+    extensions=[
+        QueryDepthLimitExtension(max_depth=10),
+        QueryComplexityLimitExtension(max_complexity=1000),
+        IntrospectionControlExtension(),
+    ],
+)
+```
+
+**See:** [GraphQL Installation Guide](docs/GRAPHQL-INSTALLATION.md) for detailed instructions.
 
 ---
 

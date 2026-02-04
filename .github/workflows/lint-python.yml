@@ -57,17 +57,11 @@ jobs:
       - name: Install syntek CLI
         run: cargo install --path rust/project-cli
 
-      # Run unified linting (Python only)
-      - name: Lint Python with syntek CLI
-        run: |
-          # Lint Python only
-          uv run ruff check .
+      # Run unified validation (lint + typecheck + format)
+      - name: Validate Python code
+        run: syntek validate
         continue-on-error: true
 
       - name: Check formatting
         run: syntek format --check
-        continue-on-error: true
-
-      - name: Type check with mypy
-        run: uv run mypy backend/ graphql/
         continue-on-error: true
