@@ -39,6 +39,7 @@ graphql/
 **Security foundation for all GraphQL modules.**
 
 **Features:**
+
 - Standardized error codes and exceptions
 - Permission classes (IsAuthenticated, HasPermission, IsOrganisationOwner)
 - Security extensions (query depth/complexity limiting, introspection control)
@@ -47,6 +48,7 @@ graphql/
 - Type guards for authentication
 
 **Installation:**
+
 ```bash
 uv pip install syntek-graphql-core
 ```
@@ -60,6 +62,7 @@ uv pip install syntek-graphql-core
 **User authentication, sessions, JWT, and TOTP/2FA.**
 
 **Features:**
+
 - User registration with email verification
 - Login/logout with JWT (RS256)
 - Password reset and change
@@ -69,6 +72,7 @@ uv pip install syntek-graphql-core
 - CAPTCHA protection
 
 **Installation:**
+
 ```bash
 uv pip install syntek-graphql-core syntek-graphql-auth
 ```
@@ -82,6 +86,7 @@ uv pip install syntek-graphql-core syntek-graphql-auth
 **Audit log queries with organisation boundaries.**
 
 **Features:**
+
 - User-specific audit logs
 - Organisation-wide logs (with permission checks)
 - Session management information
@@ -90,6 +95,7 @@ uv pip install syntek-graphql-core syntek-graphql-auth
 - Organisation boundary enforcement
 
 **Installation:**
+
 ```bash
 uv pip install syntek-graphql-core syntek-graphql-auth syntek-graphql-audit
 ```
@@ -103,6 +109,7 @@ uv pip install syntek-graphql-core syntek-graphql-auth syntek-graphql-audit
 **GDPR operations and legal document management.**
 
 **Features:**
+
 - **GDPR Article 15:** Data export
 - **GDPR Article 17:** Account deletion
 - **GDPR Article 18:** Processing restrictions
@@ -111,6 +118,7 @@ uv pip install syntek-graphql-core syntek-graphql-auth syntek-graphql-audit
 - Acceptance tracking
 
 **Installation:**
+
 ```bash
 uv pip install syntek-graphql-core syntek-graphql-auth syntek-graphql-compliance
 ```
@@ -124,21 +132,25 @@ uv pip install syntek-graphql-core syntek-graphql-auth syntek-graphql-compliance
 ### Installation Scenarios
 
 #### Minimal (Auth only)
+
 ```bash
 uv pip install syntek-graphql-core syntek-graphql-auth
 ```
 
 #### With Audit Logging
+
 ```bash
 uv pip install syntek-graphql-core syntek-graphql-auth syntek-graphql-audit
 ```
 
 #### GDPR Compliant
+
 ```bash
 uv pip install syntek-graphql-core syntek-graphql-auth syntek-graphql-compliance
 ```
 
 #### Full Installation
+
 ```bash
 uv pip install syntek-graphql-core \
                syntek-graphql-auth \
@@ -186,31 +198,37 @@ If you're upgrading from the monolithic `syntek-graphql-auth` package, see [MIGR
 ## Architecture Benefits
 
 ### 1. Separation of Concerns
+
 - Each module has a single, well-defined responsibility
 - Easier to understand and maintain
 - Reduced cognitive load
 
 ### 2. Selective Installation
+
 - Install only what you need
 - Smaller bundle size
 - Faster installation
 
 ### 3. Independent Versioning
+
 - Semantic versioning per module
 - Breaking changes isolated
 - Faster release cycles
 
 ### 4. Better Testing
+
 - Test modules independently
 - Mock dependencies cleanly
 - Faster test runs
 
 ### 5. Security
+
 - Reduced attack surface
 - Easier security audits
 - Isolated vulnerabilities
 
 ### 6. Compliance
+
 - Optional GDPR module
 - Clear data handling
 - Easier compliance audits
@@ -259,6 +277,7 @@ pytest --cov=syntek_graphql_core --cov=syntek_graphql_auth --cov=syntek_graphql_
 ## Security Compliance
 
 All modules comply with:
+
 - ✅ OWASP Top 10
 - ✅ NIST Cybersecurity Framework
 - ✅ NCSC Guidelines
@@ -281,6 +300,7 @@ MIT License - see individual module LICENSE files for details.
 ## Related Packages
 
 ### Backend Modules
+
 - `syntek-security-core` - HTTP security middleware
 - `syntek-security-auth` - Backend authentication services
 - `syntek-audit` - Audit log models
@@ -288,6 +308,7 @@ MIT License - see individual module LICENSE files for details.
 - `syntek-compliance` - GDPR compliance models
 
 ### Frontend Modules
+
 - `@syntek/security-core` - Client-side security
 - `@syntek/ui-auth` - React authentication components
 - `@syntek/mobile-auth` - React Native authentication
@@ -295,6 +316,7 @@ MIT License - see individual module LICENSE files for details.
 ## Changelog
 
 See individual module CHANGELOG.md files:
+
 - [syntek-graphql-core/CHANGELOG.md](./syntek-graphql-core/CHANGELOG.md)
 - [syntek-graphql-auth/CHANGELOG.md](./syntek-graphql-auth/CHANGELOG.md)
 - [syntek-graphql-audit/CHANGELOG.md](./syntek-graphql-audit/CHANGELOG.md)

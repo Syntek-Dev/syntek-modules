@@ -78,26 +78,27 @@ def register_view(request):
 <script src="https://www.google.com/recaptcha/api.js?render={{ RECAPTCHA_SITE_KEY }}"></script>
 
 <script>
-function onSubmit(e) {
+  function onSubmit(e) {
     e.preventDefault();
 
-    grecaptcha.ready(function() {
-        grecaptcha.execute('{{ RECAPTCHA_SITE_KEY }}', {action: 'register'})
-        .then(function(token) {
-            // Add token to form
-            document.getElementById('g-recaptcha-response').value = token;
+    grecaptcha.ready(function () {
+      grecaptcha
+        .execute("{{ RECAPTCHA_SITE_KEY }}", { action: "register" })
+        .then(function (token) {
+          // Add token to form
+          document.getElementById("g-recaptcha-response").value = token;
 
-            // Submit form
-            document.getElementById('register-form').submit();
+          // Submit form
+          document.getElementById("register-form").submit();
         });
     });
-}
+  }
 </script>
 
 <form id="register-form" onsubmit="onSubmit(event)">
-    <input type="hidden" id="g-recaptcha-response" name="g-recaptcha-response">
-    <!-- form fields -->
-    <button type="submit">Register</button>
+  <input type="hidden" id="g-recaptcha-response" name="g-recaptcha-response" />
+  <!-- form fields -->
+  <button type="submit">Register</button>
 </form>
 ```
 
@@ -146,13 +147,13 @@ def register(
 
 Default thresholds (higher = more strict):
 
-| Action          | Threshold | Description                          |
-| --------------- | --------- | ------------------------------------ |
-| `register`      | 0.5       | User registration                    |
-| `login`         | 0.3       | Login (lower to avoid lockouts)      |
-| `password_reset`| 0.5       | Password reset requests              |
-| `contact`       | 0.5       | Contact form submissions             |
-| `default`       | 0.5       | Fallback for undefined actions       |
+| Action           | Threshold | Description                     |
+| ---------------- | --------- | ------------------------------- |
+| `register`       | 0.5       | User registration               |
+| `login`          | 0.3       | Login (lower to avoid lockouts) |
+| `password_reset` | 0.5       | Password reset requests         |
+| `contact`        | 0.5       | Contact form submissions        |
+| `default`        | 0.5       | Fallback for undefined actions  |
 
 Scores range from 0.0 (bot) to 1.0 (human).
 
@@ -174,6 +175,7 @@ pytest tests/
 ## Fail-Open Behavior
 
 When `FAIL_OPEN` is enabled:
+
 - Network errors allow users through
 - Invalid API keys block users (configuration error)
 - Service timeouts allow users through

@@ -9,6 +9,7 @@ This directory contains example projects demonstrating how to integrate Syntek G
 A minimal example showing authentication-only integration.
 
 **Features:**
+
 - User registration and login
 - JWT token management
 - Password reset functionality
@@ -16,6 +17,7 @@ A minimal example showing authentication-only integration.
 - Session management
 
 **Modules used:**
+
 - `syntek-graphql-core`
 - `syntek-graphql-auth`
 
@@ -26,6 +28,7 @@ A minimal example showing authentication-only integration.
 A comprehensive example demonstrating all GraphQL modules.
 
 **Features:**
+
 - All authentication features (from minimal example)
 - Audit logging and security monitoring
 - GDPR data export and deletion
@@ -33,6 +36,7 @@ A comprehensive example demonstrating all GraphQL modules.
 - Consent tracking
 
 **Modules used:**
+
 - `syntek-graphql-core`
 - `syntek-graphql-auth`
 - `syntek-graphql-audit`
@@ -132,12 +136,14 @@ pytest tests/test_authentication.py
 
 ```graphql
 mutation Register {
-  register(input: {
-    email: "user@example.com"
-    password: "SecurePass123!"
-    firstName: "John"
-    lastName: "Doe"
-  }) {
+  register(
+    input: {
+      email: "user@example.com"
+      password: "SecurePass123!"
+      firstName: "John"
+      lastName: "Doe"
+    }
+  ) {
     success
     message
     user {
@@ -154,10 +160,7 @@ mutation Register {
 
 ```graphql
 mutation Login {
-  login(
-    email: "user@example.com"
-    password: "SecurePass123!"
-  ) {
+  login(email: "user@example.com", password: "SecurePass123!") {
     success
     message
     token
@@ -355,6 +358,7 @@ class Query:
 ### Performance Optimisation
 
 1. **Use Connection Pooling:**
+
    ```python
    DATABASES = {
        'default': {
@@ -364,6 +368,7 @@ class Query:
    ```
 
 2. **Enable Query Caching:**
+
    ```python
    CACHES = {
        'default': {
@@ -374,6 +379,7 @@ class Query:
    ```
 
 3. **Use DataLoader for N+1 Prevention:**
+
    ```python
    from strawberry.dataloader import DataLoader
 

@@ -5,7 +5,9 @@ This directory contains example usage patterns for the Syntek GraphQL modules.
 ## Examples
 
 ### 1. `unified_schema.py`
+
 Shows how to create a unified GraphQL schema combining all modules:
+
 - syntek-graphql-core (security)
 - syntek-graphql-auth (authentication)
 - syntek-graphql-audit (audit logging)
@@ -14,7 +16,9 @@ Shows how to create a unified GraphQL schema combining all modules:
 **Use case:** Full-featured application with all GraphQL capabilities.
 
 ### 2. `selective_installation.py`
+
 Demonstrates different installation scenarios:
+
 - **Minimal:** Auth only
 - **Auth + Audit:** With logging
 - **Auth + Compliance:** GDPR-compliant apps

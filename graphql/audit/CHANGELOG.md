@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2026-02-04
 
 ### Added
+
 - Initial release of syntek-graphql-audit package
 - GraphQL queries for audit logging:
   - `myAuditLogs` - User-specific audit logs with filtering
@@ -28,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Session management information with limits
 
 ### Security
+
 - Organisation boundaries strictly enforced
 - Permission checks for organisation-wide logs
 - IP addresses remain encrypted in audit log responses
@@ -36,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pagination limits prevent data exfiltration
 
 ### Dependencies
+
 - Requires syntek-graphql-core>=1.0.0 for core functionality
 - Integrates with syntek-audit for audit log models
 - Integrates with syntek-sessions for session management
@@ -43,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Planned
+
 - Export audit logs to CSV/JSON
 - Advanced filtering (by IP range, action category)
 - Audit log retention policies

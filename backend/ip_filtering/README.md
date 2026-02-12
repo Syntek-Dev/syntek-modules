@@ -147,18 +147,18 @@ Main middleware class for IP filtering.
 
 **Configuration Options:**
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `MODE` | str | `'allowlist'` | `'allowlist'` or `'blocklist'` |
-| `ALLOWED_IPS` | list | `['127.0.0.1']` | IPs allowed in allowlist mode |
-| `BLOCKED_IPS` | list | `[]` | IPs blocked in blocklist mode |
-| `PROTECTED_PATHS` | list | `['/admin/']` | Paths to protect (empty = all) |
-| `ENABLE_CACHING` | bool | `True` | Cache IP check results |
-| `CACHE_TTL` | int | `300` | Cache TTL in seconds |
-| `RESPONSE_MESSAGE` | str | `'Access denied...'` | Error message for blocked IPs |
-| `RESPONSE_STATUS` | int | `403` | HTTP status for blocked requests |
-| `LOG_BLOCKED` | bool | `True` | Log blocked access attempts |
-| `ENABLED` | bool | `True` | Enable/disable middleware |
+| Option             | Type | Default              | Description                      |
+| ------------------ | ---- | -------------------- | -------------------------------- |
+| `MODE`             | str  | `'allowlist'`        | `'allowlist'` or `'blocklist'`   |
+| `ALLOWED_IPS`      | list | `['127.0.0.1']`      | IPs allowed in allowlist mode    |
+| `BLOCKED_IPS`      | list | `[]`                 | IPs blocked in blocklist mode    |
+| `PROTECTED_PATHS`  | list | `['/admin/']`        | Paths to protect (empty = all)   |
+| `ENABLE_CACHING`   | bool | `True`               | Cache IP check results           |
+| `CACHE_TTL`        | int  | `300`                | Cache TTL in seconds             |
+| `RESPONSE_MESSAGE` | str  | `'Access denied...'` | Error message for blocked IPs    |
+| `RESPONSE_STATUS`  | int  | `403`                | HTTP status for blocked requests |
+| `LOG_BLOCKED`      | bool | `True`               | Log blocked access attempts      |
+| `ENABLED`          | bool | `True`               | Enable/disable middleware        |
 
 ## Security Considerations
 

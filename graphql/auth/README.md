@@ -35,6 +35,7 @@ This module is part of Syntek's modular GraphQL architecture and depends on `syn
 ## Features
 
 ### Authentication
+
 - ✅ Email + password registration with verification
 - ✅ JWT access and refresh tokens
 - ✅ Email verification workflow
@@ -45,6 +46,7 @@ This module is part of Syntek's modular GraphQL architecture and depends on `syn
 - ✅ CAPTCHA support
 
 ### Two-Factor Authentication
+
 - ✅ TOTP setup with QR code generation
 - ✅ Backup code generation (10 single-use codes)
 - ✅ 2FA enforcement policies
@@ -52,6 +54,7 @@ This module is part of Syntek's modular GraphQL architecture and depends on `syn
 - ✅ 2FA disable with password confirmation
 
 ### Session Management
+
 - ✅ Concurrent session limiting
 - ✅ Device and location tracking
 - ✅ Session listing and termination
@@ -59,6 +62,7 @@ This module is part of Syntek's modular GraphQL architecture and depends on `syn
 - ✅ Session timeout configuration
 
 ### Password Management
+
 - ✅ Secure password reset via email
 - ✅ Password change with old password verification
 - ✅ Password history enforcement
@@ -66,6 +70,7 @@ This module is part of Syntek's modular GraphQL architecture and depends on `syn
 - ✅ Configurable complexity requirements
 
 ### User Queries
+
 - ✅ Current user profile
 - ✅ Active sessions listing
 - ✅ Organisation-scoped queries
@@ -247,58 +252,58 @@ python manage.py migrate
 
 Configure via `SYNTEK_AUTHENTICATION` in Django settings:
 
-| Setting | Type | Default | Description |
-|---------|------|---------|-------------|
-| `PASSWORD_MIN_LENGTH` | int | 12 | Minimum password length |
-| `PASSWORD_REQUIRE_UPPERCASE` | bool | True | Require uppercase letters |
-| `PASSWORD_REQUIRE_LOWERCASE` | bool | True | Require lowercase letters |
-| `PASSWORD_REQUIRE_NUMBERS` | bool | True | Require numeric digits |
-| `PASSWORD_REQUIRE_SPECIAL` | bool | True | Require special characters |
-| `PASSWORD_HISTORY_COUNT` | int | 5 | Number of previous passwords to check |
-| `CHECK_COMMON_PASSWORDS` | bool | True | Check against common password list |
-| `MAX_LOGIN_ATTEMPTS` | int | 5 | Failed login attempts before lockout |
-| `LOCKOUT_DURATION` | int | 300 | Account lockout duration in seconds |
-| `EMAIL_VERIFICATION_REQUIRED` | bool | True | Require email verification before login |
-| `CAPTCHA_ENABLED` | bool | False | Enable CAPTCHA on registration/login |
+| Setting                       | Type | Default | Description                             |
+| ----------------------------- | ---- | ------- | --------------------------------------- |
+| `PASSWORD_MIN_LENGTH`         | int  | 12      | Minimum password length                 |
+| `PASSWORD_REQUIRE_UPPERCASE`  | bool | True    | Require uppercase letters               |
+| `PASSWORD_REQUIRE_LOWERCASE`  | bool | True    | Require lowercase letters               |
+| `PASSWORD_REQUIRE_NUMBERS`    | bool | True    | Require numeric digits                  |
+| `PASSWORD_REQUIRE_SPECIAL`    | bool | True    | Require special characters              |
+| `PASSWORD_HISTORY_COUNT`      | int  | 5       | Number of previous passwords to check   |
+| `CHECK_COMMON_PASSWORDS`      | bool | True    | Check against common password list      |
+| `MAX_LOGIN_ATTEMPTS`          | int  | 5       | Failed login attempts before lockout    |
+| `LOCKOUT_DURATION`            | int  | 300     | Account lockout duration in seconds     |
+| `EMAIL_VERIFICATION_REQUIRED` | bool | True    | Require email verification before login |
+| `CAPTCHA_ENABLED`             | bool | False   | Enable CAPTCHA on registration/login    |
 
 ### Session Settings
 
 Configure via `SYNTEK_SESSIONS` in Django settings:
 
-| Setting | Type | Default | Description |
-|---------|------|---------|-------------|
-| `MAX_CONCURRENT_SESSIONS` | int | 3 | Maximum concurrent active sessions |
-| `SESSION_TIMEOUT` | int | 1800 | Inactivity timeout in seconds (30 min) |
-| `SESSION_ABSOLUTE_TIMEOUT` | int | 43200 | Absolute timeout in seconds (12 hours) |
-| `TRACK_DEVICE_INFO` | bool | True | Track device and browser information |
-| `TRACK_LOCATION` | bool | True | Track IP-based location |
-| `TERMINATE_ON_PASSWORD_CHANGE` | bool | True | End other sessions on password change |
+| Setting                        | Type | Default | Description                            |
+| ------------------------------ | ---- | ------- | -------------------------------------- |
+| `MAX_CONCURRENT_SESSIONS`      | int  | 3       | Maximum concurrent active sessions     |
+| `SESSION_TIMEOUT`              | int  | 1800    | Inactivity timeout in seconds (30 min) |
+| `SESSION_ABSOLUTE_TIMEOUT`     | int  | 43200   | Absolute timeout in seconds (12 hours) |
+| `TRACK_DEVICE_INFO`            | bool | True    | Track device and browser information   |
+| `TRACK_LOCATION`               | bool | True    | Track IP-based location                |
+| `TERMINATE_ON_PASSWORD_CHANGE` | bool | True    | End other sessions on password change  |
 
 ### JWT Settings
 
 Configure via `SYNTEK_JWT` in Django settings:
 
-| Setting | Type | Default | Description |
-|---------|------|---------|-------------|
-| `ACCESS_TOKEN_LIFETIME` | int | 900 | Access token lifetime in seconds (15 min) |
-| `REFRESH_TOKEN_LIFETIME` | int | 86400 | Refresh token lifetime in seconds (24 hours) |
-| `ROTATE_REFRESH_TOKENS` | bool | True | Issue new refresh token on refresh |
-| `ALGORITHM` | str | 'HS256' | JWT signing algorithm |
-| `AUDIENCE` | str | None | JWT audience claim |
-| `ISSUER` | str | None | JWT issuer claim |
+| Setting                  | Type | Default | Description                                  |
+| ------------------------ | ---- | ------- | -------------------------------------------- |
+| `ACCESS_TOKEN_LIFETIME`  | int  | 900     | Access token lifetime in seconds (15 min)    |
+| `REFRESH_TOKEN_LIFETIME` | int  | 86400   | Refresh token lifetime in seconds (24 hours) |
+| `ROTATE_REFRESH_TOKENS`  | bool | True    | Issue new refresh token on refresh           |
+| `ALGORITHM`              | str  | 'HS256' | JWT signing algorithm                        |
+| `AUDIENCE`               | str  | None    | JWT audience claim                           |
+| `ISSUER`                 | str  | None    | JWT issuer claim                             |
 
 ### MFA Settings
 
 Configure via `SYNTEK_MFA` in Django settings:
 
-| Setting | Type | Default | Description |
-|---------|------|---------|-------------|
-| `TOTP_ISSUER` | str | 'Syntek' | TOTP issuer name (shown in authenticator) |
-| `TOTP_DIGITS` | int | 6 | TOTP code length |
-| `TOTP_INTERVAL` | int | 30 | TOTP time step in seconds |
-| `BACKUP_CODE_COUNT` | int | 10 | Number of backup codes to generate |
-| `BACKUP_CODE_LENGTH` | int | 8 | Backup code length |
-| `ENFORCE_2FA` | bool | False | Require 2FA for all users |
+| Setting              | Type | Default  | Description                               |
+| -------------------- | ---- | -------- | ----------------------------------------- |
+| `TOTP_ISSUER`        | str  | 'Syntek' | TOTP issuer name (shown in authenticator) |
+| `TOTP_DIGITS`        | int  | 6        | TOTP code length                          |
+| `TOTP_INTERVAL`      | int  | 30       | TOTP time step in seconds                 |
+| `BACKUP_CODE_COUNT`  | int  | 10       | Number of backup codes to generate        |
+| `BACKUP_CODE_LENGTH` | int  | 8        | Backup code length                        |
+| `ENFORCE_2FA`        | bool | False    | Require 2FA for all users                 |
 
 ---
 
@@ -329,6 +334,7 @@ mutation Register {
 ```
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -351,10 +357,7 @@ mutation Register {
 
 ```graphql
 mutation Login {
-  login(
-    email: "user@example.com"
-    password: "SecureP@ssw0rd123"
-  ) {
+  login(email: "user@example.com", password: "SecureP@ssw0rd123") {
     success
     accessToken
     refreshToken
@@ -369,6 +372,7 @@ mutation Login {
 ```
 
 **Response (without 2FA):**
+
 ```json
 {
   "data": {
@@ -388,6 +392,7 @@ mutation Login {
 ```
 
 **Response (2FA required):**
+
 ```json
 {
   "data": {
@@ -398,12 +403,14 @@ mutation Login {
       "user": null
     }
   },
-  "errors": [{
-    "message": "Two-factor authentication code required",
-    "extensions": {
-      "code": "TWO_FACTOR_REQUIRED"
+  "errors": [
+    {
+      "message": "Two-factor authentication code required",
+      "extensions": {
+        "code": "TWO_FACTOR_REQUIRED"
+      }
     }
-  }]
+  ]
 }
 ```
 
@@ -437,6 +444,7 @@ mutation SetupTOTP {
 ```
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -585,6 +593,7 @@ mutation Logout {
 Register a new user account.
 
 **Arguments:**
+
 - `email: String!` - User email address (must be unique)
 - `password: String!` - User password (must meet strength requirements)
 - `firstName: String!` - User first name
@@ -592,11 +601,13 @@ Register a new user account.
 - `organisationId: ID` - Optional organisation ID to assign user
 
 **Returns:** `RegisterPayload`
+
 - `success: Boolean!`
 - `message: String`
 - `user: UserType`
 
 **Errors:**
+
 - `EMAIL_ALREADY_EXISTS` - Email already registered
 - `PASSWORD_TOO_WEAK` - Password doesn't meet requirements
 - `INVALID_EMAIL_FORMAT` - Invalid email format
@@ -609,17 +620,20 @@ Register a new user account.
 Authenticate user and return JWT tokens.
 
 **Arguments:**
+
 - `email: String!` - User email
 - `password: String!` - User password
 - `totpCode: String` - Optional TOTP code (required if 2FA enabled)
 
 **Returns:** `LoginPayload`
+
 - `success: Boolean!`
 - `accessToken: String`
 - `refreshToken: String`
 - `user: UserType`
 
 **Errors:**
+
 - `INVALID_CREDENTIALS` - Wrong email or password
 - `EMAIL_NOT_VERIFIED` - Email not verified
 - `ACCOUNT_LOCKED` - Too many failed attempts
@@ -634,14 +648,17 @@ Authenticate user and return JWT tokens.
 Refresh access token using refresh token.
 
 **Arguments:**
+
 - `refreshToken: String!` - Valid refresh token
 
 **Returns:** `RefreshTokenPayload`
+
 - `success: Boolean!`
 - `accessToken: String`
 - `refreshToken: String`
 
 **Errors:**
+
 - `TOKEN_EXPIRED` - Refresh token expired
 - `TOKEN_INVALID` - Invalid or revoked token
 
@@ -652,6 +669,7 @@ Refresh access token using refresh token.
 End current session and revoke tokens.
 
 **Returns:** `LogoutPayload`
+
 - `success: Boolean!`
 - `message: String`
 
@@ -664,9 +682,11 @@ End current session and revoke tokens.
 Send password reset email.
 
 **Arguments:**
+
 - `email: String!` - User email
 
 **Returns:** `PasswordResetRequestPayload`
+
 - `success: Boolean!`
 - `message: String`
 
@@ -679,14 +699,17 @@ Send password reset email.
 Reset password using token from email.
 
 **Arguments:**
+
 - `token: String!` - Reset token from email
 - `newPassword: String!` - New password
 
 **Returns:** `PasswordResetPayload`
+
 - `success: Boolean!`
 - `message: String`
 
 **Errors:**
+
 - `TOKEN_INVALID` - Invalid or expired reset token
 - `PASSWORD_TOO_WEAK` - Password doesn't meet requirements
 - `PASSWORD_IN_HISTORY` - Cannot reuse recent password
@@ -698,21 +721,25 @@ Reset password using token from email.
 Change password for authenticated user.
 
 **Arguments:**
+
 - `oldPassword: String!` - Current password
 - `newPassword: String!` - New password
 
 **Returns:** `ChangePasswordPayload`
+
 - `success: Boolean!`
 - `message: String`
 
 **Requires:** Authenticated user
 
 **Errors:**
+
 - `INVALID_CREDENTIALS` - Wrong current password
 - `PASSWORD_TOO_WEAK` - New password too weak
 - `PASSWORD_IN_HISTORY` - Cannot reuse recent password
 
 **Side Effects:**
+
 - Terminates all other active sessions
 - Rotates refresh tokens
 
@@ -723,6 +750,7 @@ Change password for authenticated user.
 Setup TOTP (2FA) for user account.
 
 **Returns:** `TOTPSetupPayload`
+
 - `success: Boolean!`
 - `secret: String` - TOTP secret for manual entry
 - `qrCodeUrl: String` - TOTP URL for QR code generation
@@ -737,15 +765,18 @@ Setup TOTP (2FA) for user account.
 Verify and enable TOTP.
 
 **Arguments:**
+
 - `code: String!` - 6-digit TOTP code
 
 **Returns:** `TOTPVerifyPayload`
+
 - `success: Boolean!`
 - `message: String`
 
 **Requires:** Authenticated user with TOTP setup
 
 **Errors:**
+
 - `INVALID_TOTP_CODE` - Wrong code
 
 ---
@@ -755,15 +786,18 @@ Verify and enable TOTP.
 Disable TOTP for account.
 
 **Arguments:**
+
 - `password: String!` - User password for confirmation
 
 **Returns:** `TOTPDisablePayload`
+
 - `success: Boolean!`
 - `message: String`
 
 **Requires:** Authenticated user
 
 **Errors:**
+
 - `INVALID_CREDENTIALS` - Wrong password
 
 ---
@@ -773,9 +807,11 @@ Disable TOTP for account.
 End a specific session.
 
 **Arguments:**
+
 - `sessionId: ID!` - Session ID to terminate
 
 **Returns:** `SessionTerminatePayload`
+
 - `success: Boolean!`
 - `message: String`
 
@@ -788,6 +824,7 @@ End a specific session.
 End all sessions except current.
 
 **Returns:** `SessionTerminateAllPayload`
+
 - `success: Boolean!`
 - `message: String`
 - `count: Int` - Number of sessions terminated
@@ -803,6 +840,7 @@ End all sessions except current.
 Get current authenticated user.
 
 **Returns:** `UserType`
+
 - `id: ID!`
 - `email: String!`
 - `firstName: String!`
@@ -821,6 +859,7 @@ Get current authenticated user.
 List all active sessions for current user.
 
 **Returns:** `[SessionType!]!`
+
 - `id: ID!`
 - `deviceName: String`
 - `browser: String`
@@ -872,12 +911,14 @@ type SessionType {
 ### 1. Password Security
 
 **Requirements enforced:**
+
 - Minimum length (default 12 characters)
 - Uppercase, lowercase, numbers, special characters
 - Common password checking
 - Password history tracking
 
 **Configuration:**
+
 ```python
 SYNTEK_AUTHENTICATION = {
     'PASSWORD_MIN_LENGTH': 12,
@@ -889,11 +930,13 @@ SYNTEK_AUTHENTICATION = {
 ### 2. Rate Limiting
 
 **Protection against:**
+
 - Brute force attacks
 - Password spraying
 - Credential stuffing
 
 **Implementation:**
+
 ```python
 SYNTEK_AUTHENTICATION = {
     'MAX_LOGIN_ATTEMPTS': 5,
@@ -904,12 +947,14 @@ SYNTEK_AUTHENTICATION = {
 ### 3. Token Security
 
 **JWT best practices:**
+
 - Short-lived access tokens (15 minutes)
 - Longer refresh tokens with rotation
 - Secure token storage
 - Automatic expiration
 
 **Configuration:**
+
 ```python
 SYNTEK_JWT = {
     'ACCESS_TOKEN_LIFETIME': 900,   # 15 minutes
@@ -921,12 +966,14 @@ SYNTEK_JWT = {
 ### 4. Session Management
 
 **Features:**
+
 - Concurrent session limiting
 - Device and location tracking
 - Automatic session termination on suspicious activity
 - Session timeout on inactivity
 
 **Configuration:**
+
 ```python
 SYNTEK_SESSIONS = {
     'MAX_CONCURRENT_SESSIONS': 3,
@@ -938,12 +985,14 @@ SYNTEK_SESSIONS = {
 ### 5. Two-Factor Authentication
 
 **TOTP implementation:**
+
 - Time-based one-time passwords (RFC 6238)
 - 6-digit codes
 - 30-second time window
 - Backup codes for recovery
 
 **Configuration:**
+
 ```python
 SYNTEK_MFA = {
     'TOTP_ISSUER': 'Your App Name',
@@ -955,6 +1004,7 @@ SYNTEK_MFA = {
 ### 6. Email Verification
 
 **Prevent account abuse:**
+
 - Verify email ownership before activation
 - Configurable verification requirement
 - Token-based verification links
@@ -962,11 +1012,13 @@ SYNTEK_MFA = {
 ### 7. Error Messages
 
 **Security through obscurity:**
+
 - Generic error messages to prevent enumeration
 - Detailed logging for security teams
 - No sensitive data in client responses
 
 **Example:**
+
 ```python
 # Good: Generic message
 raise AuthenticationError(ErrorCode.INVALID_CREDENTIALS)
@@ -978,6 +1030,7 @@ raise AuthenticationError(message="User with email 'admin@example.com' not found
 ### 8. HTTPS Only
 
 **Always use HTTPS in production:**
+
 ```python
 # settings/production.py
 SECURE_SSL_REDIRECT = True
@@ -1078,6 +1131,7 @@ graphql/auth/
 ### Test Coverage
 
 The module includes comprehensive tests for:
+
 - User registration with validation
 - Login with various scenarios (success, 2FA, locked account)
 - Token refresh and rotation
@@ -1144,6 +1198,7 @@ def test_register_success(db, graphql_client):
 If you're migrating from the monolithic `syntek-graphql-auth@1.x` package, see the [Migration Guide](../../MIGRATION_GUIDE.md) for detailed instructions.
 
 **Key Changes:**
+
 1. Core functionality moved to `syntek-graphql-core`
 2. Audit logging moved to `syntek-graphql-audit`
 3. GDPR/legal moved to `syntek-graphql-compliance`

@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+
 - Preparing for modular architecture migration
 
 ---
@@ -15,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.0] - 2026-02-04
 
 ### Changed - BREAKING
+
 - **Modular Architecture**: Split from monolithic `syntek-graphql-auth@1.x` into focused authentication module
 - **Dependency Updates**: Now requires `syntek-graphql-core>=1.0.0` for shared functionality
 - **Import Paths**: Core utilities moved to `syntek-graphql-core` package
@@ -25,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Utils: `syntek_graphql_auth.utils` → `syntek_graphql_core.utils`
 
 ### Added
+
 - Comprehensive README with installation, configuration, and usage examples
 - Type annotations throughout the codebase
 - Enhanced documentation for all mutations and queries
@@ -34,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CAPTCHA protection support
 
 ### Removed
+
 - Audit logging functionality (moved to `syntek-graphql-audit`)
 - GDPR operations (moved to `syntek-graphql-compliance`)
 - Legal document management (moved to `syntek-graphql-compliance`)
@@ -42,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Security extensions (moved to `syntek-graphql-core`)
 
 ### Migration Guide
+
 See [MIGRATION_GUIDE.md](../../MIGRATION_GUIDE.md) for detailed migration instructions from v1.x to v2.0.
 
 ---
@@ -49,6 +54,7 @@ See [MIGRATION_GUIDE.md](../../MIGRATION_GUIDE.md) for detailed migration instru
 ## [1.0.0] - 2025-12-15
 
 ### Added
+
 - Initial monolithic release
 - Authentication mutations (register, login, logout, password management)
 - TOTP/2FA support with backup codes

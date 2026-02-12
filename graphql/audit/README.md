@@ -25,11 +25,13 @@ Comprehensive audit logging and session management queries for Syntek GraphQL. P
 **syntek-graphql-audit** provides GraphQL queries for accessing audit logs and managing user sessions with full organisation boundary enforcement and permission checking.
 
 This package is designed to work seamlessly with:
+
 - **syntek-graphql-core**: Provides permission classes and error handling
 - **syntek-audit**: Django app for audit log models and recording
 - **syntek-sessions**: Django app for session management
 
 The audit package enables security teams and administrators to:
+
 - View audit logs for compliance and forensics
 - Monitor user activity within organisation boundaries
 - Manage active user sessions
@@ -55,6 +57,7 @@ The audit package enables security teams and administrators to:
 ### Prerequisites
 
 **Required Packages:**
+
 - `syntek-graphql-core>=1.0.0` - Core GraphQL security and utilities
 - `syntek-audit` - Django app with AuditLog model
 - `syntek-sessions` - Django app with session management
@@ -185,14 +188,15 @@ Audit queries are configured through the audit models and session management ser
 
 ### Default Pagination
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| Pagination Limit | 20 | Default records per page |
-| Maximum Limit | 100 | Hard maximum per page (enforced in queries) |
+| Setting          | Default | Description                                 |
+| ---------------- | ------- | ------------------------------------------- |
+| Pagination Limit | 20      | Default records per page                    |
+| Maximum Limit    | 100     | Hard maximum per page (enforced in queries) |
 
 ### Model Integration
 
 Queries integrate with:
+
 - `syntek_audit.models.AuditLog` - For audit log queries
 - `syntek_sessions.services.SessionManagementService` - For session queries
 
@@ -223,6 +227,7 @@ query {
 ```
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -255,11 +260,7 @@ query {
 ```graphql
 query {
   audit {
-    myAuditLogs(
-      filters: {
-        action: "LOGIN"
-      }
-    ) {
+    myAuditLogs(filters: { action: "LOGIN" }) {
       items {
         id
         action
@@ -282,10 +283,7 @@ query {
         dateFrom: "2025-01-01T00:00:00Z"
         dateTo: "2025-02-04T23:59:59Z"
       }
-      pagination: {
-        limit: 50
-        offset: 0
-      }
+      pagination: { limit: 50, offset: 0 }
     ) {
       items {
         id
@@ -304,12 +302,7 @@ query {
 ```graphql
 query {
   audit {
-    myAuditLogs(
-      pagination: {
-        limit: 25
-        offset: 50
-      }
-    ) {
+    myAuditLogs(pagination: { limit: 25, offset: 50 }) {
       items {
         id
         action
@@ -329,13 +322,8 @@ query {
 query {
   audit {
     organisationAuditLogs(
-      filters: {
-        action: "LOGIN"
-      }
-      pagination: {
-        limit: 50
-        offset: 0
-      }
+      filters: { action: "LOGIN" }
+      pagination: { limit: 50, offset: 0 }
     ) {
       items {
         id
@@ -377,6 +365,7 @@ query {
 ```
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -422,6 +411,7 @@ query {
 ```
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -458,6 +448,7 @@ query {
 ```
 
 **Response (User lacks permission):**
+
 ```json
 {
   "errors": [
@@ -491,6 +482,7 @@ query {
 ```
 
 **Response (Without authentication):**
+
 ```json
 {
   "errors": [
@@ -523,6 +515,7 @@ Get audit logs for the current authenticated user.
 Returns paginated audit logs filtered to the current user only. Users can only see their own logs. Respects organisation boundaries automatically.
 
 **Parameters:**
+
 - `filters` (optional): `AuditLogFilterInput` - Optional filtering options
 - `pagination` (optional): `PaginationInput` - Pagination parameters (default: limit=20, offset=0)
 
@@ -531,6 +524,7 @@ Returns paginated audit logs filtered to the current user only. Users can only s
 **Requires:** Authentication (IsAuthenticated permission)
 
 **Example:**
+
 ```python
 # In Python/Django context
 from syntek_graphql_audit import AuditQuery
@@ -554,19 +548,23 @@ Get audit logs for the current user's organisation.
 Returns paginated audit logs for the entire organisation. Requires `audit.view_auditlog` permission. This query enforces strict organisation boundary checks and will not expose logs from other organisations.
 
 **Parameters:**
+
 - `filters` (optional): `AuditLogFilterInput` - Optional filtering options (includes user_id)
 - `pagination` (optional): `PaginationInput` - Pagination parameters (default: limit=20, offset=0)
 
 **Returns:** `AuditLogConnection`
 
 **Requires:**
+
 - Authentication (IsAuthenticated permission)
 - Django permission `audit.view_auditlog`
 
 **Raises:**
+
 - `PermissionError` if user lacks permission to view organisation logs
 
 **Example:**
+
 ```graphql
 query {
   audit {
@@ -597,6 +595,7 @@ Get active sessions for the current user.
 
 **Description:**
 Returns information about all active sessions for the current user, including:
+
 - List of active sessions with device details
 - Total number of active sessions
 - Maximum sessions allowed per user
@@ -611,6 +610,7 @@ The current session is identified and marked with `isCurrent: true`.
 **Requires:** Authentication (IsAuthenticated permission)
 
 **Example:**
+
 ```graphql
 query {
   audit {
@@ -644,6 +644,7 @@ Returns all audit action types that can be used in the system. These match the `
 **Requires:** Authentication (IsAuthenticated permission)
 
 **Example:**
+
 ```graphql
 query {
   audit {
@@ -660,14 +661,15 @@ query {
 
 Filter options for audit log queries.
 
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `action` | `String` | null | Filter by audit action type (e.g., "LOGIN", "LOGOUT") |
-| `userId` | `ID` | null | Filter by user ID (only in organisationAuditLogs) |
-| `dateFrom` | `DateTime` | null | Filter logs created on or after this date (ISO 8601) |
-| `dateTo` | `DateTime` | null | Filter logs created on or before this date (ISO 8601) |
+| Field      | Type       | Default | Description                                           |
+| ---------- | ---------- | ------- | ----------------------------------------------------- |
+| `action`   | `String`   | null    | Filter by audit action type (e.g., "LOGIN", "LOGOUT") |
+| `userId`   | `ID`       | null    | Filter by user ID (only in organisationAuditLogs)     |
+| `dateFrom` | `DateTime` | null    | Filter logs created on or after this date (ISO 8601)  |
+| `dateTo`   | `DateTime` | null    | Filter logs created on or before this date (ISO 8601) |
 
 **Example:**
+
 ```graphql
 filters: {
   action: "LOGIN"
@@ -682,12 +684,13 @@ filters: {
 
 Pagination parameters for query results.
 
-| Field | Type | Default | Min | Max | Description |
-|-------|------|---------|-----|-----|-------------|
-| `limit` | `Int` | 20 | 1 | 100 | Records per page (capped at 100) |
-| `offset` | `Int` | 0 | 0 | n/a | Number of records to skip |
+| Field    | Type  | Default | Min | Max | Description                      |
+| -------- | ----- | ------- | --- | --- | -------------------------------- |
+| `limit`  | `Int` | 20      | 1   | 100 | Records per page (capped at 100) |
+| `offset` | `Int` | 0       | 0   | n/a | Number of records to skip        |
 
 **Example:**
+
 ```graphql
 pagination: {
   limit: 50
@@ -703,20 +706,21 @@ pagination: {
 
 GraphQL type representing a single audit log entry.
 
-| Field | Type | Nullable | Description |
-|-------|------|----------|-------------|
-| `id` | `ID!` | No | Unique audit log ID |
-| `action` | `String!` | No | Audit action type (e.g., "LOGIN", "PASSWORD_CHANGED") |
-| `userId` | `ID` | Yes | User ID who performed the action |
-| `userEmail` | `String` | Yes | Email of user who performed the action |
-| `organisationId` | `ID` | Yes | Organisation ID |
-| `organisationName` | `String` | Yes | Organisation name |
-| `userAgent` | `String!` | No | Browser/client user agent string |
-| `deviceFingerprint` | `String!` | No | Device fingerprint hash |
-| `metadata` | `JSON!` | No | Additional metadata (custom JSON object) |
-| `createdAt` | `DateTime!` | No | When the action was performed (ISO 8601) |
+| Field               | Type        | Nullable | Description                                           |
+| ------------------- | ----------- | -------- | ----------------------------------------------------- |
+| `id`                | `ID!`       | No       | Unique audit log ID                                   |
+| `action`            | `String!`   | No       | Audit action type (e.g., "LOGIN", "PASSWORD_CHANGED") |
+| `userId`            | `ID`        | Yes      | User ID who performed the action                      |
+| `userEmail`         | `String`    | Yes      | Email of user who performed the action                |
+| `organisationId`    | `ID`        | Yes      | Organisation ID                                       |
+| `organisationName`  | `String`    | Yes      | Organisation name                                     |
+| `userAgent`         | `String!`   | No       | Browser/client user agent string                      |
+| `deviceFingerprint` | `String!`   | No       | Device fingerprint hash                               |
+| `metadata`          | `JSON!`     | No       | Additional metadata (custom JSON object)              |
+| `createdAt`         | `DateTime!` | No       | When the action was performed (ISO 8601)              |
 
 **Example Response:**
+
 ```json
 {
   "id": "audit_123",
@@ -742,17 +746,18 @@ GraphQL type representing a single audit log entry.
 
 GraphQL type representing a user session.
 
-| Field | Type | Nullable | Description |
-|-------|------|----------|-------------|
-| `id` | `ID!` | No | Unique session ID |
-| `deviceFingerprint` | `String!` | No | Device fingerprint hash |
-| `userAgent` | `String!` | No | Browser/client user agent string |
-| `createdAt` | `DateTime!` | No | When session was created (ISO 8601) |
-| `lastActivityAt` | `DateTime!` | No | Last time session was used (ISO 8601) |
-| `expiresAt` | `DateTime!` | No | When session will expire (ISO 8601) |
-| `isCurrent` | `Boolean!` | No | Whether this is the current session |
+| Field               | Type        | Nullable | Description                           |
+| ------------------- | ----------- | -------- | ------------------------------------- |
+| `id`                | `ID!`       | No       | Unique session ID                     |
+| `deviceFingerprint` | `String!`   | No       | Device fingerprint hash               |
+| `userAgent`         | `String!`   | No       | Browser/client user agent string      |
+| `createdAt`         | `DateTime!` | No       | When session was created (ISO 8601)   |
+| `lastActivityAt`    | `DateTime!` | No       | Last time session was used (ISO 8601) |
+| `expiresAt`         | `DateTime!` | No       | When session will expire (ISO 8601)   |
+| `isCurrent`         | `Boolean!`  | No       | Whether this is the current session   |
 
 **Example Response:**
+
 ```json
 {
   "id": "sess_abc123",
@@ -771,17 +776,20 @@ GraphQL type representing a user session.
 
 Paginated connection for audit log results.
 
-| Field | Type | Nullable | Description |
-|-------|------|----------|-------------|
-| `items` | `[AuditLogType!]!` | No | List of audit logs on current page |
-| `totalCount` | `Int!` | No | Total number of logs matching filters (across all pages) |
-| `hasNextPage` | `Boolean!` | No | Whether there are more logs after current page |
-| `hasPreviousPage` | `Boolean!` | No | Whether there are logs before current page |
+| Field             | Type               | Nullable | Description                                              |
+| ----------------- | ------------------ | -------- | -------------------------------------------------------- |
+| `items`           | `[AuditLogType!]!` | No       | List of audit logs on current page                       |
+| `totalCount`      | `Int!`             | No       | Total number of logs matching filters (across all pages) |
+| `hasNextPage`     | `Boolean!`         | No       | Whether there are more logs after current page           |
+| `hasPreviousPage` | `Boolean!`         | No       | Whether there are logs before current page               |
 
 **Example Response:**
+
 ```json
 {
-  "items": [ /* AuditLogType objects */ ],
+  "items": [
+    /* AuditLogType objects */
+  ],
   "totalCount": 127,
   "hasNextPage": true,
   "hasPreviousPage": false
@@ -794,17 +802,20 @@ Paginated connection for audit log results.
 
 Information about user's session management status.
 
-| Field | Type | Nullable | Description |
-|-------|------|----------|-------------|
-| `activeSessions` | `[SessionTokenType!]!` | No | List of active sessions |
-| `totalSessions` | `Int!` | No | Number of active sessions |
-| `maxSessions` | `Int!` | No | Maximum allowed sessions per user |
-| `canCreateNewSession` | `Boolean!` | No | Whether user can create another session |
+| Field                 | Type                   | Nullable | Description                             |
+| --------------------- | ---------------------- | -------- | --------------------------------------- |
+| `activeSessions`      | `[SessionTokenType!]!` | No       | List of active sessions                 |
+| `totalSessions`       | `Int!`                 | No       | Number of active sessions               |
+| `maxSessions`         | `Int!`                 | No       | Maximum allowed sessions per user       |
+| `canCreateNewSession` | `Boolean!`             | No       | Whether user can create another session |
 
 **Example Response:**
+
 ```json
 {
-  "activeSessions": [ /* SessionTokenType objects */ ],
+  "activeSessions": [
+    /* SessionTokenType objects */
+  ],
   "totalSessions": 2,
   "maxSessions": 5,
   "canCreateNewSession": true
@@ -853,6 +864,7 @@ query GetAuditDashboard($limit: Int, $offset: Int) {
 ```
 
 **Variables:**
+
 ```json
 {
   "limit": 20,
@@ -892,10 +904,7 @@ query InvestigateFailedLogins {
 query ComplianceReport($startDate: String, $endDate: String) {
   audit {
     organisationAuditLogs(
-      filters: {
-        dateFrom: $startDate
-        dateTo: $endDate
-      }
+      filters: { dateFrom: $startDate, dateTo: $endDate }
       pagination: { limit: 100, offset: 0 }
     ) {
       items {
@@ -920,16 +929,19 @@ query ComplianceReport($startDate: String, $endDate: String) {
 The audit package enforces strict organisation boundaries:
 
 #### `myAuditLogs` - User Isolation
+
 - Always filters to current authenticated user only
 - Cannot see other users' logs even with permissions
 - Automatically scoped to user's organisation
 
 #### `organisationAuditLogs` - Organisation Isolation
+
 - Filters to `current_user.organisation` only
 - Cannot access logs from other organisations regardless of permissions
 - Requires explicit Django permission `audit.view_auditlog`
 
 #### Implementation
+
 ```python
 # myAuditLogs
 queryset = AuditLog.objects.filter(user=user)  # Current user only
@@ -946,6 +958,7 @@ queryset = AuditLog.objects.filter(organisation=user.organisation)
 ### Cross-Organisation Access Prevention
 
 If a user is part of multiple organisations:
+
 - Each organisation's logs are completely isolated
 - Querying always returns logs from the user's **current** organisation
 - No API exists to switch organisations or access other org logs
@@ -965,6 +978,7 @@ def my_audit_logs(self, info: Info) -> AuditLogConnection:
 ```
 
 **Protection Against:**
+
 - Unauthenticated users accessing audit data
 - Anonymous access to compliance information
 
@@ -978,6 +992,7 @@ if not user.has_perm("audit.view_auditlog"):
 ```
 
 **Create the permission in Django admin:**
+
 - App: `audit`
 - Code name: `view_auditlog`
 - Assign to appropriate groups (admins, compliance officers)
@@ -992,6 +1007,7 @@ queryset = AuditLog.objects.filter(organisation=user.organisation)
 ```
 
 **Protection Against:**
+
 - Accessing other organisations' audit logs
 - Cross-tenant data leakage
 - Privilege escalation through organisation manipulation
@@ -1005,6 +1021,7 @@ limit = min(pagination.limit, 100)  # Hard maximum
 ```
 
 **Protection Against:**
+
 - DoS attacks via large data exports
 - Performance degradation from massive queries
 - Database connection exhaustion
@@ -1023,11 +1040,13 @@ class AuditLog(models.Model):
 ```
 
 **Current Exposure:**
+
 - User agent strings are visible
 - IP addresses visible in metadata (if not encrypted)
 - Session tokens are **never** exposed
 
 **Recommendation:**
+
 - Store IP addresses in separate encrypted field
 - Implement encryption at rest via Django fields
 - Use database-level encryption for sensitive audit data
@@ -1042,6 +1061,7 @@ Session token hashes are **never** exposed in queries:
 ```
 
 **Protected Fields:**
+
 - Session token hash (database only)
 - Session secret (database only)
 

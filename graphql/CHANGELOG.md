@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2026-02-04
 
 ### Added
+
 - Initial release of syntek-graphql-auth
 - User registration with email verification
 - Login/logout with JWT tokens (access + refresh)
@@ -42,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Comprehensive audit logging
 
 ### Security
+
 - All passwords hashed with Argon2
 - TOTP secrets encrypted at rest
 - JWT tokens signed with RS256

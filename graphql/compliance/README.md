@@ -208,10 +208,7 @@ mutation RequestAccountDeletion {
 ```graphql
 mutation ConfirmAccountDeletion {
   confirmAccountDeletion(
-    input: {
-      token: "confirmation-token-from-email"
-      password: "user-password"
-    }
+    input: { token: "confirmation-token-from-email", password: "user-password" }
   ) {
     success
     message
@@ -224,10 +221,7 @@ mutation ConfirmAccountDeletion {
 ```graphql
 mutation RestrictProcessing {
   updateProcessingRestriction(
-    input: {
-      restrict: true
-      reason: "Contesting data accuracy"
-    }
+    input: { restrict: true, reason: "Contesting data accuracy" }
   ) {
     success
     message
@@ -246,12 +240,7 @@ mutation RestrictProcessing {
 
 ```graphql
 mutation UpdateConsent {
-  updateConsent(
-    input: {
-      consentType: ANALYTICS
-      granted: false
-    }
-  ) {
+  updateConsent(input: { consentType: ANALYTICS, granted: false }) {
     success
     message
     consent {
@@ -304,10 +293,7 @@ query RegistrationRequirements {
 ```graphql
 mutation AcceptLegalDocument {
   acceptLegalDocument(
-    input: {
-      documentId: "uuid"
-      acceptanceMethod: CHECKBOX
-    }
+    input: { documentId: "uuid", acceptanceMethod: CHECKBOX }
   ) {
     success
     acceptance {
@@ -351,44 +337,44 @@ query MyComplianceStatus {
 
 ### GDPR Mutations
 
-| Mutation | Description | GDPR Article |
-|----------|-------------|--------------|
-| `requestDataExport` | Request data export | Article 15 |
-| `requestAccountDeletion` | Request account deletion | Article 17 |
-| `confirmAccountDeletion` | Confirm deletion via token | Article 17 |
-| `cancelAccountDeletion` | Cancel pending deletion | Article 17 |
-| `updateProcessingRestriction` | Restrict/unrestrict processing | Article 18 |
-| `updateConsent` | Grant/withdraw consent | Article 7 |
+| Mutation                      | Description                    | GDPR Article |
+| ----------------------------- | ------------------------------ | ------------ |
+| `requestDataExport`           | Request data export            | Article 15   |
+| `requestAccountDeletion`      | Request account deletion       | Article 17   |
+| `confirmAccountDeletion`      | Confirm deletion via token     | Article 17   |
+| `cancelAccountDeletion`       | Cancel pending deletion        | Article 17   |
+| `updateProcessingRestriction` | Restrict/unrestrict processing | Article 18   |
+| `updateConsent`               | Grant/withdraw consent         | Article 7    |
 
 ### GDPR Queries
 
-| Query | Description | Returns |
-|-------|-------------|---------|
-| `myDataExports` | List export requests | `[DataExportRequestType]` |
-| `myDataExport(id)` | Get specific export | `DataExportRequestType` |
-| `myDeletionRequests` | List deletion requests | `[AccountDeletionRequestType]` |
-| `myProcessingRestriction` | Get restriction status | `ProcessingRestrictionType` |
-| `myConsents` | List consent records | `[ConsentRecordType]` |
+| Query                     | Description            | Returns                        |
+| ------------------------- | ---------------------- | ------------------------------ |
+| `myDataExports`           | List export requests   | `[DataExportRequestType]`      |
+| `myDataExport(id)`        | Get specific export    | `DataExportRequestType`        |
+| `myDeletionRequests`      | List deletion requests | `[AccountDeletionRequestType]` |
+| `myProcessingRestriction` | Get restriction status | `ProcessingRestrictionType`    |
+| `myConsents`              | List consent records   | `[ConsentRecordType]`          |
 
 ### Legal Mutations
 
-| Mutation | Description | Access Level |
-|----------|-------------|--------------|
-| `acceptLegalDocument` | Accept a document | Authenticated |
+| Mutation                       | Description          | Access Level  |
+| ------------------------------ | -------------------- | ------------- |
+| `acceptLegalDocument`          | Accept a document    | Authenticated |
 | `acceptMultipleLegalDocuments` | Accept multiple docs | Authenticated |
-| `createLegalDocument` | Create new version | Staff only |
+| `createLegalDocument`          | Create new version   | Staff only    |
 
 ### Legal Queries
 
-| Query | Description | Returns |
-|-------|-------------|---------|
-| `registrationRequirements` | Get required docs for signup | `RegistrationRequirementsType` |
-| `activeLegalDocuments` | List all active documents | `[LegalDocumentType]` |
-| `legalDocument(id)` | Get specific document | `LegalDocumentType` |
-| `legalDocumentByType(type)` | Get active doc by type | `LegalDocumentType` |
-| `legalDocumentHistory(type)` | Get version history | `[LegalDocumentType]` |
-| `myComplianceStatus` | Get user's compliance status | `ComplianceStatusType` |
-| `myLegalAcceptances` | Get acceptance history | `[LegalAcceptanceType]` |
+| Query                        | Description                  | Returns                        |
+| ---------------------------- | ---------------------------- | ------------------------------ |
+| `registrationRequirements`   | Get required docs for signup | `RegistrationRequirementsType` |
+| `activeLegalDocuments`       | List all active documents    | `[LegalDocumentType]`          |
+| `legalDocument(id)`          | Get specific document        | `LegalDocumentType`            |
+| `legalDocumentByType(type)`  | Get active doc by type       | `LegalDocumentType`            |
+| `legalDocumentHistory(type)` | Get version history          | `[LegalDocumentType]`          |
+| `myComplianceStatus`         | Get user's compliance status | `ComplianceStatusType`         |
+| `myLegalAcceptances`         | Get acceptance history       | `[LegalAcceptanceType]`        |
 
 ### Types
 
@@ -437,6 +423,7 @@ This module implements key GDPR requirements:
 ### Article 15: Right of Access
 
 Users can request a complete export of their personal data in JSON or CSV format. Exports are:
+
 - Rate limited to one per 24 hours
 - Processed asynchronously via Celery
 - Available for download for 24 hours
@@ -445,6 +432,7 @@ Users can request a complete export of their personal data in JSON or CSV format
 ### Article 17: Right to Erasure
 
 Users can request account deletion with:
+
 - Email confirmation required (24-hour window)
 - Password verification on confirmation
 - Audit trail of deletion request and completion
@@ -454,6 +442,7 @@ Users can request account deletion with:
 ### Article 18: Right to Restriction of Processing
 
 Users can restrict processing of their data:
+
 - Reason required when restricting
 - Essential processing always allowed
 - Clear indication of allowed vs restricted operations
@@ -462,6 +451,7 @@ Users can restrict processing of their data:
 ### Article 7: Consent
 
 Granular consent management:
+
 - Essential consent cannot be withdrawn
 - Separate tracking for functional, analytics, marketing
 - Timestamped consent grants and withdrawals
@@ -471,6 +461,7 @@ Granular consent management:
 ### Legal Document Management
 
 GDPR Article 7(1) requires demonstrating consent was given:
+
 - IP address and timestamp recorded
 - User agent captured
 - Acceptance method tracked
@@ -506,6 +497,7 @@ encrypted_ip = IPEncryption.encrypt_ip(ip_address)
 ### Rate Limiting
 
 Data export requests are rate limited to prevent abuse:
+
 - Maximum one export per 24 hours per user
 - Enforced at the service layer
 - Clear error messages when limit exceeded
@@ -513,6 +505,7 @@ Data export requests are rate limited to prevent abuse:
 ### Account Deletion Confirmation
 
 Account deletion requires email confirmation to prevent unauthorized deletion:
+
 - Confirmation token sent via email
 - 24-hour expiry on confirmation token
 - Password verification required
@@ -521,6 +514,7 @@ Account deletion requires email confirmation to prevent unauthorized deletion:
 ### Data Retention
 
 Some data must be retained for legal/regulatory compliance:
+
 - Configurable retention periods
 - Clear indication of what data is retained
 - Returned in `AccountDeletionRequestType.data_retained`
@@ -528,6 +522,7 @@ Some data must be retained for legal/regulatory compliance:
 ### Audit Logging
 
 All GDPR operations are automatically logged via `syntek-audit`:
+
 - User ID
 - Action performed
 - Timestamp

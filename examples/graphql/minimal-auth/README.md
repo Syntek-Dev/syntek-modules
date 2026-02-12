@@ -77,12 +77,14 @@ Visit: http://localhost:8000/graphql/
 
 ```graphql
 mutation Register {
-  register(input: {
-    email: "user@example.com"
-    password: "SecurePass123!"
-    firstName: "John"
-    lastName: "Doe"
-  }) {
+  register(
+    input: {
+      email: "user@example.com"
+      password: "SecurePass123!"
+      firstName: "John"
+      lastName: "Doe"
+    }
+  ) {
     success
     message
     user {
@@ -99,10 +101,7 @@ mutation Register {
 
 ```graphql
 mutation Login {
-  login(
-    email: "user@example.com"
-    password: "SecurePass123!"
-  ) {
+  login(email: "user@example.com", password: "SecurePass123!") {
     success
     message
     token

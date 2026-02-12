@@ -7,6 +7,7 @@ The Syntek Compliance bundle provides GDPR and legal document management modules
 ## Modules
 
 ### GDPR (`syntek-gdpr`)
+
 - Data export (right to portability)
 - Account deletion (right to erasure)
 - Processing restrictions (right to restriction)
@@ -14,6 +15,7 @@ The Syntek Compliance bundle provides GDPR and legal document management modules
 - Audit trail for all GDPR operations
 
 ### Legal (`syntek-legal`)
+
 - Terms of Service management
 - Privacy Policy versioning
 - Data Processing Agreements (DPA)
@@ -58,6 +60,7 @@ INSTALLED_APPS = [
 ## Documentation
 
 See individual module READMEs:
+
 - [GDPR Module](./gdpr/README.md)
 - [Legal Module](./legal/README.md)
 

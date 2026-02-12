@@ -158,11 +158,11 @@ urlpatterns = [
 
 All configuration uses Django settings with `GRAPHQL_` prefix.
 
-| Setting | Type | Default | Description |
-|---------|------|---------|-------------|
-| `GRAPHQL_MAX_QUERY_DEPTH` | int | 10 | Maximum nesting depth for GraphQL queries |
-| `GRAPHQL_MAX_QUERY_COMPLEXITY` | int | 1000 | Maximum complexity score for queries |
-| `GRAPHQL_ENABLE_INTROSPECTION` | bool | False | Enable GraphQL schema introspection (auto-enabled in DEBUG) |
+| Setting                        | Type | Default | Description                                                 |
+| ------------------------------ | ---- | ------- | ----------------------------------------------------------- |
+| `GRAPHQL_MAX_QUERY_DEPTH`      | int  | 10      | Maximum nesting depth for GraphQL queries                   |
+| `GRAPHQL_MAX_QUERY_COMPLEXITY` | int  | 1000    | Maximum complexity score for queries                        |
+| `GRAPHQL_ENABLE_INTROSPECTION` | bool | False   | Enable GraphQL schema introspection (auto-enabled in DEBUG) |
 
 ### Example Configuration
 
@@ -423,6 +423,7 @@ def premium_feature(self, info) -> str:
 Standardised error codes for all GraphQL operations.
 
 **Authentication Errors:**
+
 - `INVALID_CREDENTIALS` - Invalid email or password
 - `EMAIL_NOT_VERIFIED` - Email address not verified
 - `ACCOUNT_LOCKED` - Account locked due to too many failed attempts
@@ -434,6 +435,7 @@ Standardised error codes for all GraphQL operations.
 - `CAPTCHA_FAILED` - CAPTCHA verification failed
 
 **Validation Errors:**
+
 - `INVALID_INPUT` - Invalid input data
 - `EMAIL_ALREADY_EXISTS` - Email already registered
 - `INVALID_EMAIL_FORMAT` - Invalid email format
@@ -442,21 +444,25 @@ Standardised error codes for all GraphQL operations.
 - `ORGANISATION_NOT_FOUND` - Organisation not found
 
 **Permission Errors:**
+
 - `PERMISSION_DENIED` - Access denied
 - `NOT_AUTHENTICATED` - Authentication required
 - `NOT_ORGANISATION_OWNER` - Organisation owner role required
 - `ORGANISATION_MISMATCH` - Cross-organisation access denied
 
 **Not Found Errors:**
+
 - `USER_NOT_FOUND` - User not found
 - `RESOURCE_NOT_FOUND` - Resource not found
 
 **Rate Limit Errors:**
+
 - `RATE_LIMIT_EXCEEDED` - Rate limit exceeded
 - `TOO_MANY_REQUESTS` - Too many requests
 - `PASSWORD_RESET_RATE_LIMIT_EXCEEDED` - Password reset rate limited
 
 **Server Errors:**
+
 - `INTERNAL_ERROR` - Internal server error
 - `DATABASE_ERROR` - Database operation failed
 
@@ -585,6 +591,7 @@ extensions=[QueryDepthLimitExtension]
 Detects expensive queries by complexity scoring. Configured via `GRAPHQL_MAX_QUERY_COMPLEXITY` (default: 1000).
 
 Complexity calculation:
+
 - Each field = 1 complexity
 - List fields (e.g., `users`) = 1 × 10 multiplier
 - Nested complexity = parent complexity × field multiplier
@@ -616,6 +623,7 @@ extensions=[IntrospectionControlExtension]
 Extracts Bearer token from Authorization header and authenticates user via JWT.
 
 **Prerequisites:**
+
 - `syntek-security-auth` package must be installed
 - TokenService must be available from `syntek_security_auth.jwt.services`
 
@@ -628,6 +636,7 @@ MIDDLEWARE = [
 ```
 
 **How it works:**
+
 1. Extracts Authorization header
 2. Verifies Bearer token using TokenService
 3. Sets `request.user` to authenticated user or AnonymousUser
@@ -747,34 +756,34 @@ except ValueError:
 
 ### Complete Error Code Mapping
 
-| Code | Message | Category | HTTP Status |
-|------|---------|----------|------------|
-| `INVALID_CREDENTIALS` | Invalid email or password | Auth | 401 |
-| `EMAIL_NOT_VERIFIED` | Please verify email before login | Auth | 401 |
-| `ACCOUNT_LOCKED` | Account locked due to failed attempts | Auth | 401 |
-| `ACCOUNT_DISABLED` | Account has been disabled | Auth | 401 |
-| `TOKEN_EXPIRED` | Authentication token has expired | Auth | 401 |
-| `TOKEN_INVALID` | Invalid authentication token | Auth | 401 |
-| `TWO_FACTOR_REQUIRED` | Two-factor authentication code required | Auth | 401 |
-| `INVALID_TOTP_CODE` | Invalid two-factor authentication code | Auth | 401 |
-| `CAPTCHA_FAILED` | CAPTCHA verification failed | Auth | 400 |
-| `EMAIL_ALREADY_EXISTS` | Email address is already registered | Validation | 400 |
-| `INVALID_EMAIL_FORMAT` | Invalid email address format | Validation | 400 |
-| `PASSWORD_TOO_WEAK` | Password doesn't meet security requirements | Validation | 400 |
-| `PASSWORD_IN_HISTORY` | Cannot reuse a recent password | Validation | 400 |
-| `INVALID_INPUT` | Invalid input data | Validation | 400 |
-| `ORGANISATION_NOT_FOUND` | Organisation not found | Validation | 404 |
-| `PERMISSION_DENIED` | You do not have permission | Permission | 403 |
-| `NOT_AUTHENTICATED` | Authentication required | Permission | 401 |
-| `NOT_ORGANISATION_OWNER` | Organisation owner role required | Permission | 403 |
-| `ORGANISATION_MISMATCH` | Cannot access from different org | Permission | 403 |
-| `USER_NOT_FOUND` | User not found | Not Found | 404 |
-| `RESOURCE_NOT_FOUND` | Requested resource not found | Not Found | 404 |
-| `RATE_LIMIT_EXCEEDED` | Rate limit exceeded, try later | Rate Limit | 429 |
-| `TOO_MANY_REQUESTS` | Too many requests, please slow down | Rate Limit | 429 |
-| `PASSWORD_RESET_RATE_LIMIT_EXCEEDED` | Too many resets, try in 1 hour | Rate Limit | 429 |
-| `INTERNAL_ERROR` | An internal error occurred | Server | 500 |
-| `DATABASE_ERROR` | Database operation failed | Server | 500 |
+| Code                                 | Message                                     | Category   | HTTP Status |
+| ------------------------------------ | ------------------------------------------- | ---------- | ----------- |
+| `INVALID_CREDENTIALS`                | Invalid email or password                   | Auth       | 401         |
+| `EMAIL_NOT_VERIFIED`                 | Please verify email before login            | Auth       | 401         |
+| `ACCOUNT_LOCKED`                     | Account locked due to failed attempts       | Auth       | 401         |
+| `ACCOUNT_DISABLED`                   | Account has been disabled                   | Auth       | 401         |
+| `TOKEN_EXPIRED`                      | Authentication token has expired            | Auth       | 401         |
+| `TOKEN_INVALID`                      | Invalid authentication token                | Auth       | 401         |
+| `TWO_FACTOR_REQUIRED`                | Two-factor authentication code required     | Auth       | 401         |
+| `INVALID_TOTP_CODE`                  | Invalid two-factor authentication code      | Auth       | 401         |
+| `CAPTCHA_FAILED`                     | CAPTCHA verification failed                 | Auth       | 400         |
+| `EMAIL_ALREADY_EXISTS`               | Email address is already registered         | Validation | 400         |
+| `INVALID_EMAIL_FORMAT`               | Invalid email address format                | Validation | 400         |
+| `PASSWORD_TOO_WEAK`                  | Password doesn't meet security requirements | Validation | 400         |
+| `PASSWORD_IN_HISTORY`                | Cannot reuse a recent password              | Validation | 400         |
+| `INVALID_INPUT`                      | Invalid input data                          | Validation | 400         |
+| `ORGANISATION_NOT_FOUND`             | Organisation not found                      | Validation | 404         |
+| `PERMISSION_DENIED`                  | You do not have permission                  | Permission | 403         |
+| `NOT_AUTHENTICATED`                  | Authentication required                     | Permission | 401         |
+| `NOT_ORGANISATION_OWNER`             | Organisation owner role required            | Permission | 403         |
+| `ORGANISATION_MISMATCH`              | Cannot access from different org            | Permission | 403         |
+| `USER_NOT_FOUND`                     | User not found                              | Not Found  | 404         |
+| `RESOURCE_NOT_FOUND`                 | Requested resource not found                | Not Found  | 404         |
+| `RATE_LIMIT_EXCEEDED`                | Rate limit exceeded, try later              | Rate Limit | 429         |
+| `TOO_MANY_REQUESTS`                  | Too many requests, please slow down         | Rate Limit | 429         |
+| `PASSWORD_RESET_RATE_LIMIT_EXCEEDED` | Too many resets, try in 1 hour              | Rate Limit | 429         |
+| `INTERNAL_ERROR`                     | An internal error occurred                  | Server     | 500         |
+| `DATABASE_ERROR`                     | Database operation failed                   | Server     | 500         |
 
 ### Handling Errors in Client Code
 

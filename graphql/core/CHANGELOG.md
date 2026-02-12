@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2026-02-04
 
 ### Added
+
 - Initial release of syntek-graphql-core package
 - Core security components:
   - Standardized error codes and exceptions (errors.py)
@@ -42,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - require_authenticated_user - Get authenticated user or raise error
 
 ### Security
+
 - Query depth limiting prevents deeply nested query attacks
 - Query complexity analysis prevents expensive query DoS
 - Introspection disabled by default in production
@@ -52,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Planned
+
 - Additional permission classes for fine-grained access control
 - Custom error code registration API
 - Performance metrics and logging integration
