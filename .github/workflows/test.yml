@@ -16,7 +16,7 @@ jobs:
         image: postgres:18.1
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_PASSWORD: postgres # pragma: allowlist secret
           POSTGRES_DB: syntek_test
         options: >-
           --health-cmd pg_isready
@@ -56,18 +56,15 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "24.13"
-          cache: "pnpm"
 
       # Install dependencies
       - name: Install Python dependencies
-        run: uv sync
+        run: uv sync --extra dev --extra test
 
       - name: Install Node dependencies
         run: pnpm install --no-frozen-lockfile
@@ -99,14 +96,14 @@ jobs:
       - name: Run all tests with syntek CLI
         run: syntek test --env .env.test
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/syntek_test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/syntek_test # pragma: allowlist secret
           REDIS_URL: redis://localhost:6379/0
 
       # Generate coverage reports (individual ecosystems)
       - name: Generate Python coverage
         run: uv run pytest backend/ graphql/ --cov --cov-report=xml --cov-report=html --cov-report=json
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/syntek_test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/syntek_test # pragma: allowlist secret
           REDIS_URL: redis://localhost:6379/0
         continue-on-error: true
 

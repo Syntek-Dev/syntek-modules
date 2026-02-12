@@ -31,10 +31,9 @@ dev = [
     "pytest-django>=4.8.0",
     "pytest-cov>=5.0.0",
     "pytest-asyncio>=0.23.0",
-    "black>=24.0.0",
     "ruff>=0.5.0",
-    "mypy>=1.10.0",
-    "django-stubs>=5.0.0",
+    "pyright>=1.1.0",
+    "django-stubs>=5.1.0",
     "ipython>=8.20.0",
     "pre-commit>=4.0.0",
     "detect-secrets>=1.5.0",
@@ -82,28 +81,9 @@ precision = 2
 show_missing = true
 skip_covered = false
 
-[tool.black]
-line-length = 100
-target-version = ['py314']
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-  # directories
-  \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | build
-  | dist
-  | migrations
-)/
-'''
-
 [tool.ruff]
 line-length = 100
-target-version = "py314"
+target-version = "py313"
 
 [tool.ruff.lint]
 select = [
@@ -129,17 +109,24 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]  # unused imports
 "*/migrations/*.py" = ["E501"]  # long lines in migrations
+".claude/plugins/*.py" = ["S", "S110", "S112", "S324", "S603", "S607", "S311"]  # exclude security checks for plugins
 
-[tool.mypy]
-python_version = "3.14"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true
-plugins = ["mypy_django_plugin.main"]
-
-[[tool.mypy.overrides]]
-module = "*.migrations.*"
-ignore_errors = true
+[tool.pyright]
+pythonVersion = "3.14"
+typeCheckingMode = "basic"
+reportMissingImports = true
+reportMissingTypeStubs = false
+stubPath = ""
+exclude = [
+    "**/migrations/**",
+    "**/tests/**",
+    "graphql/examples/**",
+    "examples/**",
+    ".venv/**",
+    "build/**",
+    "dist/**"
+]
 
 [tool.django-stubs]
 django_settings_module = "tests.settings"
+strict_settings = false

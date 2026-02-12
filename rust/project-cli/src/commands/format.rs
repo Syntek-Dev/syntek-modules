@@ -7,8 +7,8 @@
 //!
 //! Supports check mode to verify formatting without modifying files.
 
-use colored::*;
 use crate::utils::exec;
+use colored::*;
 
 pub fn run(check: bool) -> anyhow::Result<()> {
     println!("{}", "✨ Formatting code...".green().bold());

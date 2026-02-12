@@ -68,7 +68,7 @@ This will:
 
 - ✅ Check for required tools (uv, git, node, pnpm, cargo)
 - ✅ Ensure Python virtual environment exists
-- ✅ Install Python dev tools (pre-commit, detect-secrets, mypy, django-stubs)
+- ✅ Install Python dev tools (pre-commit, detect-secrets, pyright, django-stubs)
 - ✅ Install Rust components (rustfmt, clippy)
 - ✅ Install Node dependencies
 - ✅ Setup pre-commit Git hooks
@@ -248,11 +248,14 @@ pre-commit run ruff --all-files
 pre-commit run eslint --all-files
 ```
 
-### MyPy type errors
+### Pyright type errors
 
 ```bash
-# Check specific file
-cd backend && mypy path/to/file.py
+# Check specific file with pyright
+pnpm run typecheck:python
+
+# Or check specific module
+cd backend && pyright path/to/module/
 ```
 
 ### TypeScript errors
@@ -295,8 +298,7 @@ pre-commit install --hook-type commit-msg
 detect-secrets scan --baseline .secrets.baseline
 
 # Or add inline comment to ignore
-# pragma: allowlist secret
-API_KEY = "not-a-real-secret-example"
+API_KEY = "not-a-real-secret-example"  # pragma: allowlist secret
 ```
 
 ---
@@ -321,7 +323,7 @@ This ensures consistency between local development and CI.
 
 We use [Conventional Commits](https://www.conventionalcommits.org/):
 
-```
+```text
 <type>(<scope>): <description>
 
 [optional body]
@@ -361,7 +363,7 @@ git commit -m "refactor(api): simplify GraphQL resolvers"
 
 ```bash
 # Skip slow hooks during active development
-SKIP=mypy,typescript-check,rust-clippy git commit -m "wip: testing"
+SKIP=pyright,typescript-check,rust-clippy git commit -m "wip: testing"
 
 # Run full checks before pushing
 pre-commit run --all-files
@@ -394,7 +396,7 @@ If pre-commit hooks are causing issues:
 4. Consult tool documentation:
    - [Ruff](https://docs.astral.sh/ruff/)
    - [ESLint](https://eslint.org/docs/)
-   - [MyPy](https://mypy.readthedocs.io/)
+   - [Pyright](https://microsoft.github.io/pyright/)
    - [Prettier](https://prettier.io/docs/)
    - [Clippy](https://doc.rust-lang.org/clippy/)
 

@@ -30,10 +30,7 @@ pub fn run(
     output: Option<PathBuf>,
 ) -> anyhow::Result<()> {
     println!("{}", "🔒 Running security audit...".green().bold());
-    println!(
-        "{}",
-        format!("   Minimum severity: {}", severity).dimmed()
-    );
+    println!("{}", format!("   Minimum severity: {}", severity).dimmed());
 
     let mut all_passed = true;
     let mut audit_results = Vec::new();
@@ -109,7 +106,10 @@ pub fn run(
     println!("\n{}", "━".repeat(60).dimmed());
     if all_passed {
         println!("{}", "✅ Security audit passed!".green().bold());
-        println!("{}", "   No vulnerabilities found in any ecosystem.".dimmed());
+        println!(
+            "{}",
+            "   No vulnerabilities found in any ecosystem.".dimmed()
+        );
     } else {
         println!("{}", "⚠️  Security vulnerabilities found!".yellow().bold());
         println!(
@@ -124,11 +124,7 @@ pub fn run(
 
 fn audit_pnpm(severity: &str) -> anyhow::Result<String> {
     let output = Command::new("pnpm")
-        .args(&[
-            "audit",
-            "--json",
-            &format!("--audit-level={}", severity),
-        ])
+        .args(["audit", "--json", &format!("--audit-level={}", severity)])
         .output()?;
 
     if output.status.success() {
@@ -145,7 +141,7 @@ fn audit_pnpm(severity: &str) -> anyhow::Result<String> {
 
 fn audit_python(_severity: &str) -> anyhow::Result<String> {
     let install_output = Command::new("uv")
-        .args(&["pip", "install", "pip-audit", "--quiet"])
+        .args(["pip", "install", "pip-audit", "--quiet"])
         .output()?;
 
     if !install_output.status.success() {
@@ -153,7 +149,7 @@ fn audit_python(_severity: &str) -> anyhow::Result<String> {
     }
 
     let output = Command::new("uv")
-        .args(&["run", "pip-audit", "--format=json"])
+        .args(["run", "pip-audit", "--format=json"])
         .output()?;
 
     if output.status.success() {
@@ -161,28 +157,26 @@ fn audit_python(_severity: &str) -> anyhow::Result<String> {
 
         if stdout.contains("\"fixes\":[]") || stdout.contains("No known vulnerabilities found") {
             Ok(String::new())
-        } else {
-            if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
-                if let Some(deps) = json["dependencies"].as_array() {
-                    let has_vulns = deps.iter().any(|dep| {
-                        if let Some(vulns) = dep["vulns"].as_array() {
-                            !vulns.is_empty()
-                        } else {
-                            false
-                        }
-                    });
-
-                    if has_vulns {
-                        Ok(stdout.to_string())
+        } else if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
+            if let Some(deps) = json["dependencies"].as_array() {
+                let has_vulns = deps.iter().any(|dep| {
+                    if let Some(vulns) = dep["vulns"].as_array() {
+                        !vulns.is_empty()
                     } else {
-                        Ok(String::new())
+                        false
                     }
+                });
+
+                if has_vulns {
+                    Ok(stdout.to_string())
                 } else {
                     Ok(String::new())
                 }
             } else {
-                Ok(stdout.to_string())
+                Ok(String::new())
             }
+        } else {
+            Ok(stdout.to_string())
         }
     } else {
         Ok(String::from_utf8_lossy(&output.stderr).to_string())
@@ -190,12 +184,12 @@ fn audit_python(_severity: &str) -> anyhow::Result<String> {
 }
 
 fn audit_rust() -> anyhow::Result<String> {
-    let check = Command::new("cargo").args(&["audit", "--version"]).output();
+    let check = Command::new("cargo").args(["audit", "--version"]).output();
 
     if check.is_err() || !check?.status.success() {
         println!("{}", "   Installing cargo-audit...".dimmed());
         let install = Command::new("cargo")
-            .args(&["install", "cargo-audit"])
+            .args(["install", "cargo-audit"])
             .output()?;
 
         if !install.status.success() {
@@ -204,7 +198,7 @@ fn audit_rust() -> anyhow::Result<String> {
     }
 
     let output = Command::new("cargo")
-        .args(&["audit", "--json"])
+        .args(["audit", "--json"])
         .current_dir("rust")
         .output()?;
 
@@ -238,8 +232,11 @@ fn write_audit_report(
             for (i, (ecosystem, result)) in results.iter().enumerate() {
                 writeln!(file, "    {{")?;
                 writeln!(file, "      \"ecosystem\": \"{}\",", ecosystem)?;
-                writeln!(file, "      \"output\": {}",
-                    serde_json::to_string(result).unwrap_or_else(|_| "null".to_string()))?;
+                writeln!(
+                    file,
+                    "      \"output\": {}",
+                    serde_json::to_string(result).unwrap_or_else(|_| "null".to_string())
+                )?;
                 if i < results.len() - 1 {
                     writeln!(file, "    }},")?;
                 } else {

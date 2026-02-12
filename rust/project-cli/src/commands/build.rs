@@ -7,8 +7,8 @@
 //!
 //! Production builds include optimizations and are ready for deployment.
 
-use colored::*;
 use crate::utils::exec;
+use colored::*;
 
 pub fn run(mode: crate::BuildMode) -> anyhow::Result<()> {
     println!("{}", "🔨 Building projects...".green().bold());

@@ -27,8 +27,8 @@ blake3 = "1.5"
 zeroize = { version = "1.8", features = ["derive"] }
 secrecy = "0.10"
 
-# PyO3 for Python bindings
-pyo3 = { version = "0.23", features = ["extension-module"] }
+# PyO3 for Python bindings (supports Python 3.14)
+pyo3 = { version = "0.28", features = ["extension-module"] }
 
 # Error handling
 thiserror = "2.0"

@@ -7,8 +7,8 @@
 //!
 //! Supports auto-fix mode to automatically resolve fixable issues.
 
-use colored::*;
 use crate::utils::exec;
+use colored::*;
 
 pub fn run(fix: bool) -> anyhow::Result<()> {
     println!("{}", "🔍 Linting code...".green().bold());

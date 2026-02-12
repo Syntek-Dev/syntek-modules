@@ -8,9 +8,9 @@
 //! This command loads environment variables from .env.dev (or custom file)
 //! and starts all services in the correct order.
 
+use crate::utils::{env, exec};
 use colored::*;
 use std::path::PathBuf;
-use crate::utils::{env, exec};
 
 /// Run the development environment
 ///

@@ -24,6 +24,7 @@ azure-pipelines.yml
 .DS_Store
 
 # Python
+.venv/
 venv/
 env/
 .venv/
@@ -88,6 +89,9 @@ test-results/
 target/
 **/*.rs.bk
 *.pdb
+**/.ruff_cache
+**/**/.ruff_cache
+.ruff_cache
 
 # Lock Files: MUST be included in Docker for reproducible builds
 # - uv.lock (Python)

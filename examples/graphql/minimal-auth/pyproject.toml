@@ -1,0 +1,41 @@
+[project]
+name = "syntek-graphql-minimal-auth-example"
+version = "1.0.0"
+description = "Minimal authentication example using Syntek GraphQL modules"
+readme = "README.md"
+requires-python = ">=3.14"
+license = { text = "MIT" }
+
+dependencies = [
+    "django>=6.0.2",
+    "strawberry-graphql>=0.291.0",
+    "syntek-graphql-core>=1.0.0",
+    "syntek-graphql-auth>=2.0.0",
+    "psycopg[binary]>=3.2.3",
+    "dj-database-url>=2.3.0",
+    "redis>=5.2.1",
+    "django-redis>=5.4.0",
+    "python-dotenv>=1.0.1",
+    "gunicorn>=23.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.5",
+    "pytest-django>=4.10.0",
+    "pytest-cov>=6.0.0",
+    "pytest-asyncio>=0.25.2",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["test_*.py", "*_test.py"]
+testpaths = ["tests"]
+addopts = [
+    "--strict-markers",
+    "-v",
+]
