@@ -7,9 +7,9 @@
 //!
 //! Supports filtering by module and watch mode for TDD workflow.
 
+use crate::utils::{env, exec};
 use colored::*;
 use std::path::PathBuf;
-use crate::utils::{env, exec};
 
 /// Run the test suite across all ecosystems
 ///

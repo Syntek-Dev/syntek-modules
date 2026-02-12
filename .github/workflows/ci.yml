@@ -40,14 +40,11 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "24.13"
-          cache: "pnpm"
 
       # Build syntek CLI
       - name: Cache syntek CLI
@@ -88,18 +85,15 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "24.13"
-          cache: "pnpm"
 
       - name: Install dependencies
         run: |
-          uv sync
+          uv sync --extra dev
           pnpm install --no-frozen-lockfile
 
       - name: Cache syntek CLI
@@ -127,7 +121,7 @@ jobs:
         image: postgres:18.1
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_PASSWORD: postgres # pragma: allowlist secret
           POSTGRES_DB: syntek_test
         options: >-
           --health-cmd pg_isready
@@ -166,18 +160,15 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "24.13"
-          cache: "pnpm"
 
       - name: Install dependencies
         run: |
-          uv sync
+          uv sync --extra dev
           pnpm install --no-frozen-lockfile
 
       - name: Cache syntek CLI
@@ -192,7 +183,7 @@ jobs:
       - name: Run tests
         run: syntek test
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/syntek_test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/syntek_test # pragma: allowlist secret
           REDIS_URL: redis://localhost:6379/0
 
   build:
@@ -219,18 +210,15 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "24.13"
-          cache: "pnpm"
 
       - name: Install dependencies
         run: |
-          uv sync
+          uv sync --extra dev
           pnpm install --no-frozen-lockfile
 
       - name: Cache syntek CLI
@@ -279,18 +267,15 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "24.13"
-          cache: "pnpm"
 
       - name: Install dependencies
         run: |
-          uv sync
+          uv sync --extra dev
           pnpm install --no-frozen-lockfile
 
       - name: Cache syntek CLI

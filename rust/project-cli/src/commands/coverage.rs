@@ -21,8 +21,8 @@
 //!
 //! Coverage data is used by GitHub Actions to enforce coverage thresholds.
 
-use colored::*;
 use crate::utils::exec;
+use colored::*;
 use std::path::PathBuf;
 
 /// Run the coverage command
@@ -86,7 +86,11 @@ fn generate_coverage_baseline() -> anyhow::Result<()> {
     println!("{}", "✅ Coverage baseline generated!".green().bold());
     println!("{}", "━".repeat(60).dimmed());
     println!();
-    println!("{} {}", "📈 Current coverage:".cyan(), format!("{}%", coverage).bold());
+    println!(
+        "{} {}",
+        "📈 Current coverage:".cyan(),
+        format!("{}%", coverage).bold()
+    );
     println!();
     println!("{}", "📁 Reports generated:".cyan());
     println!("{}", "   - coverage.json (for CI/CD)".dimmed());
@@ -97,8 +101,14 @@ fn generate_coverage_baseline() -> anyhow::Result<()> {
     println!();
     println!("{}", "💡 Commit coverage.json as baseline:".cyan());
     println!("{}", "   mv coverage.json coverage-baseline.json".dimmed());
-    println!("{}", "   git add coverage-baseline.json .coveragerc".dimmed());
-    println!("{}", "   git commit -m 'chore: add coverage baseline'".dimmed());
+    println!(
+        "{}",
+        "   git add coverage-baseline.json .coveragerc".dimmed()
+    );
+    println!(
+        "{}",
+        "   git commit -m 'chore: add coverage baseline'".dimmed()
+    );
     println!();
 
     Ok(())
@@ -147,10 +157,7 @@ fn compare_coverage() -> anyhow::Result<()> {
     // Calculate difference
     let diff_output = exec::run_command_output(
         "python3",
-        &[
-            "-c",
-            &format!("print({} - {})", current, baseline),
-        ],
+        &["-c", &format!("print({} - {})", current, baseline)],
     )?;
 
     let diff: f64 = diff_output.trim().parse()?;
@@ -203,7 +210,9 @@ fn run_coverage_report(output: Option<PathBuf>) -> anyhow::Result<()> {
     exec::run_command("uv", &args)?;
 
     // Extract coverage percentage
-    let coverage_file = output.as_ref().map(|p| p.display().to_string())
+    let coverage_file = output
+        .as_ref()
+        .map(|p| p.display().to_string())
         .unwrap_or_else(|| "coverage.json".to_string());
 
     let coverage = exec::run_command_output(

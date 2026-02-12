@@ -13,8 +13,8 @@
 //!
 //! Each step can be skipped via command-line flags for CI/CD environments.
 
-use colored::*;
 use crate::utils::tools;
+use colored::*;
 
 /// Run the init command to set up the development environment
 ///
@@ -29,10 +29,7 @@ use crate::utils::tools;
 /// * `Ok(())` if initialization succeeds
 /// * `Err` if any step fails (missing tools, installation failure, etc.)
 pub fn run(skip_hooks: bool, skip_secrets: bool, skip_dev_tools: bool) -> anyhow::Result<()> {
-    println!(
-        "{}",
-        "🚀 Initializing project setup...".green().bold()
-    );
+    println!("{}", "🚀 Initializing project setup...".green().bold());
     println!();
 
     // Step 1: Check for required tools
@@ -82,12 +79,12 @@ pub fn run(skip_hooks: bool, skip_secrets: bool, skip_dev_tools: bool) -> anyhow
     println!("{}", "✅ Project initialization complete!".green().bold());
     println!();
     println!("{}", "Next steps:".cyan().bold());
-    println!("{}", "  1. Review .secrets.baseline for false positives".dimmed());
-    println!("{}", "  2. Run 'syntek dev' to start development".dimmed());
     println!(
         "{}",
-        "  3. Make a commit to test pre-commit hooks".dimmed()
+        "  1. Review .secrets.baseline for false positives".dimmed()
     );
+    println!("{}", "  2. Run 'syntek dev' to start development".dimmed());
+    println!("{}", "  3. Make a commit to test pre-commit hooks".dimmed());
     println!("{}", "━".repeat(60).dimmed());
 
     Ok(())
@@ -108,7 +105,12 @@ fn check_required_tools() -> anyhow::Result<()> {
         if tools::check_tool_installed(tool) {
             println!("   {} {} ({})", "✓".green(), tool, description.dimmed());
         } else {
-            println!("   {} {} ({}) - not found", "✗".red(), tool, description.dimmed());
+            println!(
+                "   {} {} ({}) - not found",
+                "✗".red(),
+                tool,
+                description.dimmed()
+            );
             all_found = false;
         }
     }

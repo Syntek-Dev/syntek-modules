@@ -37,7 +37,10 @@ pub fn ensure_venv_exists() -> anyhow::Result<()> {
     if venv_path.exists() {
         println!("{}", "   ✓ Virtual environment already exists".green());
     } else {
-        println!("{}", "   Creating virtual environment with uv sync...".dimmed());
+        println!(
+            "{}",
+            "   Creating virtual environment with uv sync...".dimmed()
+        );
         crate::utils::exec::run_command("uv", &["sync"])?;
         println!("{}", "   ✓ Virtual environment created".green());
     }
@@ -49,32 +52,23 @@ pub fn ensure_venv_exists() -> anyhow::Result<()> {
 pub fn install_python_dev_tools() -> anyhow::Result<()> {
     println!("{}", "   🐍 Installing Python dev tools...".dimmed());
 
-    let packages = vec![
-        "pre-commit",
-        "detect-secrets",
-        "pytest",
-        "pytest-bdd",
-        "pytest-cov",
-        "pytest-django",
-    ];
+    print!("      Syncing dev dependencies...");
+    std::io::Write::flush(&mut std::io::stdout())?;
 
-    for package in packages {
-        print!("      Installing {}...", package);
-        std::io::Write::flush(&mut std::io::stdout())?;
+    let output = Command::new("uv")
+        .args(["sync", "--extra", "dev"])
+        .output()?;
 
-        let output = Command::new("uv")
-            .args(&["pip", "install", package, "--quiet"])
-            .output()?;
-
-        if output.status.success() {
-            println!(" {}", "✓".green());
-        } else {
-            println!(" {}", "✗".red());
-            anyhow::bail!("Failed to install {}", package);
-        }
+    if output.status.success() {
+        println!(" {}", "✓".green());
+        println!("{}", "   ✓ Python dev tools installed".green());
+    } else {
+        println!(" {}", "✗".red());
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        eprintln!("{}", stderr);
+        anyhow::bail!("Failed to sync dev dependencies");
     }
 
-    println!("{}", "   ✓ Python dev tools installed".green());
     Ok(())
 }
 
@@ -83,7 +77,7 @@ pub fn install_rust_components() -> anyhow::Result<()> {
     println!("{}", "   🦀 Installing Rust components...".dimmed());
 
     let rustfmt_check = Command::new("rustup")
-        .args(&["component", "list"])
+        .args(["component", "list"])
         .output()?;
 
     let rustfmt_output = String::from_utf8_lossy(&rustfmt_check.stdout);
@@ -93,7 +87,7 @@ pub fn install_rust_components() -> anyhow::Result<()> {
         std::io::Write::flush(&mut std::io::stdout())?;
 
         let output = Command::new("rustup")
-            .args(&["component", "add", "rustfmt"])
+            .args(["component", "add", "rustfmt"])
             .output()?;
 
         if output.status.success() {
@@ -110,7 +104,7 @@ pub fn install_rust_components() -> anyhow::Result<()> {
         std::io::Write::flush(&mut std::io::stdout())?;
 
         let output = Command::new("rustup")
-            .args(&["component", "add", "clippy"])
+            .args(["component", "add", "clippy"])
             .output()?;
 
         if output.status.success() {
@@ -131,13 +125,16 @@ pub fn install_node_dependencies() -> anyhow::Result<()> {
     println!("{}", "   📦 Installing Node dependencies...".dimmed());
 
     let output = Command::new("pnpm")
-        .args(&["install", "--silent"])
+        .args(["install", "--silent"])
         .output()?;
 
     if output.status.success() {
         println!("{}", "   ✓ Node dependencies installed".green());
     } else {
-        println!("{}", "   ⚠ Warning: Node dependencies installation had issues".yellow());
+        println!(
+            "{}",
+            "   ⚠ Warning: Node dependencies installation had issues".yellow()
+        );
     }
 
     Ok(())
@@ -154,7 +151,7 @@ pub fn setup_git_hooks() -> anyhow::Result<()> {
     std::io::Write::flush(&mut std::io::stdout())?;
 
     let output = Command::new("uv")
-        .args(&["run", "pre-commit", "install"])
+        .args(["run", "pre-commit", "install"])
         .output()?;
 
     if output.status.success() {
@@ -168,7 +165,7 @@ pub fn setup_git_hooks() -> anyhow::Result<()> {
     std::io::Write::flush(&mut std::io::stdout())?;
 
     let output = Command::new("uv")
-        .args(&["run", "pre-commit", "install", "--hook-type", "commit-msg"])
+        .args(["run", "pre-commit", "install", "--hook-type", "commit-msg"])
         .output()?;
 
     if output.status.success() {
@@ -195,7 +192,13 @@ pub fn create_secrets_baseline() -> anyhow::Result<()> {
     std::io::Write::flush(&mut std::io::stdout())?;
 
     let output = Command::new("uv")
-        .args(&["run", "detect-secrets", "scan", "--baseline", ".secrets.baseline"])
+        .args([
+            "run",
+            "detect-secrets",
+            "scan",
+            "--baseline",
+            ".secrets.baseline",
+        ])
         .output()?;
 
     if output.status.success() {

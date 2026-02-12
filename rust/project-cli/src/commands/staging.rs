@@ -5,9 +5,9 @@
 //!
 //! Deployment logic is a placeholder to be implemented per infrastructure.
 
+use crate::utils::env;
 use colored::*;
 use std::path::PathBuf;
-use crate::utils::env;
 
 pub fn run(env_file: PathBuf) -> anyhow::Result<()> {
     println!("{}", "🚢 Deploying to staging...".yellow().bold());

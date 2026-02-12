@@ -44,23 +44,24 @@ repos:
         name: ruff (Python linter)
         args: [--fix]
         files: ^backend/.*\.py$
+        exclude: ^\.claude/plugins/.*\.py$
 
       # Formatter (replaces black)
       - id: ruff-format
         name: ruff-format (Python formatter)
         files: ^backend/.*\.py$
+        exclude: ^\.claude/plugins/.*\.py$
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.14.1
+  # Python type checking with pyright (via syntek CLI)
+  - repo: local
     hooks:
-      - id: mypy
-        name: mypy (Python type checker)
-        files: ^backend/.*\.py$
-        exclude: ^backend/.*/migrations/.*\.py$
-        additional_dependencies:
-          - django-stubs>=5.0.0
-          - types-requests
-          - types-python-dateutil
+      - id: typecheck
+        name: syntek typecheck (type checker)
+        entry: syntek typecheck
+        language: system
+        files: ^(backend|graphql)/.*\.py$
+        exclude: ^(backend/.*/migrations/.*\.py|\.claude/plugins/.*\.py)$
+        pass_filenames: false
 
   # ============================================================================
   # JavaScript / TypeScript (Next.js, React Native)
@@ -159,6 +160,7 @@ repos:
         exclude: |
           (?x)^(
             .*\.lock$|
+            .*\.md$|
             package-lock\.json$|
             pnpm-lock\.yaml$|
             Cargo\.lock$|

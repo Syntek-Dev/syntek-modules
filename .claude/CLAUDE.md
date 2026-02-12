@@ -10,6 +10,12 @@ This is NOT a deployable application - these are **library modules** designed to
 - Installed via npm/pnpm (React/React Native packages)
 - Included via Cargo (Rust crates)
 
+## Language and Formatting
+
+Please use UK English for all documentation and user-facing content. Dates must be formatted as dd.mm.yyyy.
+
+Keep coding language identifiers (keywords, variable names, etc.) in American English where required by the language specification.
+
 ## Tech Stack
 
 ### Backend (Django)
@@ -39,6 +45,7 @@ This is NOT a deployable application - these are **library modules** designed to
 - OpenBao: Secrets management
 - GlitchTip: External logging
 - Cloudinary: Media storage
+- Rust CLI: Package installation tool that enables bundled installation across backend, web, mobile, shared, GraphQL, and Rust security modules (e.g., all auth-related packages can be installed together)
 
 ## Repository Structure
 
@@ -63,7 +70,12 @@ syntek-modules/
 │
 ├── shared/                     # Cross-platform components, hooks, utils
 ├── rust/                       # Encryption, hashing, LLM gateway, PyO3 bindings
-├── graphql/                    # GraphQL encryption middleware
+├── graphql/                    # GraphQL modules (core, auth, audit, compliance)
+│   ├── core/                   # Security foundation (errors, permissions, middleware)
+│   ├── auth/                   # Authentication & sessions GraphQL layer
+│   ├── audit/                  # Audit logging queries
+│   └── compliance/             # GDPR & legal document GraphQL operations
+|-- cli/                        # All packages can be installed by Rust CLI
 ├── examples/                   # Example integrations
 ├── tests/                      # Integration tests
 └── docs/                       # Architecture & security docs
@@ -89,6 +101,13 @@ groups, profiles, media, logging, accounting, ai_integration, email_marketing, p
 ### UI Modules (Web/Mobile)
 
 Authentication, profiles, media, notifications, search, forms, comments, analytics, bookings, payments, webhooks, feature flags
+
+### GraphQL Modules
+
+- **syntek-graphql-core**: Security foundation - errors, permissions, auth middleware, query limiting
+- **syntek-graphql-auth**: Authentication & sessions - register, login, JWT, TOTP/2FA
+- **syntek-graphql-audit**: Audit logging - user/org audit logs, session queries
+- **syntek-graphql-compliance**: GDPR & legal - data export, consent, legal documents
 
 ## Installation
 
@@ -123,6 +142,31 @@ uv pip install syntek-profiles
 syntek-encryption = { path = "../syntek-modules/rust/encryption" }
 ```
 
+### GraphQL Modules
+
+```bash
+# Minimal (Auth only)
+uv pip install syntek-graphql-core syntek-graphql-auth
+
+# Auth + Audit
+uv pip install syntek-graphql-core syntek-graphql-auth syntek-graphql-audit
+
+# Full (All modules)
+uv pip install syntek-graphql-core \
+               syntek-graphql-auth \
+               syntek-graphql-audit \
+               syntek-graphql-compliance
+```
+
+**Module Descriptions:**
+
+- `syntek-graphql-core` - Security foundation (errors, permissions, middleware)
+- `syntek-graphql-auth` - Authentication, sessions, JWT, TOTP/2FA
+- `syntek-graphql-audit` - Audit log queries, session management
+- `syntek-graphql-compliance` - GDPR operations, legal document management
+
+**See:** `docs/GRAPHQL-INSTALLATION.md` for detailed installation guide
+
 ## Configuration
 
 ### Django Settings
@@ -145,6 +189,51 @@ SYNTEK_SECURITY_AUTH = {
     'JWT': {'ACCESS_TOKEN_LIFETIME': 900},
 }
 ```
+
+### GraphQL Schema
+
+```python
+# myproject/schema.py
+import strawberry
+from syntek_graphql_core.security import (
+    QueryDepthLimitExtension,
+    QueryComplexityLimitExtension,
+    IntrospectionControlExtension,
+)
+from syntek_graphql_auth.mutations.auth import AuthMutations
+from syntek_graphql_auth.queries.user import UserQueries
+
+@strawberry.type
+class Query(UserQueries):
+    pass
+
+@strawberry.type
+class Mutation(AuthMutations):
+    pass
+
+schema = strawberry.Schema(
+    query=Query,
+    mutation=Mutation,
+    extensions=[
+        QueryDepthLimitExtension(max_depth=10),
+        QueryComplexityLimitExtension(max_complexity=1000),
+        IntrospectionControlExtension(),
+    ],
+)
+```
+
+```python
+# urls.py
+from django.urls import path
+from strawberry.django.views import AsyncGraphQLView
+from myproject.schema import schema
+
+urlpatterns = [
+    path('graphql/', AsyncGraphQLView.as_view(schema=schema)),
+]
+```
+
+**See:** `docs/GRAPHQL-SCHEMA-COMPOSITION.md` for schema composition examples
 
 ## Security Compliance
 
