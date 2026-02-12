@@ -4,7 +4,19 @@
 
 **Syntek Modules** is a modular monorepo containing reusable Django, React, React Native, and Rust modules for installation into other projects.
 
-There are no Sprints or Stories required for this project. We will use plans for each module.
+## ⚠️ CRITICAL: NO SPRINTS OR STORIES
+
+**This project does NOT use sprints or user stories.** We use implementation plans instead.
+
+- ❌ **DO NOT** create sprint files (`docs/SPRINTS/`, `SPRINT-*.md`)
+- ❌ **DO NOT** create user story files (`docs/STORIES/`, `STORY-*.md`)
+- ❌ **DO NOT** use MoSCoW prioritisation or story points
+- ❌ **DO NOT** invoke `/syntek-dev-suite:sprint` or `/syntek-dev-suite:stories` agents
+- ✅ **DO** create implementation plans (`docs/PLANS/PLAN-*.md`)
+- ✅ **DO** track completion by updating plan checkboxes
+- ✅ **DO** use the EnterPlanMode tool for planning work
+
+**All agents must follow this convention. If an agent tries to create sprints/stories, stop it immediately.**
 
 This is NOT a deployable application - these are **library modules** designed to be:
 
