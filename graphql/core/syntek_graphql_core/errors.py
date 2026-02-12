@@ -14,11 +14,11 @@ Example:
     >>> raise ValidationError("EMAIL_ALREADY_EXISTS", {"email": "test@example.com"})
 """
 
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class ErrorCode(str, Enum):
+class ErrorCode(StrEnum):
     """Standardised error codes for GraphQL API.
 
     Error codes follow the pattern: CATEGORY_SPECIFIC_ERROR

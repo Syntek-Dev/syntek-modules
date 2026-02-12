@@ -31,18 +31,14 @@ class TestCodeGeneration:
     """Test verification code generation functionality."""
 
     @patch("syntek_authentication.services.phone_verification_service.send_sms")
-    def test_send_verification_code_creates_record(
-        self, mock_send_sms, user, test_phone
-    ):
+    def test_send_verification_code_creates_record(self, mock_send_sms, user, test_phone):
         """Test that sending a verification code creates a PhoneVerification record."""
         mock_send_sms.return_value = True
 
         result = PhoneVerificationService.send_verification_code(user, test_phone)
 
         assert result is True
-        assert PhoneVerification.objects.filter(
-            user=user, phone_number=test_phone
-        ).exists()
+        assert PhoneVerification.objects.filter(user=user, phone_number=test_phone).exists()
 
     @patch("syntek_authentication.services.phone_verification_service.send_sms")
     def test_verification_code_is_6_digits(self, mock_send_sms, user, test_phone):
@@ -68,9 +64,7 @@ class TestCodeGeneration:
         assert test_phone in args
 
     @patch("syntek_authentication.services.phone_verification_service.send_sms")
-    def test_send_code_replaces_existing_unused_code(
-        self, mock_send_sms, user, test_phone
-    ):
+    def test_send_code_replaces_existing_unused_code(self, mock_send_sms, user, test_phone):
         """Test that sending a new code replaces the existing unused code."""
         mock_send_sms.return_value = True
 
@@ -147,9 +141,7 @@ class TestCodeVerification:
 
         PhoneVerificationService.send_verification_code(user, test_phone)
 
-        result = PhoneVerificationService.verify_code(
-            other_user, test_phone, "123456"
-        )
+        result = PhoneVerificationService.verify_code(other_user, test_phone, "123456")
 
         assert result is False
 
@@ -247,15 +239,11 @@ class TestRateLimiting:
 
         # Send codes from different users to the same phone (5 per hour per phone)
         for i in range(5):
-            result = PhoneVerificationService.send_verification_code(
-                users[i], test_phone
-            )
+            result = PhoneVerificationService.send_verification_code(users[i], test_phone)
             assert result is True
 
         # 6th attempt should be rate-limited (different user, same phone)
-        result = PhoneVerificationService.send_verification_code(
-            users[5], test_phone
-        )
+        result = PhoneVerificationService.send_verification_code(users[5], test_phone)
         assert result is False
 
     @patch("syntek_authentication.services.phone_verification_service.send_sms")
@@ -275,21 +263,15 @@ class TestRateLimiting:
 
         # Send codes to 100 different phones
         for i in range(100):
-            result = PhoneVerificationService.send_verification_code(
-                users[i], f"+1555000{i:04d}"
-            )
+            result = PhoneVerificationService.send_verification_code(users[i], f"+1555000{i:04d}")
             assert result is True
 
         # 101st attempt should hit global limit
-        result = PhoneVerificationService.send_verification_code(
-            users[100], "+15550001000"
-        )
+        result = PhoneVerificationService.send_verification_code(users[100], "+15550001000")
         assert result is False
 
     @patch("syntek_authentication.services.phone_verification_service.send_sms")
-    def test_rate_limit_different_users_different_phones(
-        self, mock_send_sms
-    ):
+    def test_rate_limit_different_users_different_phones(self, mock_send_sms):
         """Test that different users with different phones don't affect each other."""
         mock_send_sms.return_value = True
 
@@ -301,12 +283,8 @@ class TestRateLimiting:
         )
 
         # Both users should be able to send codes
-        result1 = PhoneVerificationService.send_verification_code(
-            user1, "+15551111111"
-        )
-        result2 = PhoneVerificationService.send_verification_code(
-            user2, "+15552222222"
-        )
+        result1 = PhoneVerificationService.send_verification_code(user1, "+15551111111")
+        result2 = PhoneVerificationService.send_verification_code(user2, "+15552222222")
 
         assert result1 is True
         assert result2 is True
@@ -317,34 +295,26 @@ class TestCostProtection:
 
     @patch("syntek_authentication.services.phone_verification_service.send_sms")
     @patch("syntek_authentication.services.phone_verification_service.get_daily_sms_cost")
-    def test_daily_cost_limit_enforced(
-        self, mock_get_cost, mock_send_sms, user
-    ):
+    def test_daily_cost_limit_enforced(self, mock_get_cost, mock_send_sms, user):
         """Test that daily SMS cost limit is enforced."""
         mock_send_sms.return_value = True
 
         # Simulate approaching the $500 daily limit
         mock_get_cost.return_value = 501.0  # Over limit
 
-        result = PhoneVerificationService.send_verification_code(
-            user, "+15551234567"
-        )
+        result = PhoneVerificationService.send_verification_code(user, "+15551234567")
 
         # Should be blocked due to cost limit
         assert result is False
 
     @patch("syntek_authentication.services.phone_verification_service.send_sms")
     @patch("syntek_authentication.services.phone_verification_service.get_daily_sms_cost")
-    def test_daily_cost_limit_not_enforced_under_limit(
-        self, mock_get_cost, mock_send_sms, user
-    ):
+    def test_daily_cost_limit_not_enforced_under_limit(self, mock_get_cost, mock_send_sms, user):
         """Test that SMS sending works when under daily cost limit."""
         mock_send_sms.return_value = True
         mock_get_cost.return_value = 100.0  # Well under $500 limit
 
-        result = PhoneVerificationService.send_verification_code(
-            user, "+15551234567"
-        )
+        result = PhoneVerificationService.send_verification_code(user, "+15551234567")
 
         assert result is True
 
@@ -360,9 +330,7 @@ class TestPhoneAvailability:
         assert result is True
 
     @patch("syntek_authentication.services.phone_verification_service.send_sms")
-    def test_check_phone_availability_taken(
-        self, mock_send_sms, user, test_phone
-    ):
+    def test_check_phone_availability_taken(self, mock_send_sms, user, test_phone):
         """Test that a phone number in use is reported as unavailable."""
         # Verify the phone for the user
         PhoneVerificationService.send_verification_code(user, test_phone)
@@ -410,9 +378,7 @@ class TestEdgeCases:
         assert result is False
 
     @patch("syntek_authentication.services.phone_verification_service.send_sms")
-    def test_verify_code_max_attempts_exceeded(
-        self, mock_send_sms, user, test_phone
-    ):
+    def test_verify_code_max_attempts_exceeded(self, mock_send_sms, user, test_phone):
         """Test that verification fails after max attempts."""
         mock_send_sms.return_value = True
 
@@ -438,9 +404,7 @@ class TestEdgeCases:
         with ThreadPoolExecutor(max_workers=3) as executor:
             results = list(
                 executor.map(
-                    lambda _: PhoneVerificationService.send_verification_code(
-                        user, test_phone
-                    ),
+                    lambda _: PhoneVerificationService.send_verification_code(user, test_phone),
                     range(3),
                 )
             )
