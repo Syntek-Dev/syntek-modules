@@ -5,6 +5,7 @@
 .env.staging
 .env.production
 .env.local
+.env.pentest
 
 # Python
 .venv/
