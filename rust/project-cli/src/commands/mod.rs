@@ -7,6 +7,7 @@ pub mod format;
 pub mod init;
 pub mod install;
 pub mod lint;
+pub mod pentest;
 pub mod production;
 pub mod staging;
 pub mod test;

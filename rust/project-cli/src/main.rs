@@ -150,6 +150,21 @@ enum Commands {
         output: Option<PathBuf>,
     },
 
+    /// Run authentication penetration tests
+    Pentest {
+        /// Environment file to use (default: .env.pentest)
+        #[arg(short, long, default_value = ".env.pentest")]
+        env: PathBuf,
+
+        /// Specific pentest module to run (auth, session, etc.)
+        #[arg(short, long)]
+        module: Option<String>,
+
+        /// Run in scheduled mode (for production cron jobs)
+        #[arg(long)]
+        schedule: bool,
+    },
+
     /// Initialize project setup (Git hooks, secrets baseline, dev tools)
     Init {
         /// Skip pre-commit hooks setup
@@ -204,7 +219,8 @@ enum AuditFormat {
     Markdown,
 }
 
-fn main() -> anyhow::Result<()> {
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
@@ -224,6 +240,11 @@ fn main() -> anyhow::Result<()> {
             severity,
             output,
         } => commands::audit::run(format, severity, output),
+        Commands::Pentest {
+            env,
+            module,
+            schedule,
+        } => commands::pentest::run(env, module, schedule).await,
         Commands::Init {
             skip_hooks,
             skip_secrets,

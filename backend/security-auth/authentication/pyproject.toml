@@ -27,7 +27,7 @@ dependencies = [
     "qrcode>=7.4.0",
     "argon2-cffi>=23.1.0",
     "pytz>=2024.1",
-    "syntek-encryption>=0.1.0",  # Rust encryption module
+    # Note: Rust bindings (syntek_rust) provided by parent syntek-modules package
 ]
 
 [project.optional-dependencies]
