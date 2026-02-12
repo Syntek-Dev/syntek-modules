@@ -39,7 +39,7 @@ jobs:
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
       - name: Install Python dependencies
-        run: uv sync
+        run: uv sync --extra dev
 
       # Build syntek CLI
       - name: Cache syntek CLI

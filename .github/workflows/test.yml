@@ -64,7 +64,7 @@ jobs:
 
       # Install dependencies
       - name: Install Python dependencies
-        run: uv sync
+        run: uv sync --extra dev --extra test
 
       - name: Install Node dependencies
         run: pnpm install --no-frozen-lockfile

@@ -93,7 +93,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync
+          uv sync --extra dev
           pnpm install --no-frozen-lockfile
 
       - name: Cache syntek CLI
@@ -168,7 +168,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync
+          uv sync --extra dev
           pnpm install --no-frozen-lockfile
 
       - name: Cache syntek CLI
@@ -218,7 +218,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync
+          uv sync --extra dev
           pnpm install --no-frozen-lockfile
 
       - name: Cache syntek CLI
@@ -275,7 +275,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync
+          uv sync --extra dev
           pnpm install --no-frozen-lockfile
 
       - name: Cache syntek CLI

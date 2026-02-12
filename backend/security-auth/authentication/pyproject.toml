@@ -55,16 +55,14 @@ python_functions = ["test_*"]
 addopts = "-v --tb=short"
 
 # Django app configuration
-[tool.syntek-authentication]
+[tool.syntek-authentication.defaults]
 # Default configuration (can be overridden in Django settings)
-defaults = {
-    TOTP_REQUIRED = false,
-    SPECIAL_CHARS_REQUIRED = true,
-    PASSWORD_LENGTH = 12,
-    COMMON_PASSWORD_CHECK = true,
-    MAX_LOGIN_ATTEMPTS = 5,
-    LOCKOUT_DURATION = 300,
-    JWT_EXPIRY = 3600,
-    REFRESH_TOKEN_EXPIRY = 86400,
-    PASSWORD_HISTORY_COUNT = 5,
-}
+TOTP_REQUIRED = false
+SPECIAL_CHARS_REQUIRED = true
+PASSWORD_LENGTH = 12  # pragma: allowlist secret
+COMMON_PASSWORD_CHECK = true  # pragma: allowlist secret
+MAX_LOGIN_ATTEMPTS = 5
+LOCKOUT_DURATION = 300
+JWT_EXPIRY = 3600  # pragma: allowlist secret
+REFRESH_TOKEN_EXPIRY = 86400  # pragma: allowlist secret
+PASSWORD_HISTORY_COUNT = 5  # pragma: allowlist secret
