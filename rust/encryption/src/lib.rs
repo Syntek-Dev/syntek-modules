@@ -5,6 +5,8 @@
 pub mod batch;
 pub mod field_level;
 pub mod key_management;
+pub mod validators;
 
 pub use batch::{decrypt_batch, encrypt_batch};
 pub use field_level::{decrypt_field, encrypt_field};
+pub use validators::{validate_email, validate_ip_address, validate_phone_number};
