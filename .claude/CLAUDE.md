@@ -4,6 +4,8 @@
 
 **Syntek Modules** is a modular monorepo containing reusable Django, React, React Native, and Rust modules for installation into other projects.
 
+There are no Sprints or Stories required for this project. We will use plans for each module.
+
 This is NOT a deployable application - these are **library modules** designed to be:
 
 - Installed via uv or pip (Django apps)

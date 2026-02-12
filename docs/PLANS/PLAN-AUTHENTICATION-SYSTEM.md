@@ -1204,7 +1204,7 @@ ip_encrypted, city_encrypted, country_encrypted = encrypt_batch(
 
 **Tasks:**
 
-- [ ] **1.1** Create database migrations for new tables
+- [x] **1.1** Create database migrations for new tables
   - `auth_phone_verification_token`
   - `auth_recovery_key` **[CRITICAL]** Add `algorithm_version`, `algorithm_metadata` fields for versioning
   - `auth_ip_tracking` **[CRITICAL]** Ensure `location_data` is stored as encrypted jsonb
@@ -1238,7 +1238,7 @@ ip_encrypted, city_encrypted, country_encrypted = encrypt_batch(
     - Create partition dropping script for data retention (90 days default)
     - Migration: `CREATE TABLE auth_ip_tracking_partitioned ... PARTITION BY RANGE (created_at)`
 
-- [ ] **1.2** Implement Rust security modules
+- [x] **1.2** Implement Rust security modules
   - **[RS-P0-2] HMAC-SHA256 Implementation** (6 hours):
     - Create `rust/security/src/hmac.rs`
     - Implement `hash_for_lookup(data, key) -> String` for constant-time lookups
@@ -1306,7 +1306,7 @@ ip_encrypted, city_encrypted, country_encrypted = encrypt_batch(
     - Python layer must use `SecureString` or similar for passwords
     - Rust zeroizes its own copies, but Python's original string remains
 
-- [ ] **1.3** Implement Django authentication services (`backend/security-auth/authentication/`)
+- [x] **1.3** Implement Django authentication services (`backend/security-auth/authentication/`)
   - **Module Location:** All services in `backend/security-auth/authentication/services/`
   - **[CRITICAL]** Email encryption service (encrypt on write, decrypt on read, maintain plain email for lookups)
   - Phone verification service (send SMS, verify code)
@@ -1369,7 +1369,7 @@ ip_encrypted, city_encrypted, country_encrypted = encrypt_batch(
     - ConsentLog model for phone consent history
     - Track consent granted, withdrawn, version changes
 
-- [ ] **1.4** Create GDPR compliance models (`backend/security-auth/authentication/`)
+- [x] **1.4** Create GDPR compliance models (`backend/security-auth/authentication/`)
   - **Module Location:** All models in `backend/security-auth/authentication/models/`
   - **[GDPR] GAP-03:** Update `User` model with legal acceptance tracking:
     - `privacy_policy_accepted_at` (DateTimeField) - GDPR requirement
@@ -1392,7 +1392,7 @@ ip_encrypted, city_encrypted, country_encrypted = encrypt_batch(
     - Document retention periods for all authentication data types per region
     - Define deletion triggers and procedures
 
-- [ ] **1.5** Write unit tests
+- [x] **1.5** Write unit tests
   - **[CRITICAL]** Rust crypto functions (100% coverage):
     - Email encryption/decryption with zeroization
     - Algorithm versioning (multiple versions)
@@ -1416,7 +1416,7 @@ ip_encrypted, city_encrypted, country_encrypted = encrypt_batch(
     - Password pattern rejection
     - Algorithm downgrade attack prevention
 
-- [ ] **1.6** Set up module-scoped penetration testing infrastructure
+- [x] **1.6** Set up module-scoped penetration testing infrastructure
   - **[PENTEST-SETUP]** Create pentest directory structure:
     - Create `backend/security-auth/pentests/` directory
     - Create `backend/security-auth/pentests/fixtures/` for test data
@@ -1436,7 +1436,7 @@ ip_encrypted, city_encrypted, country_encrypted = encrypt_batch(
     - Note: Integration with DefectDojo via syntek-infrastructure CI/CD
   - **Effort:** 4-6 hours
 
-- [ ] **1.7** Implement Social Authentication Backend (`backend/security-auth/authentication/`)
+- [x] **1.7** Implement Social Authentication Backend (`backend/security-auth/authentication/`)
   - **Module Location:** Services in `backend/security-auth/authentication/services/oauth/`, Models in `backend/security-auth/authentication/models/`
   - **[SOCIAL-AUTH] Database:**
     - Create `auth_social_account` table with OAuth token encryption
@@ -1468,7 +1468,7 @@ ip_encrypted, city_encrypted, country_encrypted = encrypt_batch(
     - Test account linking/unlinking
   - **Effort:** 20-24 hours
 
-- [ ] **1.8** Implement Enhanced Auto-Logout (`backend/security-auth/authentication/`)
+- [x] **1.8** Implement Enhanced Auto-Logout (`backend/security-auth/authentication/`)
   - **Module Location:** Services in `backend/security-auth/authentication/services/`, Models in `backend/security-auth/authentication/models/`
   - **[AUTO-LOGOUT] Database:**
     - Add `last_activity_at`, `idle_timeout_seconds`, `absolute_timeout_at` to `auth_session`
