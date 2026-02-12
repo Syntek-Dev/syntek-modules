@@ -36,7 +36,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "24.13"
-          cache: "pnpm"
 
       # Install dependencies
       - name: Install Python dependencies

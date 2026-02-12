@@ -45,7 +45,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "24.13"
-          cache: "pnpm"
 
       # Build syntek CLI
       - name: Cache syntek CLI
@@ -91,7 +90,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "24.13"
-          cache: "pnpm"
 
       - name: Install dependencies
         run: |
@@ -167,7 +165,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "24.13"
-          cache: "pnpm"
 
       - name: Install dependencies
         run: |
@@ -218,7 +215,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "24.13"
-          cache: "pnpm"
 
       - name: Install dependencies
         run: |
@@ -276,7 +272,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "24.13"
-          cache: "pnpm"
 
       - name: Install dependencies
         run: |
