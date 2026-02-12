@@ -56,7 +56,9 @@ def find_log_files(directory: str | None = None) -> dict:
                                 "directory": log_dir,
                                 "size": stat.st_size,
                                 "size_human": _format_size(stat.st_size),
-                                "modified": datetime.fromtimestamp(stat.st_mtime, tz=UTC).isoformat(),
+                                "modified": datetime.fromtimestamp(
+                                    stat.st_mtime, tz=UTC
+                                ).isoformat(),
                             }
                         )
                     except PermissionError:
