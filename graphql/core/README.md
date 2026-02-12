@@ -1,6 +1,7 @@
 # Syntek GraphQL Core
 
-Security foundation for Syntek GraphQL modules providing core security components, error handling, and utilities shared across all GraphQL implementations.
+Security foundation for Syntek GraphQL modules providing core security components, error handling,
+and utilities shared across all GraphQL implementations.
 
 ## Table of Contents
 
@@ -30,7 +31,8 @@ Security foundation for Syntek GraphQL modules providing core security component
 - **Context Utilities**: Request data access from GraphQL context
 - **Type Guards**: Type-safe user authentication checks
 
-This package is designed as a dependency for other Syntek GraphQL modules (auth, compliance, audit) and should be installed first.
+This package is designed as a dependency for other Syntek GraphQL modules (auth, compliance, audit)
+and should be installed first.
 
 ## Features
 
@@ -949,7 +951,7 @@ ruff check --select I syntek_graphql_core
 
 ### Project Structure
 
-```
+```text
 graphql/core/
 ├── syntek_graphql_core/
 │   ├── __init__.py              # Public API exports

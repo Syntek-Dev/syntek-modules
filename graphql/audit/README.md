@@ -1,6 +1,9 @@
 # Syntek GraphQL Audit
 
-Comprehensive audit logging and session management queries for Syntek GraphQL. Provides GraphQL queries for accessing audit logs with filtering and pagination, active session management, and available audit action types.
+Comprehensive audit logging and session management queries for Syntek GraphQL.
+
+Provides GraphQL queries for accessing audit logs with filtering and pagination,
+active session management, and available audit action types.
 
 ## Table of Contents
 
@@ -22,7 +25,8 @@ Comprehensive audit logging and session management queries for Syntek GraphQL. P
 
 ## Overview
 
-**syntek-graphql-audit** provides GraphQL queries for accessing audit logs and managing user sessions with full organisation boundary enforcement and permission checking.
+**syntek-graphql-audit** provides GraphQL queries for accessing audit logs and managing user sessions
+with full organisation boundary enforcement and permission checking.
 
 This package is designed to work seamlessly with:
 
@@ -374,7 +378,7 @@ query {
         "activeSessions": [
           {
             "id": "sess_123",
-            "deviceFingerprint": "a1b2c3d4e5f6",
+            "deviceFingerprint": "a1b2c3d4e5f6", // pragma: allowlist secret
             "userAgent": "Mozilla/5.0 (Chrome)",
             "createdAt": "2025-02-01T09:00:00Z",
             "lastActivityAt": "2025-02-04T10:30:00Z",
@@ -383,7 +387,7 @@ query {
           },
           {
             "id": "sess_124",
-            "deviceFingerprint": "f6e5d4c3b2a1",
+            "deviceFingerprint": "f6e5d4c3b2a1", // pragma: allowlist secret
             "userAgent": "Mozilla/5.0 (Firefox)",
             "createdAt": "2025-01-28T14:00:00Z",
             "lastActivityAt": "2025-02-03T16:45:00Z",
@@ -507,12 +511,18 @@ query {
 
 ### Query Type: AuditQuery
 
-#### `myAuditLogs(filters?: AuditLogFilterInput, pagination?: PaginationInput) -> AuditLogConnection`
+#### `myAuditLogs`
+
+```typescript
+myAuditLogs(filters?: AuditLogFilterInput, pagination?: PaginationInput) -> AuditLogConnection
+```
 
 Get audit logs for the current authenticated user.
 
 **Description:**
-Returns paginated audit logs filtered to the current user only. Users can only see their own logs. Respects organisation boundaries automatically.
+
+Returns paginated audit logs filtered to the current user only.
+Users can only see their own logs. Respects organisation boundaries automatically.
 
 **Parameters:**
 
@@ -540,12 +550,18 @@ logs = query.my_audit_logs(
 
 ---
 
-#### `organisationAuditLogs(filters?: AuditLogFilterInput, pagination?: PaginationInput) -> AuditLogConnection`
+#### `organisationAuditLogs`
+
+```typescript
+organisationAuditLogs(filters?: AuditLogFilterInput, pagination?: PaginationInput) -> AuditLogConnection
+```
 
 Get audit logs for the current user's organisation.
 
 **Description:**
-Returns paginated audit logs for the entire organisation. Requires `audit.view_auditlog` permission. This query enforces strict organisation boundary checks and will not expose logs from other organisations.
+
+Returns paginated audit logs for the entire organisation. Requires `audit.view_auditlog` permission.
+This query enforces strict organisation boundary checks and will not expose logs from other organisations.
 
 **Parameters:**
 
@@ -630,12 +646,19 @@ query {
 
 ---
 
-#### `availableAuditActions() -> [String!]!`
+#### `availableAuditActions`
+
+```typescript
+availableAuditActions() -> [String!]!
+```
 
 Get list of available audit log action types.
 
 **Description:**
-Returns all audit action types that can be used in the system. These match the `ActionType` choices defined in the AuditLog model. Useful for building filter dropdowns and validating action queries.
+
+Returns all audit action types that can be used in the system.
+These match the `ActionType` choices defined in the AuditLog model.
+Useful for building filter dropdowns and validating action queries.
 
 **Parameters:** None
 
@@ -761,7 +784,7 @@ GraphQL type representing a user session.
 ```json
 {
   "id": "sess_abc123",
-  "deviceFingerprint": "f1e2d3c4b5a6",
+  "deviceFingerprint": "f1e2d3c4b5a6", // pragma: allowlist secret
   "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_3 like Mac OS X)",
   "createdAt": "2025-01-28T14:00:00Z",
   "lastActivityAt": "2025-02-04T10:30:00Z",
@@ -1152,7 +1175,7 @@ ruff check --select I syntek_graphql_audit
 
 ### Project Structure
 
-```
+```text
 graphql/syntek-graphql-audit/
 ├── syntek_graphql_audit/
 │   ├── __init__.py                 # Public API exports

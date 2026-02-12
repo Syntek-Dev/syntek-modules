@@ -50,7 +50,7 @@ urlpatterns = [
 
 ## Module Dependencies
 
-```
+```text
 ┌─────────────────────────┐
 │   syntek-graphql-core   │ ← Base (required)
 └─────────────────────────┘

@@ -38,14 +38,14 @@ cp .env.example .env
 Edit `.env` with your configuration:
 
 ```bash
-SECRET_KEY=your-secret-key-here
+SECRET_KEY=your-secret-key-here  # pragma: allowlist secret
 DEBUG=True
-DATABASE_URL=postgresql://user:pass@localhost:5432/minimal_auth_example
+DATABASE_URL=postgresql://user:pass@localhost:5432/minimal_auth_example  # pragma: allowlist secret
 REDIS_URL=redis://localhost:6379/0
 EMAIL_HOST=smtp.example.com
 EMAIL_HOST_USER=noreply@example.com
-EMAIL_HOST_PASSWORD=your-password
-JWT_SECRET_KEY=your-jwt-secret
+EMAIL_HOST_PASSWORD=your-password  # pragma: allowlist secret
+JWT_SECRET_KEY=your-jwt-secret  # pragma: allowlist secret
 TOTP_ENCRYPTION_KEY=your-fernet-key
 ```
 
@@ -69,7 +69,7 @@ python manage.py runserver
 
 ### 6. Access GraphQL Playground
 
-Visit: http://localhost:8000/graphql/
+Visit: <http://localhost:8000/graphql/>
 
 ## Example Queries and Mutations
 
@@ -80,7 +80,7 @@ mutation Register {
   register(
     input: {
       email: "user@example.com"
-      password: "SecurePass123!"
+      password: "SecurePass123!" # pragma: allowlist secret
       firstName: "John"
       lastName: "Doe"
     }
@@ -98,6 +98,8 @@ mutation Register {
 ```
 
 ### Login
+
+<!-- pragma: allowlist secret -->
 
 ```graphql
 mutation Login {
@@ -120,7 +122,7 @@ mutation Login {
 
 Add the JWT token to the HTTP headers:
 
-```
+```text
 Authorization: Bearer <your-token-here>
 ```
 
@@ -168,8 +170,8 @@ mutation VerifyTotp {
 ```graphql
 mutation ChangePassword {
   changePassword(
-    oldPassword: "SecurePass123!"
-    newPassword: "NewSecurePass456!"
+    oldPassword: "SecurePass123!" # pragma: allowlist secret
+    newPassword: "NewSecurePass456!" # pragma: allowlist secret
   ) {
     success
     message
@@ -216,7 +218,7 @@ pytest tests/test_authentication.py -v
 
 ## Project Structure
 
-```
+```text
 minimal-auth/
 ├── manage.py                   # Django management
 ├── requirements.txt            # Dependencies
@@ -302,6 +304,6 @@ class Mutation(AuthMutations):
 
 ## Support
 
-- **Documentation:** https://docs.syntek.dev/graphql
+- **Documentation:** <https://docs.syntek.dev/graphql>
 - **Examples:** See `../full-features/` for comprehensive example
-- **Issues:** https://github.com/syntek/syntek-modules/issues
+- **Issues:** <https://github.com/syntek/syntek-modules/issues>

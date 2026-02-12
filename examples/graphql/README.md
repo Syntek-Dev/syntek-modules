@@ -90,7 +90,7 @@ DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
 
 # Database
-DATABASE_URL=postgresql://user:pass@localhost:5432/dbname
+DATABASE_URL=postgresql://user:pass@localhost:5432/dbname  # pragma: allowlist secret
 
 # Redis
 REDIS_URL=redis://localhost:6379/0
@@ -139,7 +139,7 @@ mutation Register {
   register(
     input: {
       email: "user@example.com"
-      password: "SecurePass123!"
+      password: "SecurePass123!" # pragma: allowlist secret
       firstName: "John"
       lastName: "Doe"
     }
@@ -157,6 +157,8 @@ mutation Register {
 ```
 
 ### Login
+
+<!-- pragma: allowlist secret -->
 
 ```graphql
 mutation Login {
@@ -242,7 +244,7 @@ query AuditLogs {
 
 Each example follows this structure:
 
-```
+```text
 example-name/
 ├── manage.py                   # Django management script
 ├── requirements.txt            # Python dependencies
@@ -398,9 +400,9 @@ class Query:
 
 ### Getting Help
 
-- **Documentation:** https://docs.syntek.dev/graphql
-- **Issues:** https://github.com/syntek/syntek-modules/issues
-- **Discussions:** https://github.com/syntek/syntek-modules/discussions
+- **Documentation:** <https://docs.syntek.dev/graphql>
+- **Issues:** <https://github.com/syntek/syntek-modules/issues>
+- **Discussions:** <https://github.com/syntek/syntek-modules/discussions>
 
 ## Contributing
 

@@ -21,7 +21,8 @@ GDPR compliance and legal document management operations for Syntek GraphQL APIs
 
 ## Overview
 
-**syntek-graphql-compliance** provides GraphQL operations for GDPR compliance and legal document management. It implements GDPR Articles 15, 17, and 18, and provides comprehensive legal document versioning and acceptance tracking.
+**syntek-graphql-compliance** provides GraphQL operations for GDPR compliance and legal document management.
+It implements GDPR Articles 15, 17, and 18, and provides comprehensive legal document versioning and acceptance tracking.
 
 This package depends on `syntek-graphql-core` for security and error handling.
 
@@ -208,7 +209,7 @@ mutation RequestAccountDeletion {
 ```graphql
 mutation ConfirmAccountDeletion {
   confirmAccountDeletion(
-    input: { token: "confirmation-token-from-email", password: "user-password" }
+    input: { token: "confirmation-token-from-email", password: "user-password" } # pragma: allowlist secret
   ) {
     success
     message
@@ -556,7 +557,7 @@ mypy syntek_graphql_compliance
 
 ### Project Structure
 
-```
+```text
 syntek-graphql-compliance/
 ├── syntek_graphql_compliance/
 │   ├── __init__.py
@@ -614,6 +615,6 @@ MIT License - see LICENSE file for details.
 
 ## Support
 
-- Documentation: https://docs.syntek.com/graphql-compliance
-- Issues: https://github.com/syntek/syntek-modules/issues
-- Email: support@syntek.com
+- Documentation: <https://docs.syntek.com/graphql-compliance>
+- Issues: <https://github.com/syntek/syntek-modules/issues>
+- Email: <support@syntek.com>

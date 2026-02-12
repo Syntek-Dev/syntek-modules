@@ -2,7 +2,8 @@
 
 ## Overview
 
-The Syntek Compliance bundle provides GDPR and legal document management modules for Django applications. These modules help you maintain regulatory compliance for privacy laws and legal requirements.
+The Syntek Compliance bundle provides GDPR and legal document management modules for Django applications.
+These modules help you maintain regulatory compliance for privacy laws and legal requirements.
 
 ## Modules
 

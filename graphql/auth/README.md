@@ -1,6 +1,7 @@
 # Syntek GraphQL Auth
 
-GraphQL authentication and authorization layer for Syntek applications with JWT, sessions, TOTP/2FA, and advanced security features.
+GraphQL authentication and authorization layer for Syntek applications with JWT, sessions, TOTP/2FA,
+and advanced security features.
 
 ## Table of Contents
 
@@ -21,7 +22,8 @@ GraphQL authentication and authorization layer for Syntek applications with JWT,
 
 ## Overview
 
-**syntek-graphql-auth** provides a complete authentication and authorization GraphQL API layer for Django applications. Built on Strawberry GraphQL, it integrates seamlessly with Syntek's backend authentication modules to provide:
+**syntek-graphql-auth** provides a complete authentication and authorization GraphQL API layer for Django applications.
+Built on Strawberry GraphQL, it integrates seamlessly with Syntek's backend authentication modules to provide:
 
 - **User Registration**: Email verification, password strength validation, organisation assignment
 - **Authentication**: JWT-based login with refresh tokens, session management
@@ -30,7 +32,8 @@ GraphQL authentication and authorization layer for Syntek applications with JWT,
 - **Session Control**: Concurrent session limiting, device tracking, session termination
 - **User Queries**: Profile access, session listing, organisation-aware queries
 
-This module is part of Syntek's modular GraphQL architecture and depends on `syntek-graphql-core` for error handling, permissions, and security extensions.
+This module is part of Syntek's modular GraphQL architecture and depends on `syntek-graphql-core`
+for error handling, permissions, and security extensions.
 
 ## Features
 
@@ -315,7 +318,7 @@ Configure via `SYNTEK_MFA` in Django settings:
 mutation Register {
   register(
     email: "user@example.com"
-    password: "SecureP@ssw0rd123"
+    password: "SecureP@ssw0rd123" # pragma: allowlist secret
     firstName: "John"
     lastName: "Doe"
     organisationId: "org_123"
@@ -354,6 +357,8 @@ mutation Register {
 ```
 
 ### Login
+
+<!-- pragma: allowlist secret -->
 
 ```graphql
 mutation Login {
@@ -450,7 +455,7 @@ mutation SetupTOTP {
   "data": {
     "setupTotp": {
       "success": true,
-      "secret": "JBSWY3DPEHPK3PXP",
+      "secret": "JBSWY3DPEHPK3PXP",  // pragma: allowlist secret
       "qrCodeUrl": "otpauth://totp/Syntek:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Syntek",
       "backupCodes": [
         "a8f3-9d2e",
@@ -491,7 +496,7 @@ mutation RequestPasswordReset {
 mutation ResetPassword {
   resetPassword(
     token: "reset_token_here"
-    newPassword: "NewSecureP@ssw0rd456"
+    newPassword: "NewSecureP@ssw0rd456" # pragma: allowlist secret
   ) {
     success
     message
@@ -504,8 +509,8 @@ mutation ResetPassword {
 ```graphql
 mutation ChangePassword {
   changePassword(
-    oldPassword: "SecureP@ssw0rd123"
-    newPassword: "NewSecureP@ssw0rd456"
+    oldPassword: "SecureP@ssw0rd123" # pragma: allowlist secret
+    newPassword: "NewSecureP@ssw0rd456" # pragma: allowlist secret
   ) {
     success
     message
@@ -1094,7 +1099,7 @@ pre-commit run --all-files
 
 ### Project Structure
 
-```
+```text
 graphql/auth/
 ├── syntek_graphql_auth/
 │   ├── __init__.py              # Public API exports
@@ -1195,7 +1200,8 @@ def test_register_success(db, graphql_client):
 
 ## Migration from v1.x
 
-If you're migrating from the monolithic `syntek-graphql-auth@1.x` package, see the [Migration Guide](../../MIGRATION_GUIDE.md) for detailed instructions.
+If you're migrating from the monolithic `syntek-graphql-auth@1.x` package,
+see the [Migration Guide](../../MIGRATION_GUIDE.md) for detailed instructions.
 
 **Key Changes:**
 

@@ -4,11 +4,12 @@ Modular GraphQL components for Django applications using Strawberry GraphQL.
 
 ## Overview
 
-The Syntek GraphQL modules provide a complete, security-first GraphQL layer for Django applications. The modules are designed to be independently installable, allowing you to include only the functionality you need.
+The Syntek GraphQL modules provide a complete, security-first GraphQL layer for Django applications.
+The modules are designed to be independently installable, allowing you to include only the functionality you need.
 
 ## Module Structure
 
-```
+```text
 graphql/
 ├── syntek-graphql-core/          # Security foundation
 ├── syntek-graphql-auth/          # Authentication & sessions
@@ -18,7 +19,7 @@ graphql/
 
 ### Module Dependencies
 
-```
+```text
 ┌─────────────────────────┐
 │   syntek-graphql-core   │ ← Base module (no dependencies)
 └─────────────────────────┘
@@ -193,7 +194,8 @@ See [examples/](./examples/) for more detailed usage patterns.
 
 ## Migration Guide
 
-If you're upgrading from the monolithic `syntek-graphql-auth` package, see [MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md) for detailed migration instructions.
+If you're upgrading from the monolithic `syntek-graphql-auth` package,
+see [MIGRATION_GUIDE.md](./MIGRATION_GUIDE.md) for detailed migration instructions.
 
 ## Architecture Benefits
 

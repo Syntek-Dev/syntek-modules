@@ -2,7 +2,8 @@
 
 ## Overview
 
-Syntek Captcha provides Google reCAPTCHA v3 integration for bot protection in Django applications. It uses score-based verification (0.0-1.0) with action-specific thresholds and graceful degradation.
+Syntek Captcha provides Google reCAPTCHA v3 integration for bot protection in Django applications.
+It uses score-based verification (0.0-1.0) with action-specific thresholds and graceful degradation.
 
 ## Features
 
@@ -34,7 +35,7 @@ Settings:
 
 ```python
 SYNTEK_CAPTCHA = {
-    'SECRET_KEY': 'your-recaptcha-secret-key',
+    'SECRET_KEY': 'your-recaptcha-secret-key',  # pragma: allowlist secret
     'SITE_KEY': 'your-recaptcha-site-key',
     'ENABLED': True,
     'FAIL_OPEN': True,  # Allow users through if reCAPTCHA service is down

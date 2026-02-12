@@ -2,7 +2,8 @@
 
 ## Overview
 
-Syntek IP Filtering provides Django middleware for IP-based access control. It supports allowlist (whitelist) and blocklist (blacklist) modes, CIDR notation, and path-specific rules.
+Syntek IP Filtering provides Django middleware for IP-based access control.
+It supports allowlist (whitelist) and blocklist (blacklist) modes, CIDR notation, and path-specific rules.
 
 ## Features
 
