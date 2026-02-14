@@ -126,9 +126,7 @@ class OAuthCallbackService:
         )
 
         if response.status_code != 200:
-            raise ValueError(
-                f"Token exchange failed: {response.status_code} {response.text}"
-            )
+            raise ValueError(f"Token exchange failed: {response.status_code} {response.text}")
 
         return response.json()
 
@@ -157,9 +155,7 @@ class OAuthCallbackService:
         )
 
         if response.status_code != 200:
-            raise ValueError(
-                f"User info request failed: {response.status_code} {response.text}"
-            )
+            raise ValueError(f"User info request failed: {response.status_code} {response.text}")
 
         return response.json()
 
@@ -224,12 +220,8 @@ class OAuthCallbackService:
         # If linking to authenticated user
         if authenticated_user:
             # Check if user already has this provider linked
-            if SocialAccount.objects.filter(
-                user=authenticated_user, provider=provider
-            ).exists():
-                raise ValueError(
-                    f"User already has a {provider} account linked"
-                )
+            if SocialAccount.objects.filter(user=authenticated_user, provider=provider).exists():
+                raise ValueError(f"User already has a {provider} account linked")
 
             # Create social account for authenticated user
             social_account = OAuthCallbackService._create_social_account(
@@ -255,8 +247,7 @@ class OAuthCallbackService:
             # Email conflict: Don't auto-create user
             # Frontend should handle this by prompting user to log in
             raise ValueError(
-                f"Email {email} is already registered. "
-                "Please log in and link your account."
+                f"Email {email} is already registered. Please log in and link your account."
             )
 
         # Create new user with social account
@@ -288,14 +279,14 @@ class OAuthCallbackService:
         return user, social_account, True
 
     @staticmethod
-    def _create_user_from_social(
-        email: str, provider: str, profile_data: dict
-    ) -> User:
+    def _create_user_from_social(email: str, provider: str, profile_data: dict) -> User:
         """Create a new user from social account data."""
         # Extract name from profile data
         name = profile_data.get("name", "")
         first_name = profile_data.get("given_name", name.split()[0] if name else "")
-        last_name = profile_data.get("family_name", name.split()[-1] if name and len(name.split()) > 1 else "")
+        last_name = profile_data.get(
+            "family_name", name.split()[-1] if name and len(name.split()) > 1 else ""
+        )
 
         # Generate unique username from email
         username = email.split("@")[0]
@@ -336,9 +327,7 @@ class OAuthCallbackService:
         # Encrypt tokens
         access_token_encrypted = encrypt_oauth_token_py(access_token, encryption_key)
         refresh_token_encrypted = (
-            encrypt_oauth_token_py(refresh_token, encryption_key)
-            if refresh_token
-            else None
+            encrypt_oauth_token_py(refresh_token, encryption_key) if refresh_token else None
         )
 
         # Calculate token expiry
@@ -370,9 +359,7 @@ class OAuthCallbackService:
     ):
         """Update an existing social account with new tokens."""
         # Encrypt new tokens
-        social_account.access_token_encrypted = encrypt_oauth_token_py(
-            access_token, encryption_key
-        )
+        social_account.access_token_encrypted = encrypt_oauth_token_py(access_token, encryption_key)
 
         if refresh_token:
             social_account.refresh_token_encrypted = encrypt_oauth_token_py(
@@ -381,9 +368,7 @@ class OAuthCallbackService:
 
         # Update expiry
         if expires_in:
-            social_account.token_expires_at = timezone.now() + timedelta(
-                seconds=expires_in
-            )
+            social_account.token_expires_at = timezone.now() + timedelta(seconds=expires_in)
 
         social_account.scope = scope
         social_account.profile_data = profile_data
@@ -401,6 +386,4 @@ class OAuthCallbackService:
             str: Decrypted access token
         """
         encryption_key = OAuthCallbackService._get_encryption_key()
-        return decrypt_oauth_token_py(
-            social_account.access_token_encrypted, encryption_key
-        )
+        return decrypt_oauth_token_py(social_account.access_token_encrypted, encryption_key)

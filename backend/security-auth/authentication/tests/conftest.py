@@ -44,9 +44,7 @@ def mock_request(request_factory):
     """Create a mock HTTP request."""
     request = request_factory.get("/")
     request.META["REMOTE_ADDR"] = "192.168.1.100"
-    request.META["HTTP_USER_AGENT"] = (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-    )
+    request.META["HTTP_USER_AGENT"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
     return request
 
 

@@ -84,8 +84,7 @@ class OAuthService:
 
         if not client_id:
             raise ValueError(
-                f"OAuth client ID not configured for {provider}. "
-                f"Set {setting_name} in settings."
+                f"OAuth client ID not configured for {provider}. Set {setting_name} in settings."
             )
 
         return client_id

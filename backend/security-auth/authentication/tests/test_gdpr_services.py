@@ -213,9 +213,7 @@ class TestAccountDeletion:
         """Test that requesting deletion creates an AccountDeletion record."""
         AccountDeletionService.request_deletion(user, "User requested deletion")
 
-        assert AccountDeletion.objects.filter(
-            user=user, status="pending"
-        ).exists()
+        assert AccountDeletion.objects.filter(user=user, status="pending").exists()
 
     def test_request_deletion_sets_grace_period(self, user):
         """Test that deletion is scheduled 30 days in the future."""

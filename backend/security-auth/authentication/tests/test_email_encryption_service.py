@@ -18,9 +18,7 @@ pytestmark = pytest.mark.django_db
 class TestEmailEncryption:
     """Test email encryption and decryption functionality."""
 
-    def test_encrypt_and_save_creates_encrypted_email(
-        self, user, test_email, admin_user
-    ):
+    def test_encrypt_and_save_creates_encrypted_email(self, user, test_email, admin_user):
         """Test that encrypt_and_save creates an EncryptedEmail record."""
         EmailEncryptionService.encrypt_and_save(user, test_email, admin_user)
 
@@ -36,9 +34,7 @@ class TestEmailEncryption:
         decrypted = EmailEncryptionService.decrypt_email(user)
         assert decrypted == "user@example.com"
 
-    def test_decrypt_email_returns_original_plaintext(
-        self, user, test_email, admin_user
-    ):
+    def test_decrypt_email_returns_original_plaintext(self, user, test_email, admin_user):
         """Test that decryption returns the original plaintext email."""
         EmailEncryptionService.encrypt_and_save(user, test_email, admin_user)
 
@@ -61,9 +57,7 @@ class TestEmailEncryption:
         with pytest.raises(EncryptedEmail.DoesNotExist):
             EmailEncryptionService.decrypt_email(user)
 
-    def test_check_email_exists_true_for_existing_email(
-        self, user, test_email, admin_user
-    ):
+    def test_check_email_exists_true_for_existing_email(self, user, test_email, admin_user):
         """Test that check_email_exists returns True for existing emails."""
         EmailEncryptionService.encrypt_and_save(user, test_email, admin_user)
 
@@ -71,23 +65,16 @@ class TestEmailEncryption:
 
     def test_check_email_exists_false_for_nonexistent_email(self):
         """Test that check_email_exists returns False for non-existent emails."""
-        assert (
-            EmailEncryptionService.check_email_exists("nonexistent@example.com")
-            is False
-        )
+        assert EmailEncryptionService.check_email_exists("nonexistent@example.com") is False
 
     def test_check_email_exists_case_insensitive(self, user, admin_user):
         """Test that email existence check is case-insensitive."""
-        EmailEncryptionService.encrypt_and_save(
-            user, "user@example.com", admin_user
-        )
+        EmailEncryptionService.encrypt_and_save(user, "user@example.com", admin_user)
 
         assert EmailEncryptionService.check_email_exists("USER@EXAMPLE.COM") is True
         assert EmailEncryptionService.check_email_exists("UsEr@ExAmPlE.cOm") is True
 
-    def test_get_user_by_email_returns_correct_user(
-        self, user, test_email, admin_user
-    ):
+    def test_get_user_by_email_returns_correct_user(self, user, test_email, admin_user):
         """Test that get_user_by_email returns the correct user."""
         EmailEncryptionService.encrypt_and_save(user, test_email, admin_user)
 
@@ -130,16 +117,12 @@ class TestKeyRotation:
                 email=f"user{i}@example.com",
                 password=f"Password{i}!",
             )
-            EmailEncryptionService.encrypt_and_save(
-                user, f"user{i}@example.com", admin_user
-            )
+            EmailEncryptionService.encrypt_and_save(user, f"user{i}@example.com", admin_user)
             users.append(user)
 
         # Rotate keys (in real scenario, new keys would be provided)
         # For this test, we'll verify the process completes
-        success_count, failure_count = EmailEncryptionService.rotate_encryption_key(
-            batch_size=2
-        )
+        success_count, failure_count = EmailEncryptionService.rotate_encryption_key(batch_size=2)
 
         assert success_count == 5
         assert failure_count == 0
@@ -171,14 +154,10 @@ class TestKeyRotation:
                 email=f"batch{i}@example.com",
                 password=f"Password{i}!",
             )
-            EmailEncryptionService.encrypt_and_save(
-                user, f"batch{i}@example.com", admin_user
-            )
+            EmailEncryptionService.encrypt_and_save(user, f"batch{i}@example.com", admin_user)
 
         # Rotate with batch size of 3
-        success_count, failure_count = EmailEncryptionService.rotate_encryption_key(
-            batch_size=3
-        )
+        success_count, failure_count = EmailEncryptionService.rotate_encryption_key(batch_size=3)
 
         assert success_count == 10
         assert failure_count == 0
@@ -195,9 +174,7 @@ class TestEdgeCases:
     def test_encrypt_invalid_email_raises_validation_error(self, user, admin_user):
         """Test that encrypting an invalid email raises a validation error."""
         with pytest.raises(Exception):  # Should raise validation error from Rust
-            EmailEncryptionService.encrypt_and_save(
-                user, "not-an-email", admin_user
-            )
+            EmailEncryptionService.encrypt_and_save(user, "not-an-email", admin_user)
 
     def test_encrypt_unicode_email(self, user, admin_user):
         """Test that Unicode emails are handled correctly."""
@@ -213,14 +190,10 @@ class TestEdgeCases:
 
     def test_update_existing_email(self, user, admin_user):
         """Test updating an existing encrypted email."""
-        EmailEncryptionService.encrypt_and_save(
-            user, "old@example.com", admin_user
-        )
+        EmailEncryptionService.encrypt_and_save(user, "old@example.com", admin_user)
 
         # Update to new email
-        EmailEncryptionService.encrypt_and_save(
-            user, "new@example.com", admin_user
-        )
+        EmailEncryptionService.encrypt_and_save(user, "new@example.com", admin_user)
 
         # Should have only one record (updated, not duplicate)
         assert EncryptedEmail.objects.filter(user=user).count() == 1
@@ -257,9 +230,7 @@ class TestEdgeCases:
 class TestSecurityProperties:
     """Test security properties of email encryption."""
 
-    def test_encrypted_data_not_in_database_plaintext(
-        self, user, test_email, admin_user
-    ):
+    def test_encrypted_data_not_in_database_plaintext(self, user, test_email, admin_user):
         """Test that plaintext email is not stored in the database."""
         EmailEncryptionService.encrypt_and_save(user, test_email, admin_user)
 
@@ -293,12 +264,8 @@ class TestSecurityProperties:
             username="user2", email="user2@example.com", password="Password2!"
         )
 
-        EmailEncryptionService.encrypt_and_save(
-            user1, "email1@example.com", admin_user
-        )
-        EmailEncryptionService.encrypt_and_save(
-            user2, "email2@example.com", admin_user
-        )
+        EmailEncryptionService.encrypt_and_save(user1, "email1@example.com", admin_user)
+        EmailEncryptionService.encrypt_and_save(user2, "email2@example.com", admin_user)
 
         hash1 = EncryptedEmail.objects.get(user=user1).email_hash
         hash2 = EncryptedEmail.objects.get(user=user2).email_hash

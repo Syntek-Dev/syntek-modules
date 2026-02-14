@@ -125,9 +125,7 @@ class SocialAccount(models.Model):
 
         Unmarks any other social accounts for this user.
         """
-        SocialAccount.objects.filter(user=self.user, is_primary=True).update(
-            is_primary=False
-        )
+        SocialAccount.objects.filter(user=self.user, is_primary=True).update(is_primary=False)
         self.is_primary = True
         self.save(update_fields=["is_primary"])
 
@@ -278,9 +276,7 @@ class SocialLoginAttempt(models.Model):
         help_text="Email from OAuth provider",
     )
 
-    ip_address = models.GenericIPAddressField(
-        help_text="IP address of the login attempt"
-    )
+    ip_address = models.GenericIPAddressField(help_text="IP address of the login attempt")
 
     user_agent = models.TextField(
         blank=True,
