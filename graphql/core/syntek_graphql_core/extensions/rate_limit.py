@@ -71,11 +71,11 @@ class OperationRateLimitExtension(SchemaExtension):
         "sendPhoneVerification": "3/hour",
         "verifyPhone": "5/15min",
         "sendEmailVerification": "3/hour",
-        "requestPasswordReset": "3/hour",
+        "requestPasswordReset": "3/hour",  # pragma: allowlist secret
         "login": "5/15min",
         "totpVerify": "5/15min",
         "register": "10/hour",
-        "changePassword": "5/hour",
+        "changePassword": "5/hour",  # pragma: allowlist secret
         "resetPassword": "5/hour",
         "setupTOTP": "3/hour",
         "verifyTOTPSetup": "10/15min",

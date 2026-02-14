@@ -48,8 +48,8 @@ class ErrorCode(StrEnum):
     # Validation errors (VALIDATION_*)
     EMAIL_ALREADY_EXISTS = "EMAIL_ALREADY_EXISTS"
     INVALID_EMAIL_FORMAT = "INVALID_EMAIL_FORMAT"
-    PASSWORD_TOO_WEAK = "PASSWORD_TOO_WEAK"
-    PASSWORD_IN_HISTORY = "PASSWORD_IN_HISTORY"
+    PASSWORD_TOO_WEAK = "PASSWORD_TOO_WEAK"  # pragma: allowlist secret
+    PASSWORD_IN_HISTORY = "PASSWORD_IN_HISTORY"  # pragma: allowlist secret
     INVALID_INPUT = "INVALID_INPUT"
     ORGANISATION_NOT_FOUND = "ORGANISATION_NOT_FOUND"
 
@@ -66,7 +66,7 @@ class ErrorCode(StrEnum):
     # Rate limit errors (RATE_LIMIT_*)
     RATE_LIMIT_EXCEEDED = "RATE_LIMIT_EXCEEDED"
     TOO_MANY_REQUESTS = "TOO_MANY_REQUESTS"
-    PASSWORD_RESET_RATE_LIMIT_EXCEEDED = "PASSWORD_RESET_RATE_LIMIT_EXCEEDED"
+    PASSWORD_RESET_RATE_LIMIT_EXCEEDED = "PASSWORD_RESET_RATE_LIMIT_EXCEEDED"  # pragma: allowlist secret
 
     # Server errors (SERVER_*)
     INTERNAL_ERROR = "INTERNAL_ERROR"
@@ -96,8 +96,8 @@ ERROR_MESSAGES: dict[ErrorCode, str] = {
     # Validation
     ErrorCode.EMAIL_ALREADY_EXISTS: "Email address is already registered",
     ErrorCode.INVALID_EMAIL_FORMAT: "Invalid email address format",
-    ErrorCode.PASSWORD_TOO_WEAK: "Password does not meet security requirements",
-    ErrorCode.PASSWORD_IN_HISTORY: "Cannot reuse a recent password",
+    ErrorCode.PASSWORD_TOO_WEAK: "Password does not meet security requirements",  # pragma: allowlist secret
+    ErrorCode.PASSWORD_IN_HISTORY: "Cannot reuse a recent password",  # pragma: allowlist secret
     ErrorCode.INVALID_INPUT: "Invalid input data",
     ErrorCode.ORGANISATION_NOT_FOUND: "Organisation not found",
     # Permission

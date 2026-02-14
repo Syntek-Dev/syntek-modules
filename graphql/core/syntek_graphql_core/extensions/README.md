@@ -20,6 +20,7 @@ This module provides security extensions beyond basic query depth/complexity lim
 Granular rate limiting per GraphQL operation with Redis-backed counters.
 
 **Features:**
+
 - Operation-specific rate limits (e.g., `sendPhoneVerification: 3/hour`)
 - IP-based and user-based scoping
 - Distributed rate limiting via Redis
@@ -53,6 +54,7 @@ schema = strawberry.Schema(
 ```
 
 **Rate Limit Format:**
+
 - `3/hour` - 3 requests per hour
 - `5/15min` - 5 requests per 15 minutes
 - `10/day` - 10 requests per day
@@ -65,6 +67,7 @@ schema = strawberry.Schema(
 Prevent SMS cost attacks with global budget tracking.
 
 **Features:**
+
 - Global hourly SMS limit (shared across all instances)
 - Daily budget tracking (prevent cost overruns)
 - Alert system at 80% threshold
@@ -101,7 +104,7 @@ schema = strawberry.Schema(
 
 When SMS usage reaches 80% of hourly limit or daily budget, an email alert is sent:
 
-```
+```text
 Subject: SMS Alert: SMS hourly usage at 82.5% (825/1000)
 
 The global SMS hourly limit is approaching capacity.
@@ -117,6 +120,7 @@ Please investigate potential abuse.
 Prevent timing attacks by ensuring authentication operations take fixed time.
 
 **Features:**
+
 - Fixed minimum response time for auth operations
 - Automatic sleep to reach target duration
 - Timing anomaly detection and logging
@@ -156,7 +160,7 @@ schema = strawberry.Schema(
 
 **Example:**
 
-```
+```text
 Operation: login
 Actual execution: 45ms
 Sleep duration: 155ms
@@ -172,6 +176,7 @@ Result: Prevents attackers from determining if email exists based on response ti
 Validate CAPTCHA tokens to prevent automated attacks.
 
 **Features:**
+
 - Support for reCAPTCHA v2, v3, and hCaptcha
 - Score-based validation for reCAPTCHA v3
 - Configurable per-operation requirements
@@ -230,6 +235,7 @@ mutation RegisterUser($input: RegisterInput!) {
 Sanitise user inputs to prevent injection attacks.
 
 **Features:**
+
 - XSS prevention (HTML/JavaScript escaping)
 - SQL injection pattern detection
 - Command injection prevention
@@ -261,11 +267,11 @@ schema = strawberry.Schema(
 
 **Sanitisation Levels:**
 
-| Level      | Description                                    | Use Case                     |
-| ---------- | ---------------------------------------------- | ---------------------------- |
-| `strict`   | Aggressive - strips most special characters    | High-security environments   |
-| `moderate` | Balanced - escapes dangerous patterns          | General production use       |
-| `lenient`  | Minimal - blocks only obvious attacks          | Development/trusted users    |
+| Level      | Description                                 | Use Case                   |
+| ---------- | ------------------------------------------- | -------------------------- |
+| `strict`   | Aggressive - strips most special characters | High-security environments |
+| `moderate` | Balanced - escapes dangerous patterns       | General production use     |
+| `lenient`  | Minimal - blocks only obvious attacks       | Development/trusted users  |
 
 **Example:**
 
@@ -290,6 +296,7 @@ schema = strawberry.Schema(
 Detect session hijacking via device fingerprinting.
 
 **Features:**
+
 - User-Agent tracking
 - IP address network tracking (/24 for privacy)
 - Accept-Language fingerprinting
@@ -336,7 +343,7 @@ schema = strawberry.Schema(
 
 **Example Detection:**
 
-```
+```text
 User logs in from London (IP: 192.168.1.50, Chrome on Windows)
 Fingerprint: abc123...
 
@@ -353,6 +360,7 @@ Result: Mismatch detected, session possibly hijacked
 Pattern-based threat detection with automatic blocking.
 
 **Features:**
+
 - Failed login velocity detection
 - Multiple account registration detection
 - Password reset abuse detection
@@ -385,14 +393,14 @@ schema = strawberry.Schema(
 
 **Detection Rules:**
 
-| Pattern                  | Threshold                     | Score | Action                         |
-| ------------------------ | ----------------------------- | ----- | ------------------------------ |
-| Failed login velocity    | >5 failures in 5 minutes      | 10    | Log + increment score          |
-| Multiple registrations   | >3 registrations in 1 hour    | 25    | Log + increment score          |
-| Password reset abuse     | >10 resets in 1 hour          | 20    | Log + increment score          |
-| TOTP brute force         | >10 failed TOTP in 10 minutes | 15    | Log + increment score          |
-| Geographic anomaly       | Login from different country  | 30    | Log + increment score          |
-| High suspicion score     | Score >= threshold (75)       | -     | Alert + optional auto-block    |
+| Pattern                | Threshold                     | Score | Action                      |
+| ---------------------- | ----------------------------- | ----- | --------------------------- |
+| Failed login velocity  | >5 failures in 5 minutes      | 10    | Log + increment score       |
+| Multiple registrations | >3 registrations in 1 hour    | 25    | Log + increment score       |
+| Password reset abuse   | >10 resets in 1 hour          | 20    | Log + increment score       |
+| TOTP brute force       | >10 failed TOTP in 10 minutes | 15    | Log + increment score       |
+| Geographic anomaly     | Login from different country  | 30    | Log + increment score       |
+| High suspicion score   | Score >= threshold (75)       | -     | Alert + optional auto-block |
 
 **Suspicion Score:**
 
@@ -403,7 +411,7 @@ schema = strawberry.Schema(
 
 **Example:**
 
-```
+```text
 IP: 192.168.1.100
 
 10:00 - Failed login attempt (score: 10)
@@ -558,6 +566,7 @@ GRAPHQL_SUSPICIOUS_ACTIVITY_ALERT_EMAIL = "security@example.com"
 ### Redis Cache
 
 All extensions use Redis for distributed state:
+
 - Rate limit counters
 - SMS cost tracking
 - Session fingerprints
@@ -594,14 +603,14 @@ extensions=[
 
 ### Cache TTLs
 
-| Cache Key                                 | TTL      | Purpose                  |
-| ----------------------------------------- | -------- | ------------------------ |
-| `graphql_rate_limit:{op}:{client}`        | Variable | Rate limit counters      |
-| `global_sms_hourly_count`                 | 1 hour   | Global SMS counter       |
-| `global_sms_daily_cost`                   | 1 day    | Global SMS budget        |
-| `session_fingerprint:{user_id}`           | 24 hours | Session fingerprints     |
-| `suspicious:ip_score:{ip}`                | 24 hours | Suspicion scores         |
-| `suspicious:{pattern}:{ip}`               | Variable | Pattern-specific counters|
+| Cache Key                          | TTL      | Purpose                   |
+| ---------------------------------- | -------- | ------------------------- |
+| `graphql_rate_limit:{op}:{client}` | Variable | Rate limit counters       |
+| `global_sms_hourly_count`          | 1 hour   | Global SMS counter        |
+| `global_sms_daily_cost`            | 1 day    | Global SMS budget         |
+| `session_fingerprint:{user_id}`    | 24 hours | Session fingerprints      |
+| `suspicious:ip_score:{ip}`         | 24 hours | Suspicion scores          |
+| `suspicious:{pattern}:{ip}`        | Variable | Pattern-specific counters |
 
 ---
 
@@ -623,11 +632,13 @@ extensions=[
 
 **Symptoms:** Rate limits not enforced
 **Causes:**
+
 - Redis not configured or unavailable
 - Cache backend not set to Redis
 - Extension not added to schema
 
 **Solution:**
+
 ```python
 # Check Redis connection
 python manage.py shell
@@ -641,11 +652,13 @@ python manage.py shell
 
 **Symptoms:** All CAPTCHA validations fail
 **Causes:**
+
 - Invalid secret key
 - Network firewall blocking Google/hCaptcha
 - Incorrect reCAPTCHA version
 
 **Solution:**
+
 - Verify `RECAPTCHA_SECRET_KEY` in settings
 - Test API access: `curl https://www.google.com/recaptcha/api/siteverify`
 - Check reCAPTCHA admin console for errors
@@ -656,6 +669,7 @@ python manage.py shell
 **Causes:** Working as intended
 
 **Solution:**
+
 - Reduce `GRAPHQL_CONSTANT_TIME_DURATION` to 0.1 (100ms)
 - Disable in development: `GRAPHQL_CONSTANT_TIME_ENABLED = DEBUG`
 
@@ -663,11 +677,13 @@ python manage.py shell
 
 **Symptoms:** Legitimate users blocked due to fingerprint mismatch
 **Causes:**
+
 - VPN changes
 - Mobile network switching
 - Browser updates
 
 **Solution:**
+
 - Use logging mode instead of strict: `GRAPHQL_FINGERPRINT_STRICT = False`
 - Increase IP network prefix tolerance
 - Provide manual session refresh mechanism

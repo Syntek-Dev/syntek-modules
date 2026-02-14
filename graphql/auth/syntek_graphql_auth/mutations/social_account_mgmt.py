@@ -256,7 +256,7 @@ def unlink_social_account(
         >>> # Unlink GitHub account
         >>> success = unlink_social_account(
         ...     provider="github",
-        ...     password="current_password"
+        ...     password="current_password"  # pragma: allowlist secret
         ... )
     """
     request = get_request(info)
