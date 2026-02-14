@@ -15,6 +15,15 @@ from syntek_graphql_core.errors import (
     RateLimitError,
     ValidationError,
 )
+from syntek_graphql_core.extensions import (
+    CaptchaValidationExtension,
+    ConstantTimeResponseExtension,
+    GlobalSMSRateLimitExtension,
+    InputSanitisationExtension,
+    OperationRateLimitExtension,
+    SessionFingerprintExtension,
+    SuspiciousActivityExtension,
+)
 from syntek_graphql_core.middleware import GraphQLAuthenticationMiddleware
 from syntek_graphql_core.permissions import (
     HasPermission,
@@ -54,10 +63,18 @@ __all__ = [
     "HasPermission",
     "IsAuthenticated",
     "IsOrganisationOwner",
-    # Security extensions
+    # Security extensions (query structure)
     "IntrospectionControlExtension",
     "QueryComplexityLimitExtension",
     "QueryDepthLimitExtension",
+    # Security extensions (operation-level)
+    "CaptchaValidationExtension",
+    "ConstantTimeResponseExtension",
+    "GlobalSMSRateLimitExtension",
+    "InputSanitisationExtension",
+    "OperationRateLimitExtension",
+    "SessionFingerprintExtension",
+    "SuspiciousActivityExtension",
     # Utilities
     "get_authenticated_user",
     "get_authorization_header",
