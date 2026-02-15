@@ -211,6 +211,39 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_login_ip = models.BinaryField(null=True, blank=True)
     password_changed_at = models.DateTimeField(null=True, blank=True)
 
+    # Enhanced PII storage (Phase 1: Authentication System)
+    email_encrypted = models.BinaryField(
+        null=True,
+        blank=True,
+        help_text="Encrypted email for secure storage (ChaCha20-Poly1305)",
+    )
+    email_hash = models.CharField(
+        max_length=64,
+        unique=True,
+        null=True,
+        blank=True,
+        help_text="HMAC-SHA256 hash for constant-time lookups",
+    )
+    phone_number_encrypted = models.BinaryField(
+        null=True,
+        blank=True,
+        help_text="Encrypted phone number (ChaCha20-Poly1305)",
+    )
+    phone_hash = models.CharField(
+        max_length=64,
+        unique=True,
+        null=True,
+        blank=True,
+        help_text="HMAC-SHA256 hash for constant-time phone lookups",
+    )
+    username = models.CharField(
+        max_length=150,
+        unique=True,
+        null=True,
+        blank=True,
+        help_text="Optional unique username",
+    )
+
     # Account lockout (P2-C7)
     failed_login_attempts = models.IntegerField(default=0)  # type: ignore[call-arg]
     account_locked_until = models.DateTimeField(null=True, blank=True)
@@ -239,6 +272,65 @@ class User(AbstractBaseUser, PermissionsMixin):
         blank=True,
         help_text="Timestamp when account deletion was requested",
     )
+    deleted_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text="Soft delete timestamp (30-day grace period before permanent deletion)",
+    )
+    deletion_scheduled_date = models.DateField(
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text="Date when permanent deletion is scheduled",
+    )
+
+    # Legal acceptance tracking (GDPR/CCPA compliance)
+    privacy_policy_accepted_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When user accepted privacy policy (GDPR requirement)",
+    )
+    privacy_policy_version = models.CharField(
+        max_length=20,
+        blank=True,
+        default="",
+        help_text="Privacy policy version accepted (e.g., '1.2-EU')",
+    )
+    privacy_policy_region = models.CharField(
+        max_length=10,
+        blank=True,
+        default="",
+        help_text="Privacy policy region (e.g., 'EU', 'USA', 'CA')",
+    )
+    terms_accepted_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When user accepted terms of service",
+    )
+    terms_version = models.CharField(
+        max_length=20,
+        blank=True,
+        default="",
+        help_text="Terms of service version accepted (e.g., '2.1-EU')",
+    )
+    terms_region = models.CharField(
+        max_length=10,
+        blank=True,
+        default="",
+        help_text="Terms of service region",
+    )
+
+    # Phone consent (required for SMS/phone features)
+    phone_consent = models.BooleanField(
+        default=False,  # type: ignore[call-arg]
+        help_text="User has consented to phone/SMS communications",
+    )
+    phone_consent_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When phone consent was granted",
+    )
 
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
@@ -260,6 +352,12 @@ class User(AbstractBaseUser, PermissionsMixin):
             models.Index(fields=["organisation", "email"]),
             models.Index(fields=["organisation", "is_active"]),
             models.Index(fields=["organisation", "-created_at"]),
+            # Phase 1: Timing attack prevention indexes
+            models.Index(fields=["email_hash"], name="idx_user_email_hash"),
+            models.Index(fields=["phone_hash"], name="idx_user_phone_hash"),
+            # Phase 1: GDPR deletion indexes
+            models.Index(fields=["deleted_at"], name="idx_user_deleted_at"),
+            models.Index(fields=["deletion_scheduled_date"], name="idx_user_deletion_scheduled"),
         ]
 
     def __str__(self) -> str:

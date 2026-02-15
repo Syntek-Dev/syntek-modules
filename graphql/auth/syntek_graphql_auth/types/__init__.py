@@ -10,6 +10,7 @@ from syntek_graphql_auth.types.auth import (
     RegisterInput,
     TwoFactorSetupPayload,
 )
+from syntek_graphql_auth.types.config import AuthConfigType
 from syntek_graphql_auth.types.totp import (
     Confirm2FAInput,
     Confirm2FAPayload,
@@ -38,6 +39,8 @@ __all__ = [
     "PasswordResetRequestInput",
     "RegisterInput",
     "TwoFactorSetupPayload",
+    # Config types
+    "AuthConfigType",
     # TOTP types
     "Confirm2FAInput",
     "Confirm2FAPayload",

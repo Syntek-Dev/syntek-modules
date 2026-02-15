@@ -13,11 +13,11 @@ from syntek_graphql_core.security import (  # type: ignore[import]
 
 from syntek_graphql_auth.mutations import AuthMutations, SessionMutation, TOTPMutations
 from syntek_graphql_auth.mutations.totp import TOTPQueries
-from syntek_graphql_auth.queries import UserQueries
+from syntek_graphql_auth.queries import AuthConfigQueries, UserQueries
 
 
 @strawberry.type
-class AuthQuery(UserQueries, TOTPQueries):
+class AuthQuery(AuthConfigQueries, UserQueries, TOTPQueries):
     """Combined authentication query root."""
 
     pass

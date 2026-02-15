@@ -14,11 +14,11 @@ Example:
     >>> raise ValidationError("EMAIL_ALREADY_EXISTS", {"email": "test@example.com"})
 """
 
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class ErrorCode(str, Enum):
+class ErrorCode(StrEnum):
     """Standardised error codes for GraphQL API.
 
     Error codes follow the pattern: CATEGORY_SPECIFIC_ERROR
@@ -37,11 +37,19 @@ class ErrorCode(str, Enum):
     INVALID_2FA_CODE = "INVALID_2FA_CODE"  # Alias for INVALID_TOTP_CODE
     CAPTCHA_FAILED = "CAPTCHA_FAILED"
 
+    # OAuth/Social authentication errors
+    INVALID_OAUTH_STATE = "INVALID_OAUTH_STATE"
+    OAUTH_PROVIDER_ERROR = "OAUTH_PROVIDER_ERROR"
+    SOCIAL_ACCOUNT_NOT_FOUND = "SOCIAL_ACCOUNT_NOT_FOUND"
+    SOCIAL_ACCOUNT_ALREADY_LINKED = "SOCIAL_ACCOUNT_ALREADY_LINKED"
+    LAST_AUTH_METHOD = "LAST_AUTH_METHOD"
+    CONSENT_REQUIRED = "CONSENT_REQUIRED"
+
     # Validation errors (VALIDATION_*)
     EMAIL_ALREADY_EXISTS = "EMAIL_ALREADY_EXISTS"
     INVALID_EMAIL_FORMAT = "INVALID_EMAIL_FORMAT"
-    PASSWORD_TOO_WEAK = "PASSWORD_TOO_WEAK"
-    PASSWORD_IN_HISTORY = "PASSWORD_IN_HISTORY"
+    PASSWORD_TOO_WEAK = "PASSWORD_TOO_WEAK"  # pragma: allowlist secret
+    PASSWORD_IN_HISTORY = "PASSWORD_IN_HISTORY"  # pragma: allowlist secret
     INVALID_INPUT = "INVALID_INPUT"
     ORGANISATION_NOT_FOUND = "ORGANISATION_NOT_FOUND"
 
@@ -58,7 +66,7 @@ class ErrorCode(str, Enum):
     # Rate limit errors (RATE_LIMIT_*)
     RATE_LIMIT_EXCEEDED = "RATE_LIMIT_EXCEEDED"
     TOO_MANY_REQUESTS = "TOO_MANY_REQUESTS"
-    PASSWORD_RESET_RATE_LIMIT_EXCEEDED = "PASSWORD_RESET_RATE_LIMIT_EXCEEDED"
+    PASSWORD_RESET_RATE_LIMIT_EXCEEDED = "PASSWORD_RESET_RATE_LIMIT_EXCEEDED"  # pragma: allowlist secret
 
     # Server errors (SERVER_*)
     INTERNAL_ERROR = "INTERNAL_ERROR"
@@ -78,11 +86,18 @@ ERROR_MESSAGES: dict[ErrorCode, str] = {
     ErrorCode.INVALID_TOTP_CODE: "Invalid two-factor authentication code",
     ErrorCode.INVALID_2FA_CODE: "Invalid two-factor authentication code",
     ErrorCode.CAPTCHA_FAILED: "CAPTCHA verification failed - please try again",
+    # OAuth/Social authentication
+    ErrorCode.INVALID_OAUTH_STATE: "Invalid or expired OAuth state token",
+    ErrorCode.OAUTH_PROVIDER_ERROR: "OAuth provider returned an error",
+    ErrorCode.SOCIAL_ACCOUNT_NOT_FOUND: "Social account not found",
+    ErrorCode.SOCIAL_ACCOUNT_ALREADY_LINKED: "Social account already linked to another user",
+    ErrorCode.LAST_AUTH_METHOD: "Cannot remove only authentication method",
+    ErrorCode.CONSENT_REQUIRED: "User consent required for this operation",
     # Validation
     ErrorCode.EMAIL_ALREADY_EXISTS: "Email address is already registered",
     ErrorCode.INVALID_EMAIL_FORMAT: "Invalid email address format",
-    ErrorCode.PASSWORD_TOO_WEAK: "Password does not meet security requirements",
-    ErrorCode.PASSWORD_IN_HISTORY: "Cannot reuse a recent password",
+    ErrorCode.PASSWORD_TOO_WEAK: "Password does not meet security requirements",  # pragma: allowlist secret
+    ErrorCode.PASSWORD_IN_HISTORY: "Cannot reuse a recent password",  # pragma: allowlist secret
     ErrorCode.INVALID_INPUT: "Invalid input data",
     ErrorCode.ORGANISATION_NOT_FOUND: "Organisation not found",
     # Permission

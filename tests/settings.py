@@ -28,7 +28,7 @@ INSTALLED_APPS = [
     "strawberry.django",
     # Syntek modules - add as needed for testing
     # Uncomment modules as you need to test them:
-    # "syntek_authentication",
+    "syntek_authentication",
     # "syntek_jwt",
     # "syntek_sessions",
     # "syntek_mfa",
@@ -110,3 +110,15 @@ AUTH_PASSWORD_VALIDATORS = []
 #     "RATE_LIMITING": {"BACKEND": "memory", "DEFAULT_RATE": "1000/hour"},
 #     "CSRF": {"TOKEN_ROTATION": False},
 # }
+
+# Encryption key paths for testing (set by fixtures in conftest.py)
+ENCRYPTION_KEY_PATH = None
+HMAC_KEY_PATH = None
+
+# Cache configuration for testing
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake",
+    }
+}

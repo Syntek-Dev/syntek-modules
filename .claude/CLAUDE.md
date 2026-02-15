@@ -4,11 +4,360 @@
 
 **Syntek Modules** is a modular monorepo containing reusable Django, React, React Native, and Rust modules for installation into other projects.
 
+## ⚠️ CRITICAL: NO SPRINTS OR STORIES
+
+**This project does NOT use sprints or user stories.** We use implementation plans instead.
+
+- ❌ **DO NOT** create sprint files (`docs/SPRINTS/`, `SPRINT-*.md`)
+- ❌ **DO NOT** create user story files (`docs/STORIES/`, `STORY-*.md`)
+- ❌ **DO NOT** use MoSCoW prioritisation or story points
+- ❌ **DO NOT** invoke `/syntek-dev-suite:sprint` or `/syntek-dev-suite:stories` agents
+- ✅ **DO** create implementation plans (`docs/PLANS/PLAN-*.md`)
+- ✅ **DO** track completion by updating plan checkboxes
+- ✅ **DO** use the EnterPlanMode tool for planning work
+
+**All agents must follow this convention. If an agent tries to create sprints/stories, stop it immediately.**
+
 This is NOT a deployable application - these are **library modules** designed to be:
 
 - Installed via uv or pip (Django apps)
 - Installed via npm/pnpm (React/React Native packages)
 - Included via Cargo (Rust crates)
+
+## ⚠️ CRITICAL: Architectural Principles
+
+### Django Backend is the Source of Truth
+
+**MANDATORY PRINCIPLE:** Django backend is the **authoritative source** for all configuration, business logic, and data.
+
+- ✅ **DO** fetch all configuration from Django via GraphQL
+- ✅ **DO** implement business logic in Django
+- ✅ **DO** use Django settings as single source of truth
+- ❌ **DO NOT** hardcode configuration values in frontend
+- ❌ **DO NOT** duplicate business logic in frontend
+- ❌ **DO NOT** create separate configuration systems
+
+**Example (Authentication Configuration):**
+
+```typescript
+// ❌ WRONG: Hardcoded configuration
+export const PASSWORD_MIN_LENGTH = 12;
+export const SESSION_TIMEOUT = 1800;
+
+// ✅ CORRECT: Fetch from Django via GraphQL
+const { config } = useAuthConfig(); // Fetches from Django SYNTEK_AUTH settings
+const minLength = config.passwordMinLength; // Always matches backend
+```
+
+**Reference:** See `docs/ARCHITECTURE-REVIEW-SHARED-AUTH.md` for implementation details.
+
+---
+
+### Full Stack Layer Integration
+
+**ALL layers must be used correctly and in harmony:**
+
+#### Layer 1: Django Backend (Source of Truth)
+
+- **Purpose:** Business logic, data models, configuration, validation rules
+- **Technologies:** Django 6.0.2, Python 3.14, PostgreSQL 18.1
+- **Responsibilities:**
+  - Define all configuration in Django settings (e.g., `SYNTEK_AUTH`)
+  - Implement all business logic and validation
+  - Manage database models and migrations
+  - Use Rust layer for encryption/hashing via PyO3
+- **Examples:** Password validation rules, session timeouts, rate limits, feature flags
+
+#### Layer 2: Rust Security Layer
+
+- **Purpose:** High-performance encryption, hashing, security operations
+- **Technologies:** Rust, PyO3 bindings to Django
+- **Responsibilities:**
+  - Argon2 password hashing
+  - AES-256-GCM encryption/decryption
+  - HMAC generation for constant-time lookups
+  - Cryptographic operations (TOTP, WebAuthn)
+- **Integration:** Called from Django via PyO3, **NOT directly from frontend**
+- **Examples:** `hash_password()`, `encrypt_field()`, `constant_time_compare()`
+
+#### Layer 3: GraphQL API (Communication Layer)
+
+- **Purpose:** Expose Django backend to frontend via type-safe GraphQL API
+- **Technologies:** Strawberry GraphQL 0.291.0
+- **Responsibilities:**
+  - Define GraphQL schema matching Django models
+  - Expose configuration via queries (e.g., `authConfig`)
+  - Handle mutations (register, login, update profile)
+  - Enforce permissions and rate limiting
+- **Integration:** Frontend communicates with Django **ONLY** through GraphQL
+- **Examples:** `mutation { register }`, `query { authConfig }`, `mutation { updateProfile }`
+
+#### Layer 4: Shared Frontend (Cross-Platform Code)
+
+- **Purpose:** Maximum code reuse between web and mobile
+- **Location:** `shared/` directory
+- **Technologies:** TypeScript 5.9, React 19.2.1
+- **Responsibilities:**
+  - Business logic hooks (70-80% shared)
+  - GraphQL operations (100% shared)
+  - TypeScript types (100% shared)
+  - Utilities and validators (100% shared)
+  - Cross-platform UI components (70-80% shared)
+- **Rule:** **Default to `shared/` first**, only use `web/` or `mobile/` for platform-specific code
+
+**What goes in `shared/`:**
+
+- ✅ GraphQL queries and mutations
+- ✅ TypeScript types
+- ✅ React hooks (useAuth, useMFA, usePasskey, etc.)
+- ✅ Utilities (validators, formatters, crypto helpers)
+- ✅ Cross-platform components (Button, Input, Modal, etc.)
+- ✅ Design system tokens
+- ✅ Constants (as fallbacks, fetching from GraphQL)
+
+**What goes in `web/` or `mobile/`:**
+
+- ✅ Platform-specific adapters (storage, biometrics, WebAuthn)
+- ✅ Platform-specific UI composition (Next.js pages, React Native screens)
+- ✅ Platform-specific navigation (Next.js router, React Native navigation)
+- ✅ Platform-specific HOCs and providers
+
+#### Layer 5: Web Frontend (Next.js/React)
+
+- **Purpose:** Web-specific implementation
+- **Location:** `web/packages/`
+- **Technologies:** Next.js 16.1.16, React 19.2.1, TypeScript 5.9, Tailwind v4
+- **Responsibilities:**
+  - Import from `shared/` (70-80% of code)
+  - Web-specific adapters (httpOnly cookies, localStorage)
+  - Next.js pages and routing
+  - Tailwind v4 styling
+  - Server-side rendering (SSR) when needed
+
+#### Layer 6: Mobile Frontend (React Native)
+
+- **Purpose:** Mobile-specific implementation
+- **Location:** `mobile/packages/`
+- **Technologies:** React Native 0.83.x, TypeScript 5.9, NativeWind 4
+- **Responsibilities:**
+  - Import from `shared/` (70-80% of code)
+  - Mobile-specific adapters (SecureStore, biometrics)
+  - React Native screens and navigation
+  - NativeWind 4 styling (Tailwind classes for mobile)
+  - Native module integration (iOS/Android)
+
+---
+
+### Code Sharing Strategy
+
+**CRITICAL:** Maximize code reuse by defaulting to `shared/` for all frontend code.
+
+**Code Sharing Hierarchy:**
+
+1. **100% Shared (Always in `shared/`):**
+   - TypeScript types
+   - GraphQL operations (queries, mutations, fragments)
+   - Constants (as fallbacks, fetch from GraphQL)
+   - Utilities (validators, formatters, crypto)
+
+2. **70-80% Shared (Mostly in `shared/`, adapters in `web/`/`mobile/`):**
+   - Business logic hooks (useAuth, useMFA, usePasskey, etc.)
+   - UI components (Button, Input, Modal, etc.)
+   - Form validation
+
+3. **Platform-Specific (In `web/` or `mobile/` only):**
+   - Platform adapters (storage, biometrics, WebAuthn)
+   - Routing and navigation
+   - Platform-specific UI composition (pages, screens)
+   - Platform-specific native integrations
+
+**Example: Authentication Hook**
+
+```typescript
+// ✅ CORRECT: Shared business logic
+// Location: shared/auth/hooks/useAuth.ts
+export function useAuth() {
+  const { config } = useAuthConfig(); // Fetches from Django
+  const [login] = useMutation(LOGIN_MUTATION);
+
+  const handleLogin = async (email: string, password: string) => {
+    // Business logic (100% shared)
+    const { data } = await login({ variables: { email, password } });
+
+    // Store token via platform adapter
+    await secureStorage.setItem("token", data.login.token);
+  };
+
+  return { handleLogin };
+}
+
+// Platform-specific adapter
+// Location: shared/auth/hooks/adapters/useSecureStorage.web.ts
+export const secureStorage = {
+  async setItem(key: string, value: string) {
+    // Web: httpOnly cookies (handled by server)
+    document.cookie = `${key}=${value}; Secure; HttpOnly`;
+  },
+};
+
+// Location: shared/auth/hooks/adapters/useSecureStorage.native.ts
+export const secureStorage = {
+  async setItem(key: string, value: string) {
+    // Mobile: SecureStore
+    await SecureStore.setItemAsync(key, value);
+  },
+};
+```
+
+---
+
+### Frontend Configuration Rules
+
+**CRITICAL:** Nothing in the frontend should be hardcoded. All configuration comes from Django via GraphQL.
+
+#### ✅ DO: Fetch Configuration from Django
+
+```typescript
+// Fetch auth configuration from Django SYNTEK_AUTH settings
+const { config } = useAuthConfig();
+
+// Use backend configuration
+if (password.length < config.passwordMinLength) {
+  return `Password must be at least ${config.passwordMinLength} characters`;
+}
+
+if (config.uppercaseRequired && !/[A-Z]/.test(password)) {
+  return "Password must contain an uppercase letter";
+}
+```
+
+#### ❌ DO NOT: Hardcode Configuration
+
+```typescript
+// ❌ WRONG: Hardcoded configuration
+const PASSWORD_MIN_LENGTH = 12;
+const UPPERCASE_REQUIRED = true;
+
+if (password.length < PASSWORD_MIN_LENGTH) {
+  return "Password must be at least 12 characters";
+}
+```
+
+#### Configuration Fetching Pattern
+
+1. **Add configuration to Django settings:**
+
+   ```python
+   # backend/settings.py
+   SYNTEK_AUTH = {
+       'PASSWORD_LENGTH': 12,
+       'UPPERCASE_REQUIRED': True,
+       'SESSION_TIMEOUT': 1800,
+   }
+   ```
+
+2. **Expose via GraphQL query:**
+
+   ```python
+   # graphql/auth/queries/config.py
+   @strawberry.field
+   def auth_config(self, info: Info) -> AuthConfigType:
+       config = settings.SYNTEK_AUTH
+       return AuthConfigType(
+           password_min_length=config['PASSWORD_LENGTH'],
+           uppercase_required=config['UPPERCASE_REQUIRED'],
+       )
+   ```
+
+3. **Fetch in frontend via hook:**
+
+   ```typescript
+   // shared/auth/hooks/useAuthConfig.ts
+   export function useAuthConfig() {
+     const { data } = useQuery(GET_AUTH_CONFIG);
+     return { config: data.authConfig };
+   }
+   ```
+
+4. **Use in components:**
+
+   ```typescript
+   const { config } = useAuthConfig();
+   // config.passwordMinLength always matches Django backend
+   ```
+
+---
+
+### Styling Strategy
+
+**Web:** Tailwind CSS v4 (CSS-first approach)
+**Mobile:** NativeWind 4 (Tailwind classes for React Native)
+**Shared:** Design tokens and theme configuration
+
+#### Design System Structure
+
+```
+shared/design-system/
+├── tokens/              # Design tokens (colors, spacing, typography)
+├── components/          # Primitive components (Button, Input, etc.)
+├── theme.css            # Tailwind v4 CSS variables
+├── theme.ts             # Unified theme object
+├── tailwind.config.ts   # Tailwind v4 config (web)
+└── nativewind.config.ts # NativeWind config (mobile)
+```
+
+#### Tailwind v4 (Web)
+
+```css
+/* shared/design-system/theme.css */
+@theme {
+  --color-primary: #3b82f6;
+  --color-danger: #ef4444;
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+}
+```
+
+```typescript
+// web/packages/ui-auth/src/components/LoginForm.tsx
+<button className="bg-primary text-white px-4 py-2 rounded">
+  Login
+</button>
+```
+
+#### NativeWind 4 (Mobile)
+
+```typescript
+// mobile/packages/mobile-auth/src/screens/LoginScreen.tsx
+<Pressable className="bg-primary px-4 py-2 rounded">
+  <Text className="text-white">Login</Text>
+</Pressable>
+```
+
+**Same Tailwind classes work on both web and mobile!**
+
+---
+
+### Summary: Architectural Checklist
+
+When implementing any feature, ensure:
+
+- [ ] ✅ Django backend defines all configuration in settings
+- [ ] ✅ GraphQL exposes configuration via queries
+- [ ] ✅ Frontend fetches configuration via `useConfig()` hooks
+- [ ] ✅ No hardcoded configuration in frontend
+- [ ] ✅ Rust layer used for encryption/hashing (via Django)
+- [ ] ✅ Business logic in Django, not frontend
+- [ ] ✅ Maximum code sharing via `shared/` directory
+- [ ] ✅ TypeScript types match GraphQL schema
+- [ ] ✅ Tailwind v4 (web) and NativeWind 4 (mobile) for styling
+- [ ] ✅ All layers working in harmony
+
+**Reference Documents:**
+
+- `docs/ARCHITECTURE-REVIEW-SHARED-AUTH.md` - Configuration integration
+- `docs/ARCHITECTURE-FIX-IMPLEMENTATION-SUMMARY.md` - Implementation examples
+- `docs/REVIEWS/REVIEW-PHASE-3-4-AUTHENTICATION-UI-ARCHITECTURE.md` - Code sharing strategy
 
 ## Language and Formatting
 
@@ -281,15 +630,29 @@ syntek build         # Build for production
 
 ## Agent Guidelines
 
+**CRITICAL:** All agents MUST follow the architectural principles defined above. Review the "Architectural Principles" section before starting any work.
+
+**📋 Quick Reference:** See `.claude/QUICK-REFERENCE.md` for a concise one-page guide to all architectural rules.
+
+**Key Requirements:**
+
+- ✅ Django backend is the source of truth for all configuration
+- ✅ Frontend fetches configuration from Django via GraphQL (no hardcoded values)
+- ✅ Default to `shared/` for all frontend code (70-80% code reuse)
+- ✅ Use all layers correctly: Django → GraphQL → Shared → Web/Mobile
+- ✅ Rust layer for encryption/hashing (via Django PyO3, not direct frontend access)
+- ✅ Tailwind v4 (web) and NativeWind 4 (mobile) for styling
+
 ### When Creating/Modifying Modules
 
-1. **Understand bundling** - Security modules are bundled but can be installed individually
-2. **Keep modules independent** - Avoid cross-dependencies
-3. **Write comprehensive README.md FIRST** - Include installation, configuration, usage examples, API reference
-4. **Provide examples** - Show real-world usage
-5. **Test thoroughly** - Unit + integration tests
-6. **Version properly** - Semantic versioning
-7. **Security first** - Use Rust encryption layer for sensitive data
+1. **Follow architectural principles** - Django is source of truth, fetch config via GraphQL, maximize `shared/` code reuse
+2. **Understand bundling** - Security modules are bundled but can be installed individually
+3. **Keep modules independent** - Avoid cross-dependencies
+4. **Write comprehensive README.md FIRST** - Include installation, configuration, usage examples, API reference
+5. **Provide examples** - Show real-world usage (Django → GraphQL → Frontend flow)
+6. **Test thoroughly** - Unit + integration tests for all layers
+7. **Version properly** - Semantic versioning
+8. **Security first** - Use Rust encryption layer for sensitive data (via Django)
 
 ### Security Checklist (ALL code)
 
@@ -297,7 +660,7 @@ syntek build         # Build for production
 - [ ] Parameterized queries (no SQL injection)
 - [ ] Strong authentication (MFA support)
 - [ ] Authorization checks on all operations
-- [ ] Encryption for sensitive data (at rest and in transit)
+- [ ] Encryption for sensitive data (at rest and in transit via Rust layer)
 - [ ] Security logging (no sensitive data in logs)
 - [ ] Error messages don't leak information
 - [ ] Rate limiting implemented
@@ -305,6 +668,19 @@ syntek build         # Build for production
 - [ ] Security headers configured
 - [ ] Dependencies scanned for vulnerabilities
 - [ ] GDPR data subject rights supported
+
+### Architectural Compliance Checklist (ALL frontend code)
+
+- [ ] Configuration fetched from Django via GraphQL (no hardcoded values)
+- [ ] Code in `shared/` directory by default (only platform-specific in `web/`/`mobile/`)
+- [ ] TypeScript types match GraphQL schema
+- [ ] Business logic hooks in `shared/auth/hooks/`
+- [ ] GraphQL operations in `shared/auth/graphql/`
+- [ ] Utilities in `shared/auth/utils/`
+- [ ] Components in `shared/design-system/components/` or `shared/auth/components/`
+- [ ] Platform adapters for storage/biometrics in `shared/auth/hooks/adapters/`
+- [ ] Rust encryption called via Django backend (not directly from frontend)
+- [ ] Tailwind v4 classes for web, NativeWind 4 for mobile
 
 ### Documentation & Code Quality Requirements
 

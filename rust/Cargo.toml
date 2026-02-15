@@ -6,6 +6,7 @@ members = [
     "llm_gateway",
     "pyo3_bindings",
     "project-cli",
+    "auth-pentest",
 ]
 resolver = "2"
 
@@ -22,6 +23,11 @@ ring = "0.17"
 chacha20poly1305 = "0.10"
 argon2 = "0.5"
 blake3 = "1.5"
+hmac = "0.12"
+sha2 = "0.10"
+subtle = "2.6"
+base64 = "0.22"
+rand = "0.8"
 
 # Memory safety
 zeroize = { version = "1.8", features = ["derive"] }

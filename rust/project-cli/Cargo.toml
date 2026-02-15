@@ -37,6 +37,9 @@ dotenvy = "0.15"
 # Date/time for audit reports
 chrono = "0.4"
 
+# Pentest suite
+syntek-auth-pentest = { path = "../auth-pentest" }
+
 [dev-dependencies]
 assert_cmd = "2.0"
 predicates = "3.1"

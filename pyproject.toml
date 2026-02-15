@@ -20,7 +20,7 @@ classifiers = [
 # Root project dependencies (for development/testing)
 dependencies = [
     "django>=6.0.2",
-    "strawberry-graphql>=0.291.0",
+    "strawberry-graphql>=0.291.3",
     "psycopg[binary]>=3.1.0",
     "python-dotenv>=1.0.0",
 ]
@@ -31,7 +31,7 @@ dev = [
     "pytest-django>=4.8.0",
     "pytest-cov>=5.0.0",
     "pytest-asyncio>=0.23.0",
-    "ruff>=0.5.0",
+    "ruff>=0.15.0",
     "pyright>=1.1.0",
     "django-stubs>=5.1.0",
     "ipython>=8.20.0",
@@ -64,7 +64,10 @@ DJANGO_SETTINGS_MODULE = "tests.settings"
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-testpaths = ["tests"]
+testpaths = [
+    "tests",
+    "backend/security-auth/authentication/tests",
+]
 addopts = "-v --tb=short --cov --cov-report=html --cov-report=term"
 
 [tool.coverage.run]
@@ -130,3 +133,8 @@ exclude = [
 [tool.django-stubs]
 django_settings_module = "tests.settings"
 strict_settings = false
+
+[dependency-groups]
+dev = [
+    "maturin>=1.11.5",
+]
