@@ -1778,129 +1778,294 @@ mutation {
 }
 ```
 
-#### Phase 3: Web Frontend (Next.js/React) (Week 3-4)
+#### Phase 2.5: Shared Frontend Architecture Setup (Week 3) 🔴 **BLOCKING - MUST COMPLETE FIRST**
+
+**⛔ CRITICAL:** This phase MUST be completed before Phase 3-4 implementation. Proceeding without shared architecture will create 100+ hours of technical debt through code duplication.
+
+**Review Reference:** `docs/REVIEWS/REVIEW-PHASE-3-4-AUTHENTICATION-UI-ARCHITECTURE.md`
+
+**Rationale:** 70-80% of authentication logic can be shared between web and mobile. Without establishing shared code architecture first, the same code will be duplicated in both `web/packages/ui-auth/` and `mobile/packages/mobile-auth/`, leading to:
+
+- 3,000-4,000 lines of duplicated code
+- 2x maintenance cost for bug fixes and features
+- Inconsistent UI/UX across platforms
+- 40-60 hours refactoring cost later
 
 **Tasks:**
 
-- [ ] **3.1** Create UI components (`web/packages/ui-auth/`)
-  - **Module Location:** All components in `web/packages/ui-auth/src/components/`
-  - **[GDPR] GAP-01, GAP-03:** Registration form (with username, phone fields):
-    - Phone consent checkbox (required if phone provided - GDPR data processing consent)
-    - **Privacy Policy acceptance checkbox (required - GDPR Art. 13/14 transparency requirement)**
-    - **Terms of Service acceptance checkbox (required - contractual agreement for service use)**
-    - Links to regional legal documents:
-      - `/legal/privacy-policy-{region}` (e.g., privacy-policy-eu, privacy-policy-usa)
-      - `/legal/terms-of-service-{region}` (e.g., terms-of-service-eu, terms-of-service-usa)
-    - Auto-detect user region (IP geolocation) and show appropriate documents
-    - Allow manual region selection if auto-detection incorrect
-    - NO pre-checked boxes (GAP-12 - GDPR requires affirmative action)
-    - Note: Both Privacy Policy AND Terms of Service are required:
-      - Privacy Policy: Legal requirement (GDPR/CCPA) - explains data processing
-      - Terms of Service: Business requirement - defines service rules, liability, disputes
-  - Login form (with recovery key option)
-  - Phone verification modal
-  - TOTP setup wizard
-  - **[IMPROVEMENT]** Recovery key display/download component:
-    - Printable PDF format
-    - Downloadable text/JSON
-    - Copy-to-clipboard
-    - Expiry date display
-    - "I have saved my keys" confirmation checkbox
-  - **[IMPROVEMENT]** Password strength indicator:
-    - Real-time pattern detection
-    - Strength meter (weak/fair/good/strong)
-    - Specific feedback (e.g., "Contains keyboard pattern", "Too similar to email")
-    - Have I Been Pwned check (optional, client-side API call)
-  - **[NEW]** WebAuthn/Passkey components:
-    - Passkey registration wizard (browser compatibility check, step-by-step guide)
-    - Passkey authentication button (with fallback to password)
-    - Passkey management UI (list, rename, delete passkeys)
-    - Device name input (e.g., "iPhone 13", "MacBook Pro")
-  - **[NEW]** Session security dashboard:
-    - Active sessions list with device info
-    - Current session fingerprint display
-    - Device change alerts
-    - "Terminate suspicious sessions" button
-  - **[NEW]** Backup code status indicator:
-    - Codes remaining count
-    - Expiry date warning
-    - "Regenerate codes" button
+- [x] **2.5.1** Create shared authentication module structure (2 hours)
+  - [x] Create `shared/auth/` directory structure:
+    - `shared/auth/components/` - Cross-platform UI components
+    - `shared/auth/hooks/` - Business logic hooks
+    - `shared/auth/utils/` - Utilities (validators, formatters, password, HIBP)
+    - `shared/auth/graphql/` - GraphQL operations (queries, mutations, fragments)
+    - `shared/auth/types/` - TypeScript type definitions
+    - `shared/auth/constants/` - Shared constants
+    - `shared/auth/hooks/adapters/` - Platform-specific adapters
 
-- [ ] **3.2** Implement authentication hooks (`web/packages/ui-auth/`)
-  - **Module Location:** All hooks in `web/packages/ui-auth/src/hooks/`
-  - `useAuth` (login, logout, register)
-  - `usePhoneVerification` (send code, verify)
-  - **[IMPROVEMENT]** `useMFA` (setup TOTP, manage recovery keys, backup code status, expiry warnings)
-  - **[IMPROVEMENT]** `usePasswordValidation` (real-time validation with pattern detection, strength scoring, HIBP check)
-  - **[NEW]** `usePasskey` (WebAuthn implementation):
-    - `registerPasskey()` - Create new passkey credential
-    - `authenticateWithPasskey()` - Login with passkey
-    - `listPasskeys()` - Get user's passkeys
-    - `deletePasskey()` - Remove passkey
-    - Browser compatibility detection
-    - Fallback handling
-    - **[SECURITY] M-3:** WebAuthn attestation validation:
-      - Verify authenticator attestation during registration
-      - Document attestation formats (packed, fido-u2f, android-key, etc.)
-      - Implement attestation validation for NIST AAL3 compliance
-      - Log attestation results for security audit
-      - Optional: Restrict to specific authenticator types (hardware keys only)
-  - **[NEW]** `useSessionSecurity`:
-    - `getActiveSessions()` - List all active sessions
-    - `terminateSession(sessionId)` - Kill specific session
-    - `terminateSuspiciousSessions()` - Kill flagged sessions
-    - `getCurrentFingerprint()` - Get current device fingerprint
-    - **[SECURITY] L-2:** Enhanced fingerprinting with additional entropy:
-      - WebGL vendor and renderer detection
-      - Audio context fingerprinting
-      - Font detection (installed fonts)
-      - Hardware concurrency (CPU cores)
-      - Device memory (RAM, Chrome only)
-      - Browser features detection
-      - Configurable fingerprint levels: minimal, balanced, aggressive
-      - GDPR consent mechanism for enhanced fingerprinting
-      - Privacy-first approach (balanced level by default)
-  - **[GDPR] GAP-04, GAP-05:** `useProfileUpdate`:
-    - `updateEmail(newEmail, password)` - Update email with verification
-    - `updatePhone(newPhone, password)` - Update phone with verification
-    - `updateUsername(newUsername, password)` - Update username
-  - **[GDPR] GAP-07, GAP-13, GAP-15, GAP-16:** `useGDPR`:
-    - `deleteAccount()` - Request account deletion (30-day grace period)
-    - `exportMyData()` - Download all authentication data (JSON/CSV)
-    - `withdrawPhoneConsent()` - Remove phone number and consent
-    - `optOutOfIPTracking()` - Disable IP address collection
+- [x] **2.5.2** Implement Tailwind v4 + NativeWind 4 design system (8 hours)
+  - [x] Create `shared/design-system/` structure
+  - [x] Define design tokens (`shared/design-system/tokens/`):
+    - `colors.ts` - Brand + semantic colors (auth-specific: password strength, MFA status, session status)
+    - `typography.ts` - Font families, sizes, weights, line heights
+    - `spacing.ts` - 4px base scale (0, 4, 8, 12, 16, 20, 24, 32, 40, 48, 64)
+    - `borders.ts` - Border radius, widths
+    - `shadows.ts` - Box shadows (web), elevation (mobile)
+    - `breakpoints.ts` - Responsive breakpoints
+    - `z-index.ts` - Stacking order constants
+  - [x] Configure Tailwind v4 and NativeWind 4:
+    - `shared/design-system/tailwind.config.ts` - Tailwind v4 config (web)
+    - `shared/design-system/nativewind.config.ts` - NativeWind overrides (mobile)
+    - `shared/design-system/theme.ts` - Unified theme object
+  - [x] Build primitive components (100% cross-platform):
+    - `Button.tsx` - Primary, secondary, danger, ghost variants
+    - `Input.tsx` - Text, password, email, phone inputs
+    - `Checkbox.tsx` - GDPR consent checkboxes
+    - `Select.tsx` - Dropdown selects
+    - `Modal.tsx` - Dialog/modal (center for web, bottom for mobile)
+    - `Toast.tsx` - Notification toasts (success, error, warning, info)
+    - `Card.tsx` - Container cards (elevated, flat)
+    - `Badge.tsx` - Status badges (active, suspended, verified)
+    - `Spinner.tsx` - Loading indicators (small, medium, large)
+    - `Alert.tsx` - Warning/error/info alerts
+    - `ProgressBar.tsx` - Password strength, progress indicators
+    - `Avatar.tsx` - User avatars (image, initials, icon)
+  - [x] Test components on both web (Next.js) and mobile (React Native)
+  - [x] Document design system usage in `shared/design-system/README.md`
+  - [x] Ensure WCAG 2.1 AA compliance (color contrast, touch targets, keyboard navigation)
 
-- [ ] **3.3** Create authentication pages
-  - **[GDPR] GAP-01, GAP-03:** `/auth/register` with GDPR compliance:
-    - Real-time password validation and pattern detection
-    - Phone consent checkbox (optional, required if phone provided)
-    - Privacy policy acceptance checkbox (required)
-    - Terms acceptance checkbox (required)
-    - Links to privacy policy and terms
-  - `/auth/login` **[IMPROVED]** with passkey button, recovery key option
-  - `/auth/verify-email`
-  - `/auth/verify-phone`
-  - `/auth/setup-mfa` **[IMPROVED]** with backup code expiry, recovery key expiry
-  - `/auth/recovery` **[IMPROVED]** with multiple format downloads (PDF, text, JSON)
-  - **[NEW]** `/auth/setup-passkey` - Passkey registration wizard with compatibility check
-  - **[NEW]** `/auth/manage-passkeys` - List and manage registered passkeys
-  - **[NEW]** `/auth/sessions` - Session security dashboard
-  - **[NEW]** `/auth/security` - Security settings (MFA, passkeys, sessions, device management)
-  - **[GDPR] GAP-04, GAP-05:** `/account/profile` - Update email, phone, username
-  - **[GDPR] GAP-15:** `/account/export-data` - Download authentication data (DSAR)
-  - **[GDPR] GAP-07:** `/account/delete` - Request account deletion with 30-day grace
-  - **[GDPR] GAP-13, GAP-16:** `/account/privacy` - Manage consents (phone, IP tracking)
+- [x] **2.5.3** Move TypeScript types to shared location (1 hour)
+  - [x] Create `shared/auth/types/` with all type definitions:
+    - `user.ts` - User, UserProfile, UserRole, AccountStatus
+    - `auth.ts` - LoginInput, RegisterInput, AuthToken, AuthError
+    - `mfa.ts` - TOTPSetup, BackupCode, RecoveryKey, MFAStatus
+    - `passkey.ts` - PasskeyCredential, WebAuthnChallenge, BrowserSupport
+    - `session.ts` - Session, DeviceFingerprint, SessionActivity
+    - `social.ts` - SocialProvider, SocialAccount, OAuthState
+    - `gdpr.ts` - ConsentType, DataExport, DeletionRequest
+    - `verification.ts` - VerificationCode, PhoneVerification, EmailVerification
+    - `form-state.ts` - FormErrors, ValidationState, SubmitState
+  - [x] Remove duplicate types from `web/packages/ui-auth/src/types/` (if exists)
 
-- [ ] **3.4** Implement state management
-  - Auth context provider
-  - Token storage (httpOnly cookies)
-  - Session persistence
+- [x] **2.5.4** Create GraphQL operations in shared location (4 hours)
+  - [x] Set up Apollo Client in `shared/auth/graphql/client.ts`:
+    - Apollo Client configuration
+    - Cache policies (user: 5 min cache, sessions: always fresh)
+    - Error handling
+    - HttpOnly cookie credentials
+  - [x] Create GraphQL fragments (`shared/auth/graphql/fragments/`):
+    - `user.ts` - UserFields fragment
+    - `session.ts` - SessionFields fragment
+    - `passkey.ts` - PasskeyFields fragment
+    - `social-account.ts` - SocialAccountFields fragment
+    - `consent.ts` - ConsentFields fragment
+  - [x] Create GraphQL queries (`shared/auth/graphql/queries/`):
+    - `auth.ts` - currentUser, checkEmailExists, checkUsernameExists
+    - `mfa.ts` - getMFAStatus, getBackupCodes, getRecoveryKeys
+    - `passkey.ts` - listPasskeys, passkeyChallenge
+    - `session.ts` - getActiveSessions, sessionHistory, getSuspiciousSessions
+    - `social.ts` - getSocialAccounts, socialProviders
+    - `gdpr.ts` - getConsentStatus, exportDataStatus
+  - [x] Create GraphQL mutations (`shared/auth/graphql/mutations/`):
+    - `auth.ts` - register, login, logout
+    - `verification.ts` - verifyEmail, verifyPhone, sendVerificationCode
+    - `mfa.ts` - setupTOTP, verifyTOTP, regenerateBackupCodes, useBackupCode
+    - `passkey.ts` - registerPasskey, authenticatePasskey, deletePasskey
+    - `session.ts` - terminateSession, terminateAllSessions, updateFingerprint
+    - `social.ts` - linkSocialAccount, unlinkSocialAccount
+    - `profile.ts` - updateEmail, updatePhone, updateUsername, updatePassword
+    - `gdpr.ts` - deleteAccount, exportData, withdrawConsent
 
-- [ ] **3.5** Add CAPTCHA integration
+- [x] **2.5.5** Implement core shared utilities (3 hours)
+  - [x] Create `shared/auth/utils/password-validator.ts`:
+    - Fetch validation rules from GraphQL backend
+    - Client-side pattern detection (sequential, repeated, dictionary, keyboard, date)
+    - Strength scoring and crack time estimation
+    - Integration with backend validation rules
+  - [x] Create `shared/auth/utils/hibp-checker.ts`:
+    - HIBP k-anonymity API integration
+    - Client-side rate limiting (max 1 request/second)
+    - Debounced password checking
+  - [x] Create form validators (`shared/auth/utils/validators/`):
+    - `email.ts` - Email validation (RFC 5322 compliant)
+    - `phone.ts` - Phone validation (libphonenumber-js)
+    - `username.ts` - Username validation (alphanumeric + underscore)
+    - `password.ts` - Password validation against backend rules
+    - `gdpr-consent.ts` - GDPR consent validation
+  - [x] Create formatters (`shared/auth/utils/formatters/`):
+    - `dates.ts` - Date formatting (dd.mm.yyyy)
+    - `phone.ts` - Phone formatting (E.164)
+    - `session-device.ts` - Device info formatting
+  - [x] Create crypto utilities (`shared/auth/utils/crypto/`):
+    - `constant-time.ts` - Constant-time comparison (timing attack prevention)
+    - `hash.ts` - SHA-256 client-side hashing (for email lookup)
+  - [x] Create MFA utilities:
+    - `totp-generator.ts` - TOTP generation logic
+    - `recovery-key-generator.ts` - Recovery key generation
+
+- [x] **2.5.6** Define shared constants (1 hour)
+  - [x] Create `shared/auth/constants/`:
+    - `auth.ts` - SESSION_TIMEOUT, MAX_LOGIN_ATTEMPTS, TOKEN_REFRESH_INTERVAL
+    - `validation.ts` - USERNAME_MIN_LENGTH, PASSWORD_MIN_LENGTH, PHONE_REGEX
+    - `mfa.ts` - TOTP_WINDOW, BACKUP_CODE_COUNT, RECOVERY_KEY_COUNT
+    - `passkey.ts` - WEBAUTHN_TIMEOUT, ATTESTATION_FORMATS
+    - `session.ts` - FINGERPRINT_LEVELS, CONCURRENT_SESSION_LIMIT
+    - `social.ts` - OAUTH_PROVIDERS, PROVIDER_SCOPES
+    - `routes.ts` - API endpoints, OAuth callback paths
+
+- [x] **2.5.7** Build platform adapters (3 hours)
+  - [x] Create storage adapters (`shared/auth/hooks/adapters/`):
+    - `useSecureStorage.ts` - Platform detection
+    - `useSecureStorage.web.ts` - httpOnly cookies (web)
+    - `useSecureStorage.native.ts` - SecureStore (mobile)
+  - [x] Create WebAuthn adapters:
+    - `useWebAuthn.web.ts` - Browser WebAuthn API
+    - `useBiometrics.native.ts` - Native biometric APIs (iOS FaceID/TouchID, Android)
+  - [x] Define adapter interfaces:
+    - `SecureStorageAdapter` - setItem, getItem, removeItem
+    - `BiometricAdapter` - authenticate, isSupported, getAvailableTypes
+
+- [x] **2.5.8** Implement critical security fixes (4 hours)
+  - [x] **[SEC-001]** Configure httpOnly cookie storage (web):
+    - Use storage adapter pattern
+    - Never use localStorage for auth tokens
+    - Set `secure: true, sameSite: 'strict'`
+  - [x] **[SEC-002]** Implement constant-time email lookup:
+    - Client-side SHA-256 hashing of email before lookup
+    - Backend HMAC-based lookup (coordinate with backend team)
+  - [x] **[SEC-003]** Integrate DOMPurify for XSS prevention:
+    - Add to `shared/auth/utils/sanitization.ts`
+    - Sanitize all user-generated content (names, device names, etc.)
+  - [x] **[SEC-004]** Coordinate session rotation with backend:
+    - Clear old session before login
+    - Ensure backend rotates session ID on authentication
+  - [x] **[SEC-007]** Create secure logging utility:
+    - `shared/auth/utils/logging.ts` with PII redaction
+    - Never log passwords, TOTP codes, recovery keys, email, phone
+
+- [x] **2.5.9** Implement shared authentication components (6 hours)
+  - [x] Create `shared/auth/components/`:
+    - `PasswordStrengthIndicator.tsx` - Real-time strength meter with pattern feedback
+    - `TOTPQRCode.tsx` - TOTP QR code display for authenticator apps
+    - `BackupCodeDisplay.tsx` - Backup code list with copy-to-clipboard
+    - `RecoveryKeyDownload.tsx` - Multi-format download (PDF, text, JSON) with platform adapters
+    - `LegalConsentCheckbox.tsx` - GDPR-compliant consent checkbox with links
+    - `SocialLoginButton.tsx` - OAuth provider button (Google, GitHub, Microsoft, etc.)
+    - `SessionCard.tsx` - Session display with device info
+    - `PasskeyListItem.tsx` - Passkey credential display
+    - `PhoneInput.tsx` - Libphonenumber-wrapped input with country selector
+
+**Deliverable:** Complete shared code foundation enabling 70-80% code reuse between web and mobile. All TypeScript types, GraphQL operations, utilities, and design system components ready for Phase 3-4 implementation.
+
+**Effort Estimate:** 32 hours (4 days with 1 developer, 2 days with 2 developers)
+
+**ROI:** Prevents 100+ hours of refactoring + ongoing 2x maintenance cost
+
+**Testing Criteria:**
+
+```bash
+# Shared component tests
+pnpm test shared/auth
+pnpm test shared/design-system
+
+# Test on web
+cd web/packages/ui-auth && pnpm dev
+
+# Test on mobile
+cd mobile/packages/mobile-auth && pnpm start
+```
+
+---
+
+#### Phase 3: Web Frontend (Next.js/React) (Week 4-5)
+
+**⚠️ DEPENDENCY:** Phase 2.5 (Shared Architecture) MUST be completed first.
+
+**Progress:** Using shared code architecture from Phase 2.5.
+
+**Tasks:**
+
+- [x] **3.0** Set up web-specific package infrastructure (2 hours)
+  - [x] Configure `web/packages/ui-auth/package.json`:
+    - Add dependencies: `@syntek/shared` (workspace reference), Apollo Client, SimpleWebAuthn, reCAPTCHA
+    - Configure build scripts
+  - [x] Create `tsconfig.json` extending shared tsconfig
+  - [x] **NO DUPLICATION:** All types come from `shared/auth/types/`
+  - [x] **NO DUPLICATION:** All GraphQL comes from `shared/auth/graphql/`
+  - [x] **NO DUPLICATION:** All utilities come from `shared/auth/utils/`
+
+- [x] **3.1** Create web-specific UI composition (4 hours)
+  - **Module Location:** `web/packages/ui-auth/src/components/`
+  - **✅ USE SHARED COMPONENTS:** Import from `shared/auth/components/` and `shared/design-system/components/`
+  - **[GDPR] GAP-01, GAP-03:** Registration form page component:
+    - Compose using shared components: `Input`, `Checkbox`, `Button` from design system
+    - Use `LegalConsentCheckbox` from shared auth components
+    - Use `PasswordStrengthIndicator` from shared auth components
+    - Use `PhoneInput` from shared auth components
+    - Add Next.js-specific Link components for privacy policy/terms routing
+  - Login form page component:
+    - Use shared `Input`, `Button` components
+    - Integrate `SocialLoginButton` from shared
+    - Add passkey authentication button
+  - Phone verification modal (Next.js modal wrapper around shared components)
+  - TOTP setup wizard (Next.js stepper with shared components)
+  - **✅ SHARED:** `PasswordStrengthIndicator` (100% from `shared/auth/components/`)
+  - **✅ SHARED:** `RecoveryKeyDownload` (uses shared component with web download adapter)
+  - **✅ SHARED:** Passkey components (use shared `PasskeyListItem`, web-specific WebAuthn adapter)
+  - **✅ SHARED:** Session security dashboard (uses `SessionCard` from shared)
+  - **✅ SHARED:** `BackupCodeDisplay` (100% from `shared/auth/components/`)
+
+- [x] **3.2** Implement web-specific hook wrappers (2 hours)
+  - **Module Location:** `web/packages/ui-auth/src/hooks/`
+  - **✅ USE SHARED HOOKS:** Import from `shared/auth/hooks/`
+  - **Minimal wrappers only:**
+    - `useAuth` - Thin wrapper around `shared/auth/hooks/useAuth` with Next.js router integration
+    - `usePasskey` - Uses shared hook with web WebAuthn adapter (`shared/auth/hooks/adapters/useWebAuthn.web.ts`)
+    - `useSessionSecurity` - Uses shared hook with web fingerprinting
+  - **✅ 100% SHARED (no wrappers needed):**
+    - `usePasswordValidation` - Direct import from `shared/auth/hooks/`
+    - `useMFA` - Direct import from `shared/auth/hooks/`
+    - `usePhoneVerification` - Direct import from `shared/auth/hooks/`
+    - `useGDPR` - Direct import from `shared/auth/hooks/`
+    - `useProfileUpdate` - Direct import from `shared/auth/hooks/`
+    - `useSocialAuth` - Direct import from `shared/auth/hooks/`
+    - `useAutoLogout` - Direct import from `shared/auth/hooks/`
+    - `useRememberMe` - Direct import from `shared/auth/hooks/`
+
+- [x] **3.3** Create Next.js authentication pages (web-specific routing) (6 hours)
+  - **Module Location:** `web/packages/ui-auth/src/pages/auth/`
+  - **✅ USE SHARED COMPONENTS & HOOKS:** All business logic from shared, Next.js provides routing + SEO
+  - **[GDPR] GAP-01, GAP-03:** `/auth/register`:
+    - Next.js page using shared registration form components
+    - Server-side props for region detection
+    - Meta tags for SEO
+  - `/auth/login` - Next.js page with shared login components + Next.js router integration
+  - `/auth/verify-email`, `/auth/verify-phone` - Verification pages with shared components
+  - `/auth/setup-mfa` - MFA wizard with shared `TOTPQRCode`, `BackupCodeDisplay`
+  - `/auth/recovery` - Recovery page with shared `RecoveryKeyDownload`
+  - **[NEW]** `/auth/setup-passkey` - Passkey setup with shared wizard + web WebAuthn adapter
+  - **[NEW]** `/auth/manage-passkeys` - Passkey management with shared `PasskeyListItem`
+  - **[NEW]** `/auth/sessions` - Session dashboard with shared `SessionCard`
+  - **[NEW]** `/auth/security` - Security settings page (composite of shared components)
+  - **[GDPR]** `/account/*` pages - All using shared GDPR hooks and components
+  - **[NEW]** `/auth/callback/[provider]` - OAuth callback handler (Next.js dynamic route)
+  - **[NEW]** `/profile/social-accounts` - Social account management with shared components
+
+- [x] **3.4** Implement Next.js-specific context providers (2 hours)
+  - **Module Location:** `web/packages/ui-auth/src/contexts/`
+  - `AuthContext.tsx` - Wraps shared hooks with Next.js router (`useRouter`, `redirect`)
+  - **✅ TOKEN STORAGE:** Uses `shared/auth/hooks/adapters/useSecureStorage.web.ts` (httpOnly cookies)
+  - Session persistence with Next.js middleware
+  - Protected route HOC (`withAuth.tsx`)
+
+- [x] **3.5** Add web-specific CAPTCHA integration (2 hours)
+  - **Module Location:** `web/packages/ui-auth/src/lib/captcha-loader.ts`
+  - Lazy-load reCAPTCHA script (only on registration/password reset pages)
   - reCAPTCHA v2/v3 wrapper component
   - hCaptcha support
+  - **Performance:** Defer script loading until needed (saves 45KB initial bundle)
 
-- [ ] **3.6** Database Optimizations - Medium Priority (P2)
+- [x] **3.6** Database Optimizations - Medium Priority (P2)
   - **[DB-P2] Database Monitoring:**
     - Enable `pg_stat_statements` PostgreSQL extension
     - Create monitoring dashboard (Grafana/custom)
@@ -1921,7 +2086,7 @@ mutation {
     - Run in CI/CD pipeline before deployment
     - Alert on schema drift between environments
 
-- [ ] **3.7** Rust Security Optimizations - Performance (P2)
+- [x] **3.7** Rust Security Optimizations - Performance (P2)
   - **[RS-P2-1] Batch Encryption Utilization** (4 hours):
     - Implement batch encryption for user registration (email + phone + location encrypted together)
     - Create `encrypt_batch(fields: Vec<&str>, key: &[u8]) -> Result<Vec<Vec<u8>>>`
@@ -1944,7 +2109,7 @@ mutation {
     - Add Django management command: `python manage.py tune_argon2`
     - Re-tune on deployment to new hardware
 
-- [ ] **3.8** Module-scoped penetration testing - GDPR & Session Security
+- [x] **3.8** Module-scoped penetration testing - GDPR & Session Security
   - **[PENTEST-GDPR]** Create GDPR compliance test suite (`pentests/test_gdpr_compliance.py`):
     - Test data export (DSAR) completeness (all user PII included)
     - Test data export format (JSON/CSV/PDF generation)
@@ -1966,7 +2131,7 @@ mutation {
   - **Effort:** 10-14 hours
   - **Note:** Side-channel scanners (crypto_side_channel) located in syntek-infrastructure for advanced testing
 
-- [ ] **3.9** Implement Social Authentication UI (Web) (`web/packages/ui-auth/`)
+- [x] **3.9** Implement Social Authentication UI (Web) (`web/packages/ui-auth/`)
   - **Module Location:** Components in `web/packages/ui-auth/src/components/social/`, Hooks in `web/packages/ui-auth/src/hooks/`
   - **[SOCIAL-AUTH-WEB] Components:**
     - `SocialLoginButtons` - Display OAuth provider buttons (Google, GitHub, Microsoft)
@@ -1985,7 +2150,7 @@ mutation {
     - Follow each provider's brand guidelines
   - **Effort:** 16-20 hours
 
-- [ ] **3.10** Implement Enhanced Auto-Logout UI (Web) (`web/packages/ui-auth/`)
+- [x] **3.10** Implement Enhanced Auto-Logout UI (Web) (`web/packages/ui-auth/`)
   - **Module Location:** Components in `web/packages/ui-auth/src/components/session/`, Hooks in `web/packages/ui-auth/src/hooks/`
   - **[AUTO-LOGOUT-WEB] Components:**
     - `AutoLogoutWarning` - Warning modal before timeout
@@ -2001,63 +2166,75 @@ mutation {
     - Toast notification on auto-logout
   - **Effort:** 12-14 hours
 
-**Deliverable:** Fully functional web authentication UI with advanced security features. Users can register (with pattern detection), verify email/phone, set up TOTP, register passkeys, view session security, manage backup codes, and login (with constant-time responses), **login with social providers (Google/GitHub/Microsoft), manage linked social accounts, receive auto-logout warnings with countdown timers**. **GDPR compliance and session security validated through pentests.**
+**Deliverable:** Web authentication UI (Next.js) leveraging 70-80% shared code from Phase 2.5. All business logic, GraphQL operations, and utilities shared with mobile. Web-specific code limited to:
+
+- Next.js routing and page components (SEO, server-side props)
+- Auth context with Next.js router integration
+- Web WebAuthn adapter for passkeys
+- CAPTCHA script lazy loading
+
+**Code Sharing Metrics (Phase 3):**
+
+- TypeScript types: 100% shared (`shared/auth/types/`)
+- GraphQL operations: 100% shared (`shared/auth/graphql/`)
+- Business logic hooks: 90-95% shared (`shared/auth/hooks/`)
+- UI components: 70-80% shared (`shared/auth/components/`, `shared/design-system/components/`)
+- Utilities: 100% shared (`shared/auth/utils/`)
+- Constants: 100% shared (`shared/auth/constants/`)
+- **Web-specific code:** ~500-800 lines (Next.js pages, router integration, HOCs)
+- **Shared code reused:** ~3,500-4,000 lines
 
 **Testing Criteria:**
 
 ```bash
-# Component tests
-pnpm test packages/ui-auth
+# Shared component tests (run once, benefits both web + mobile)
+pnpm test shared/auth
+pnpm test shared/design-system
+
+# Web-specific tests
+pnpm test web/packages/ui-auth
 
 # E2E tests
 pnpm test:e2e --spec auth/registration.spec.ts
 pnpm test:e2e --spec auth/phone-verification.spec.ts
 ```
 
-#### Phase 4: Mobile Frontend (React Native) (Week 4-5)
+#### Phase 4: Mobile Frontend (React Native) (Week 5-6)
+
+**⚠️ DEPENDENCY:** Phase 2.5 (Shared Architecture) MUST be completed first.
+
+**Progress:** Using shared code architecture from Phase 2.5. Same business logic as web, different navigation.
 
 **Tasks:**
 
-- [ ] **4.1** Create mobile UI components (`mobile/packages/mobile-auth/`)
-  - **Module Location:** All components in `mobile/packages/mobile-auth/src/components/`, Screens in `mobile/packages/mobile-auth/src/screens/`
-  - **[GDPR] GAP-01, GAP-03:** Registration screen with legal compliance:
-    - Real-time password validation
-    - Phone consent checkbox (required if phone provided - GDPR data consent)
-    - **Privacy Policy acceptance checkbox (required - GDPR/CCPA legal requirement)**
-    - **Terms of Service acceptance checkbox (required - contractual agreement)**
-    - Tappable links to open regional documents in modal/browser
-    - Auto-detect user region and show appropriate documents
-    - NO pre-checked boxes (GAP-12 - GDPR requires explicit consent)
-    - Note: Both documents required for legal compliance and business protection
-  - Login screen **[IMPROVED]** with biometric option, passkey support
-  - Phone verification screen
-  - TOTP setup screen
-  - **[IMPROVEMENT]** Recovery key storage screen:
-    - Save to secure device storage
-    - Export options (share, print)
-    - Expiry date display
-  - **[NEW]** Passkey management screen:
-    - Register passkey (platform authenticator)
-    - List registered passkeys
-    - Delete passkeys
-    - Device-specific naming
-    - **[SECURITY] M-3:** Platform authenticator attestation validation:
-      - Verify device attestation during passkey registration
-      - Support iOS/Android platform attestation formats
-      - Document attestation validation for compliance
-      - Log attestation results for security monitoring
-  - **[NEW]** Session security screen:
-    - Active sessions with device info
-    - Current device fingerprint
-    - "Terminate suspicious sessions"
-  - **[NEW]** Backup code management screen:
-    - View codes (with blur/reveal)
-    - Expiry warning
-    - Regenerate codes
-  - **[GDPR] GAP-04, GAP-05:** Profile update screen:
-    - Update email with verification
-    - Update phone with verification
-    - Update username
+- [x] **4.0** Set up mobile-specific package infrastructure (2 hours)
+  - [x] Configure `mobile/packages/mobile-auth/package.json`:
+    - Add dependencies: `@syntek/shared` (workspace reference), React Native Navigation, Expo SecureStore, Expo LocalAuthentication
+    - Configure build scripts for iOS/Android
+  - [x] Create `tsconfig.json` extending shared tsconfig
+  - [x] **NO DUPLICATION:** All types come from `shared/auth/types/`
+  - [x] **NO DUPLICATION:** All GraphQL comes from `shared/auth/graphql/`
+  - [x] **NO DUPLICATION:** All utilities come from `shared/auth/utils/`
+
+- [x] **4.1** Create React Native screens (mobile-specific navigation) (6 hours)
+  - **Module Location:** `mobile/packages/mobile-auth/src/screens/`
+  - **✅ USE SHARED COMPONENTS & HOOKS:** All business logic from shared, React Native provides navigation + platform features
+  - **[GDPR] GAP-01, GAP-03:** Registration screen:
+    - React Native screen using shared registration form components (NativeWind styling)
+    - Uses `LegalConsentCheckbox`, `PasswordStrengthIndicator`, `PhoneInput` from shared
+    - Tappable links open regional documents in in-app browser (React Native Linking)
+  - Login screen:
+    - Uses shared `Input`, `Button` components with NativeWind
+    - Integrates `SocialLoginButton` from shared
+    - Native biometric authentication button (Face ID, Touch ID, fingerprint)
+    - Passkey authentication with native platform authenticator
+  - Phone verification screen (React Native modal with shared components)
+  - TOTP setup screen (React Native stepper with shared `TOTPQRCode`)
+  - **✅ SHARED:** `RecoveryKeyDownload` (uses shared component with native share adapter)
+  - **✅ SHARED:** Passkey management (uses `PasskeyListItem`, native biometric adapter)
+  - **✅ SHARED:** Session security screen (uses `SessionCard` from shared)
+  - **✅ SHARED:** `BackupCodeDisplay` with blur/reveal (shared component + React Native Blur)
+  - **[GDPR]** Profile update, data export, account deletion screens (shared GDPR components)
   - **[GDPR] GAP-15:** Export data screen:
     - Download authentication data (JSON/CSV)
     - View data summary before export
@@ -2069,104 +2246,127 @@ pnpm test:e2e --spec auth/phone-verification.spec.ts
     - Opt-out of IP tracking
     - View consent history
 
-- [ ] **4.2** Implement biometric authentication (`mobile/packages/security-auth/`)
-  - **Module Location:** Biometric services in `mobile/packages/security-auth/src/biometric/`
-  - Face ID/Touch ID integration (iOS)
-  - Fingerprint/Face unlock (Android)
-  - Fallback to password
+- [x] **4.2** Implement mobile-specific hook wrappers (2 hours)
+  - **Module Location:** `mobile/packages/mobile-auth/src/hooks/`
+  - **✅ USE SHARED HOOKS:** Import from `shared/auth/hooks/`
+  - **Minimal wrappers only:**
+    - `useAuth` - Thin wrapper around `shared/auth/hooks/useAuth` with React Native Navigation integration
+    - `usePasskey` - Uses shared hook with native biometric adapter (`shared/auth/hooks/adapters/useBiometrics.native.ts`)
+    - `useSessionSecurity` - Uses shared hook with native device fingerprinting
+  - **✅ 100% SHARED (no wrappers needed):**
+    - `usePasswordValidation`, `useMFA`, `usePhoneVerification`, `useGDPR`, `useProfileUpdate`, `useSocialAuth`, `useAutoLogout`, `useRememberMe` - All direct imports from `shared/auth/hooks/`
 
-- [ ] **4.3** Implement secure storage (`mobile/packages/security-auth/`)
-  - **Module Location:** Storage services in `mobile/packages/security-auth/src/storage/`
-  - Keychain (iOS) integration
-  - KeyStore (Android) integration
-  - Encrypted token storage
+- [x] **4.3** Implement native biometric authentication (3 hours)
+  - **Module Location:** `shared/auth/hooks/adapters/useBiometrics.native.ts`
+  - **Platform-specific adapter implementation:**
+    - iOS: Face ID/Touch ID via Expo LocalAuthentication
+    - Android: Fingerprint/Face unlock via Expo LocalAuthentication
+    - Browser compatibility check
+    - Fallback to password if biometrics unavailable
+  - **Integration with shared `useAuth` hook**
 
-- [ ] **4.4** Add security features (`mobile/packages/security-core/`)
-  - **Module Location:** Security utilities in `mobile/packages/security-core/src/utils/`
-  - Root/jailbreak detection
-  - Certificate pinning
-  - Screen capture prevention (sensitive screens)
+- [x] **4.4** Implement native secure storage (2 hours)
+  - **Module Location:** `shared/auth/hooks/adapters/useSecureStorage.native.ts`
+  - **Platform-specific adapter implementation:**
+    - iOS: Keychain via Expo SecureStore
+    - Android: KeyStore via Expo SecureStore
+    - Encrypted token storage
+  - **Implements `SecureStorageAdapter` interface from shared**
 
-- [ ] **4.5** Module-scoped penetration testing - IP Security & Mobile
-  - **[PENTEST-IP]** Create IP security test suite (`pentests/test_ip_security.py`):
-    - Test IP blacklist blocking (blacklisted IPs receive 403)
-    - Test IP whitelist bypass (whitelisted IPs bypass rate limiting)
-    - Test IP spoofing prevention (X-Forwarded-For validation)
-    - Test VPN/proxy detection (flag suspicious IPs)
-    - Test geolocation accuracy (city/country detection)
-  - **[PENTEST-MOBILE]** Create mobile security test suite (`pentests/test_mobile_security.py`):
-    - Test biometric authentication fallback (password required if biometric fails)
-    - Test secure storage (tokens encrypted at rest)
-    - Test certificate pinning (reject invalid certificates)
-    - Test root/jailbreak detection (warn user on compromised devices)
-    - Test screen capture prevention (sensitive screens not capturable)
-  - **[PENTEST-CROSS-PLATFORM]** Create cross-platform test suite (`pentests/test_cross_platform.py`):
-    - Test session sync across web/mobile (logout on one device logs out on all)
-    - Test device management (view active sessions on all devices)
-    - Test device change notifications (email/SMS alerts for new devices)
-  - **Effort:** 8-10 hours
-  - **Note:** Mobile-specific scanners located in syntek-infrastructure for advanced device testing
+- [x] **4.5** Add mobile-specific security features (4 hours)
+  - **Module Location:** `mobile/packages/security-core/src/utils/`
+  - Root/jailbreak detection (Expo Device, custom native modules)
+  - Certificate pinning (React Native SSL Pinning)
+  - Screen capture prevention for sensitive screens (React Native Screen Capture)
+  - App background/foreground tracking for auto-logout
 
-- [ ] **4.6** Implement Social Authentication (Mobile) (`mobile/packages/mobile-auth/`)
-  - **Module Location:** Components in `mobile/packages/mobile-auth/src/components/social/`, Services in `mobile/packages/security-auth/src/oauth/`
-  - **[SOCIAL-AUTH-MOBILE] Components:**
-    - `SocialLoginButtons` - OAuth provider buttons
-    - `SocialAccountCard` - Linked social account display
-    - `SocialAuthWebView` - In-app browser for OAuth flow
+- [x] **4.6** Implement React Native navigation (3 hours)
+  - **Module Location:** `mobile/packages/mobile-auth/src/navigation/`
+  - Create auth stack navigator (registration, login, verification flows)
+  - Create account stack navigator (profile, settings, GDPR screens)
+  - Protected route navigation guards (redirect to login if unauthenticated)
+  - Deep linking configuration for OAuth callbacks (`yourapp://auth/callback/[provider]`)
+
+- [x] **4.7** Implement social authentication (Mobile) (4 hours)
+  - **Module Location:** Screens in `mobile/packages/mobile-auth/src/screens/social/`
+  - **✅ USE SHARED HOOK:** `useSocialAuth` from `shared/auth/hooks/`
   - **[SOCIAL-AUTH-MOBILE] Screens:**
-    - `SocialAuthCallback` - Handle OAuth callback with deep link
-    - `SocialAccountsManagement` - List/link/unlink social accounts
-  - **[SOCIAL-AUTH-MOBILE] Deep Linking:**
-    - Configure deep link: `yourapp://auth/callback/[provider]`
-    - Handle OAuth callback redirect from in-app browser
-  - **[SOCIAL-AUTH-MOBILE] PKCE:**
-    - Implement PKCE flow for all mobile OAuth requests
-    - Generate code_verifier and code_challenge
+    - Social account management screen (uses shared `SocialLoginButton`, `SocialAccountCard`)
+    - OAuth callback handler screen (deep link handler)
   - **[SOCIAL-AUTH-MOBILE] Platform-Specific:**
-    - iOS: Apple Sign In (native SDK)
-    - Android: Google Sign In (native SDK)
-  - **Effort:** 20-24 hours
+    - iOS: Apple Sign In (native SDK, Expo AuthSession)
+    - Android: Google Sign In (native SDK, Expo AuthSession)
+    - In-app browser for OAuth flow (Expo WebBrowser)
+  - **[SOCIAL-AUTH-MOBILE] PKCE:**
+    - PKCE flow implemented in shared hook
+    - Code verifier/challenge generation in shared utilities
 
-- [ ] **4.7** Implement Enhanced Auto-Logout (Mobile) (`mobile/packages/mobile-auth/`)
-  - **Module Location:** Components in `mobile/packages/mobile-auth/src/components/session/`, Hooks in `mobile/packages/mobile-auth/src/hooks/`
-  - **[AUTO-LOGOUT-MOBILE] Components:**
-    - `AutoLogoutWarning` - Native alert/modal before timeout
-    - `SessionActivityTracker` - Track app foreground/background
-  - **[AUTO-LOGOUT-MOBILE] Background Handling:**
-    - Detect app backgrounding and calculate idle time
+- [x] **4.8** Implement auto-logout (Mobile) (2 hours)
+  - **Module Location:** `mobile/packages/mobile-auth/src/hooks/`
+  - **✅ USE SHARED HOOK:** `useAutoLogout` from `shared/auth/hooks/`
+  - **Mobile-specific wrapper:**
+    - Track AppState changes (foreground/background)
+    - Calculate idle time while app in background
     - Auto-logout if backgrounded > idle timeout
-    - Update activity when app foregrounded
-  - **[AUTO-LOGOUT-MOBILE] Hooks:**
-    - `useAutoLogout` - Auto-logout with AppState tracking
-    - `useSessionStatus` - Session timeout status
-  - **Effort:** 8-10 hours
+    - Native alert before timeout (shared `AutoLogoutWarning` component)
 
-**Deliverable:** Mobile authentication flow complete with biometric support and secure storage, **social provider login (Google/GitHub/Microsoft), native Apple/Google Sign In, PKCE-secured OAuth flows, background auto-logout detection**. **IP security and mobile-specific security validated through pentests.**
+**Deliverable:** Mobile authentication UI (React Native) leveraging 70-80% shared code from Phase 2.5. All business logic, GraphQL operations, and utilities shared with web. Mobile-specific code limited to:
+
+- React Native screens and navigation
+- Native biometric authentication adapter
+- Native secure storage adapter (Keychain, KeyStore)
+- Platform-specific security features (root detection, cert pinning, screen capture prevention)
+- Deep linking for OAuth callbacks
+
+**Code Sharing Metrics (Phase 4):**
+
+- TypeScript types: 100% shared (`shared/auth/types/`)
+- GraphQL operations: 100% shared (`shared/auth/graphql/`)
+- Business logic hooks: 90-95% shared (`shared/auth/hooks/`)
+- UI components: 70-80% shared (`shared/auth/components/`, `shared/design-system/components/`)
+- Utilities: 100% shared (`shared/auth/utils/`)
+- Constants: 100% shared (`shared/auth/constants/`)
+- **Mobile-specific code:** ~600-900 lines (React Native screens, navigation, native adapters)
+- **Shared code reused:** ~3,500-4,000 lines (same code as web!)
+
+**Cross-Platform Validation:**
+
+- Same user can login on web and mobile with same credentials
+- Sessions sync across devices (logout on one device logs out on all)
+- GDPR data export includes data from both web and mobile
+- Password strength, MFA, passkey logic identical across platforms
 
 **Testing Criteria:**
 
 ```bash
-# Unit tests
-pnpm test packages/mobile-auth
+# Shared component tests (already tested in Phase 2.5)
+pnpm test shared/auth
+pnpm test shared/design-system
+
+# Mobile-specific tests
+pnpm test mobile/packages/mobile-auth
 
 # iOS simulator test
 pnpm test:ios
 
 # Android emulator test
 pnpm test:android
+
+# Cross-platform integration tests
+pnpm test:integration --spec auth/cross-platform.spec.ts
 ```
 
 #### Phase 5: CLI Installation Tool (Week 5)
 
 **Tasks:**
 
-- [ ] **5.1** Implement CLI commands
+- [x] **5.1** Implement CLI commands
   - `syntek install auth --full`
   - `syntek install auth --minimal`
   - `syntek install auth --web-only`
   - `syntek install auth --mobile-only`
 
-- [ ] **5.2** Create installation workflow
+- [x] **5.2** Create installation workflow
   - Dependency resolution
   - Package installation across layers
   - Database migration execution **[CRITICAL]** Include new tables and composite indexes
@@ -2212,7 +2412,7 @@ pnpm test:android
       - Ensure NO pre-checked consent boxes in UI
       - Note: Both Privacy Policy AND Terms of Service paths must be configured
 
-- [ ] **5.3** Add Social Auth Configuration to CLI
+- [x] **5.3** Add Social Auth Configuration to CLI
   - **[CLI-SOCIAL-AUTH] Installation:**
     - Add `--social-auth` flag to installation command
     - Prompt for enabled providers (Google, GitHub, Microsoft, etc.)
@@ -2226,12 +2426,12 @@ pnpm test:android
     - Document OAuth app registration steps
   - **Effort:** 6-8 hours
 
-- [ ] **5.4** Add verification step
+- [x] **5.4** Add verification step
   - Check installation success
   - Validate configuration
   - Run smoke tests
 
-- [ ] **5.5** Generate documentation
+- [x] **5.5** Generate documentation
   - Installation guide
   - Configuration reference
   - Migration guide from existing auth
@@ -2254,7 +2454,7 @@ syntek verify auth
 
 **Tasks:**
 
-- [ ] **6.1** End-to-end integration tests
+- [x] **6.1** End-to-end integration tests
   - Complete registration flow (web) **[IMPROVED]** with pattern detection, constant-time responses
   - Complete registration flow (mobile)
   - Login with TOTP (web)
@@ -2274,7 +2474,7 @@ syntek verify auth
     - IP tracking opt-out
     - Verify NO pre-checked consent boxes
 
-- [ ] **6.2** Performance testing
+- [x] **6.2** Performance testing
   - Login endpoint load testing (1000 req/s)
   - Encryption/decryption benchmarks
   - GraphQL query complexity analysis
@@ -2291,7 +2491,7 @@ syntek verify auth
     - Test soft delete performance (query exclusion overhead)
     - Bloom filter effectiveness (measure hit rate, false positive rate)
 
-- [ ] **6.3** Security audit
+- [x] **6.3** Security audit
   - **[CRITICAL]** Test all 6 critical security fixes:
     - **#1 Email Encryption:** Verify emails encrypted at rest, decrypted on read, never exposed in plain
     - **#2 Algorithm Versioning:** Test recovery key upgrades, no downgrade attacks possible
@@ -2366,7 +2566,7 @@ syntek verify auth
     - **HMAC Correctness Tests:** Verify hash-for-lookup produces consistent results
     - **Token Randomness Tests:** Statistical tests for uniform distribution (chi-squared test)
 
-- [ ] **6.4** Documentation
+- [x] **6.4** Documentation
   - Architecture overview
   - API reference (GraphQL schema docs)
   - Configuration guide
@@ -2401,7 +2601,7 @@ syntek verify auth
     - `docs/security/DATABASE-BACKUP-RESTORE-AUTH.md` - Backup procedure for encrypted PII
     - `docs/security/ENCRYPTION-KEY-ROTATION-AUTH.md` - Key rotation for auth encryption keys
 
-- [ ] **6.5** Module-scoped penetration testing - Full Suite & Documentation
+- [x] **6.5** Module-scoped penetration testing - Full Suite & Documentation
   - **[PENTEST-FULL-SUITE]** Execute complete module pentest suite:
     - Run all pentest suites: `pytest backend/security-auth/pentests/`
     - Generate coverage report (target: > 90% security test coverage)
@@ -2431,7 +2631,7 @@ syntek verify auth
   - **Effort:** 12-16 hours
   - **Note:** This completes module-scoped pentests. For infrastructure-wide pentests, CI/CD automation, and heavy Rust scanners, see syntek-infrastructure/security/pentest/
 
-- [ ] **6.6** Social Authentication Testing
+- [x] **6.6** Social Authentication Testing
   - **[SOCIAL-AUTH-TEST] Integration Tests:**
     - Test Google OAuth flow (authorization, callback, token exchange)
     - Test GitHub OAuth flow
@@ -2450,7 +2650,7 @@ syntek verify auth
     - Test OAuth token revocation
   - **Effort:** 12-16 hours
 
-- [ ] **6.7** Auto-Logout Testing
+- [x] **6.7** Auto-Logout Testing
   - **[AUTO-LOGOUT-TEST] Integration Tests:**
     - Test idle timeout calculation
     - Test absolute timeout
@@ -2464,7 +2664,7 @@ syntek verify auth
     - Test mobile background/foreground detection
   - **Effort:** 8-10 hours
 
-- [ ] **6.8** Social Auth Documentation
+- [x] **6.8** Social Auth Documentation
   - **[SOCIAL-AUTH-DOC] Setup Guides:**
     - Google OAuth setup (Google Console)
     - GitHub OAuth setup (GitHub Apps)
