@@ -2,7 +2,8 @@
 
 ## Project Overview
 
-**Syntek Modules** is a modular monorepo containing reusable Django, React, React Native, and Rust modules for installation into other projects.
+**Syntek Modules** is a modular monorepo containing reusable Django, React,
+React Native, and Rust modules for installation into other projects.
 
 ## ⚠️ CRITICAL: NO SPRINTS OR STORIES
 
@@ -171,7 +172,7 @@ const minLength = config.passwordMinLength; // Always matches backend
    - Platform-specific UI composition (pages, screens)
    - Platform-specific native integrations
 
-**Example: Authentication Hook**
+#### Example: Authentication Hook
 
 ```typescript
 // ✅ CORRECT: Shared business logic
@@ -296,7 +297,7 @@ if (password.length < PASSWORD_MIN_LENGTH) {
 
 #### Design System Structure
 
-```
+```text
 shared/design-system/
 ├── tokens/              # Design tokens (colors, spacing, typography)
 ├── components/          # Primitive components (Button, Input, etc.)
@@ -394,11 +395,13 @@ Keep coding language identifiers (keywords, variable names, etc.) in American En
 - OpenBao: Secrets management
 - GlitchTip: External logging
 - Cloudinary: Media storage
-- Rust CLI: Package installation tool that enables bundled installation across backend, web, mobile, shared, GraphQL, and Rust security modules (e.g., all auth-related packages can be installed together)
+- Rust CLI: Package installation tool enabling bundled installation across
+  backend, web, mobile, shared, GraphQL, and Rust security modules (e.g.,
+  all auth-related packages can be installed together)
 
 ## Repository Structure
 
-```
+```text
 syntek-modules/
 ├── backend/                    # Django modules (security bundles + features)
 │   ├── security-core/          # Middleware, headers, CORS, CSRF, rate limiting
@@ -445,11 +448,43 @@ syntek-modules/
 
 ### Feature Modules (Backend)
 
-groups, profiles, media, logging, accounting, ai_integration, email_marketing, payments, notifications, search, audit, forms_surveys, contact, bookings, comments_ratings, analytics, reporting, uploads, feature_flags, webhooks, i18n, cms_primitives
+- groups
+- profiles
+- media
+- logging
+- accounting
+- ai_integration
+- email_marketing
+- payments
+- notifications
+- search
+- audit
+- forms_surveys
+- contact
+- bookings
+- comments_ratings
+- analytics
+- reporting
+- uploads
+- feature_flags
+- webhooks
+- i18n
+- cms_primitives
 
 ### UI Modules (Web/Mobile)
 
-Authentication, profiles, media, notifications, search, forms, comments, analytics, bookings, payments, webhooks, feature flags
+- Authentication
+- profiles
+- media
+- notifications
+- search
+- forms
+- comments
+- analytics
+- bookings
+- payments
+- webhooks
+- feature flags
 
 ### GraphQL Modules
 
@@ -630,9 +665,31 @@ syntek build         # Build for production
 
 ## Agent Guidelines
 
-**CRITICAL:** All agents MUST follow the architectural principles defined above. Review the "Architectural Principles" section before starting any work.
+**CRITICAL:** All agents MUST follow the architectural principles defined
+above. Review the "Architectural Principles" section before starting any work.
 
 **📋 Quick Reference:** See `.claude/QUICK-REFERENCE.md` for a concise one-page guide to all architectural rules.
+
+### Coding Principles (Rob Pike + Linus Torvalds)
+
+**ALL code must follow these core engineering principles.** Full details in `.claude/CODING-PRINCIPLES.md`.
+
+**Rob Pike's 5 Rules:**
+
+1. Don't guess bottlenecks — measure first
+2. Measure before tuning for speed
+3. Fancy algorithms are slow when N is small — keep it simple
+4. Fancy algorithms are buggy — use simple, reusable approaches
+5. Data structures dominate — choose the right structure and algorithms follow
+
+**Linus Torvalds' Rules:**
+
+1. Data structures over algorithms — good data models make logic obvious
+2. Good taste — eliminate special cases, simplify logic, reduce branches
+3. Readability — short functions, descriptive names, avoid deep nesting
+4. Clarity — one operation per statement, avoid multiple assignments per line
+5. Stability over complexity — boring, predictable code is good code
+6. Make it work first, then make it better — no premature optimisation
 
 **Key Requirements:**
 
@@ -642,6 +699,27 @@ syntek build         # Build for production
 - ✅ Use all layers correctly: Django → GraphQL → Shared → Web/Mobile
 - ✅ Rust layer for encryption/hashing (via Django PyO3, not direct frontend access)
 - ✅ Tailwind v4 (web) and NativeWind 4 (mobile) for styling
+
+### Rust Security Plugin Commands
+
+The syntek-rust-security plugin (v0.2.0) is active for this project. Use
+these commands when working on Rust modules in `rust/`:
+
+| Command               | Purpose                                      |
+| --------------------- | -------------------------------------------- |
+| `/vuln-scan`          | Scan dependencies for known CVEs via RustSec |
+| `/crypto-review`      | Review cryptographic implementations         |
+| `/memory-audit`       | Audit unsafe code and memory safety          |
+| `/threat-model`       | Perform STRIDE threat analysis               |
+| `/fuzz-setup`         | Set up fuzzing infrastructure                |
+| `/compliance-report`  | Generate OWASP/NIST compliance report        |
+| `/zeroize-audit`      | Verify sensitive data is properly zeroized   |
+| `/ffi-audit`          | Audit PyO3 FFI boundary safety               |
+| `/supply-chain-audit` | Audit dependency supply chain                |
+
+**Plugin tools** are in `.claude/plugins/src/` (built with
+`cd .claude/plugins && cargo build --release`). Reports are written to
+`.claude/reports/`.
 
 ### When Creating/Modifying Modules
 
@@ -830,6 +908,7 @@ See `backend/security-auth/authentication/README.md` for reference.
 ## Related Documentation
 
 - `.claude/SYNTEK-GUIDE.md` - Agent command reference
+- `.claude/CODING-PRINCIPLES.md` - Rob Pike + Linus Torvalds coding rules (v1.4.0)
 - `.claude/SECURITY-COMPLIANCE.md` - MANDATORY compliance requirements
 - `.claude/SYNTEK-RUST-SECURITY-GUIDE.md` - Rust security guidelines
 - `docs/security/` - OWASP, NIST, NCSC, GDPR, CIS documentation
