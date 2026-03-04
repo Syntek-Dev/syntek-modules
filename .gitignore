@@ -102,15 +102,6 @@ test-results/
 *.sqlite
 *.sqlite3
 
-# Metrics (keep structure, ignore data)
-docs/METRICS/runs/*.json
-docs/METRICS/feedback/*.json
-docs/METRICS/aggregates/**/*.json
-docs/METRICS/variants/*.json
-docs/METRICS/optimisations/pending/*.json
-docs/METRICS/optimisations/applied/*.json
-docs/METRICS/optimisations/rejected/*.json
-
 # Keep .gitkeep files
 !.gitkeep
 
@@ -118,3 +109,6 @@ docs/METRICS/optimisations/rejected/*.json
 tmp/
 temp/
 *.tmp
+
+# Claude files
+.claude/settings.local.json
