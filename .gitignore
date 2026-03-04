@@ -5,8 +5,10 @@
 .env.staging
 .env.production
 .env.local
+.env.pentest
 
 # Python
+.venv/
 venv/
 env/
 __pycache__/
@@ -63,6 +65,9 @@ out/
 target/
 **/*.rs.bk
 *.pdb
+**/**/.ruff_cache
+**/.ruff_cache
+.ruff_cache
 
 # Lock Files Configuration
 # - uv.lock: Committed (ensures reproducible Python builds)
