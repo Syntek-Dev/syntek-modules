@@ -4,17 +4,22 @@
 
 **Total Points**: 11 / 11
 **MoSCoW Balance**: Must 100%
-**Status**: Planned
+**Status**: 🔄 In Progress
 
 ## Stories
 
-| Story | Title | Points | MoSCoW | Dependencies Met |
-|---|---|---|---|---|
-| [US001](../STORIES/US001.md) | Monorepo Workspace Configuration | 5 | Must | — none — |
-| [US002](../STORIES/US002.md) | Shared TypeScript Types Package | 3 | Must | US001 ✓ |
-| [US004](../STORIES/US004.md) | Shared GraphQL Operations Package | 3 | Must | US001 ✓ |
+| Story | Title | Points | MoSCoW | Status | Dependencies Met |
+|---|---|---|---|---|---|
+| [US001](../STORIES/US001.md) | Monorepo Workspace Configuration | 5 | Must | ✅ Completed | — none — |
+| [US002](../STORIES/US002.md) | Shared TypeScript Types Package | 3 | Must | ⬜ Not Started | US001 ✓ |
+| [US004](../STORIES/US004.md) | Shared GraphQL Operations Package | 3 | Must | ⬜ Not Started | US001 ✓ |
+
+## Progress
+
+**5 / 11 points complete**
 
 ## Notes
 
-- US002 and US004 can be worked in parallel once US001 is complete within the sprint.
-- US003 (Design Token System) is deferred to Sprint 02 to keep this sprint focused on workspace scaffolding only.
+- US001 completed 06/03/2026 — 39/39 tests passing via `syntek-dev test --python`.
+- US002 and US004 are unblocked and can now be worked in parallel.
+- US003 (Design Token System) is deferred to Sprint 02.

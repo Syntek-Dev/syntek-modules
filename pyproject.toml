@@ -1,9 +1,16 @@
 # uv workspace root — not a deployable app; shared tooling config only
-[tool.uv.workspace]
-members = ["packages/backend/*"]
+[project]
+name = "syntek-modules-workspace"
+version = "0.2.0"
+description = "Workspace root — development tooling only, not published"
+requires-python = ">=3.14"
+dependencies = []
 
 [tool.uv]
-python-version = ">=3.14"
+package = false
+
+[tool.uv.workspace]
+members = ["packages/backend/*"]
 
 # ---------------------------------------------------------------------------
 # Ruff — linting and formatting for all Python code
@@ -57,9 +64,29 @@ python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = ["--strict-markers", "--tb=short", "-v"]
+testpaths = ["tests", "packages/backend"]
 markers = [
     "unit: Unit tests — fast, no I/O",
     "integration: Integration tests — may use DB or external services",
     "e2e: End-to-end tests",
     "slow: Tests that take more than 1s",
+]
+
+# ---------------------------------------------------------------------------
+# Dependency groups (uv PEP 735) — workspace-level test tooling
+# ---------------------------------------------------------------------------
+
+[dependency-groups]
+dev = [
+    "ruff>=0.9",
+    "pytest>=8.0",
+    "pytest-bdd>=8.0",
+    "pytest-django>=4.9",
+    "pytest-cov>=6.0",
+    "factory-boy>=3.3",
+    "testcontainers>=4.0",
+    "hypothesis>=6.0",
+    "pyyaml>=6.0",
+    "django-stubs[compatible-mypy]>=5.0",
+    "maturin>=1.8",
 ]

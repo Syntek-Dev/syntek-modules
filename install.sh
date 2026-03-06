@@ -71,30 +71,23 @@ fi
 # ---------------------------------------------------------------------------
 header "Python virtual environment"
 
-if [[ -d "$ROOT/.venv" ]]; then
-    ok ".venv already exists — skipping creation"
-else
-    step "Creating .venv with uv (Python 3.14)..."
-    uv venv --python 3.14 "$ROOT/.venv"
+if [[ ! -d "$ROOT/.venv" ]]; then
+    step "Creating .venv (Python 3.14)..."
+    uv venv --python 3.14
     ok ".venv created"
+else
+    ok ".venv already exists"
 fi
 
-step "Installing Python dev tooling into .venv..."
+# Activate for all remaining steps in this script.
+# Note: this does NOT activate in the caller's shell — see the reminder below.
 # shellcheck source=/dev/null
 source "$ROOT/.venv/bin/activate"
+ok "Virtual environment active — $(python --version)"
 
-uv pip install --quiet \
-    ruff \
-    pytest \
-    pytest-django \
-    pytest-cov \
-    factory-boy \
-    testcontainers \
-    hypothesis \
-    django-stubs[compatible-mypy] \
-    maturin
-
-ok "Python tooling installed"
+step "Syncing Python dev dependencies from uv.lock..."
+uv sync --group dev --quiet
+ok "Python dependencies installed"
 
 # ---------------------------------------------------------------------------
 # 3. JavaScript / TypeScript dependencies
@@ -141,8 +134,11 @@ fi
 echo ""
 echo -e "${BOLD}${GREEN}Setup complete.${RESET}"
 echo ""
-echo "  Next steps:"
-echo "    source .venv/bin/activate     # activate Python venv"
+echo "  Activate the Python venv in your terminal:"
+echo ""
+echo "    source .venv/bin/activate"
+echo ""
+echo "  Then:"
 echo "    syntek-dev --help             # view all CLI commands"
 echo "    syntek-dev up                 # start development services"
 echo "    syntek-dev test               # run the full test suite"

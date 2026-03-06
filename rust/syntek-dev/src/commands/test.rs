@@ -23,16 +23,18 @@ pub async fn run(args: TestArgs) -> Result<()> {
 
         let pytest = config::venv_bin(&root, "pytest");
 
-        let pkg = args
+        let pkg: Option<String> = args
             .python_package
             .as_deref()
-            .map(|p| format!("packages/backend/{}", p))
-            .unwrap_or_else(|| "packages/backend/".to_string());
+            .map(|p| format!("packages/backend/{}", p));
 
         let marker = args.marker.clone().unwrap_or_default();
         let pattern = args.pattern.clone().unwrap_or_default();
 
-        let mut a: Vec<&str> = vec![&pkg];
+        let mut a: Vec<&str> = Vec::new();
+        if let Some(ref p) = pkg {
+            a.push(p.as_str());
+        }
         if args.marker.is_some() {
             a.extend_from_slice(&["-m", &marker]);
         }
