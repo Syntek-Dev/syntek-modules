@@ -1,0 +1,22 @@
+[package]
+name = "syntek-dev"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description = "Syntek development CLI — manage services, tests, linting, and the database"
+repository = "https://git.syntek-studio.com/syntek/syntek-modules"
+
+[[bin]]
+name = "syntek-dev"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+tokio.workspace = true
+
+# CLI-specific — not shared with library crates
+colored = "2.1"
+indicatif = "0.17"
+which = "7.0"
+open = "5.3"

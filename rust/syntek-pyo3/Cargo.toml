@@ -1,0 +1,17 @@
+[package]
+name = "syntek-pyo3"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "PyO3 Django bindings exposing syntek-crypto field encryption"
+repository = "https://git.syntek-studio.com/syntek/syntek-modules"
+
+[lib]
+name = "syntek_pyo3"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3.workspace = true
+syntek-crypto = { path = "../syntek-crypto" }
+thiserror.workspace = true

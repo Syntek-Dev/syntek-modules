@@ -1,0 +1,17 @@
+[package]
+name = "syntek-graphql-crypto"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "GraphQL middleware preventing plaintext resolver output in Syntek modules"
+repository = "https://git.syntek-studio.com/syntek/syntek-modules"
+
+[lib]
+name = "syntek_graphql_crypto"
+
+[dependencies]
+syntek-crypto = { path = "../syntek-crypto" }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
