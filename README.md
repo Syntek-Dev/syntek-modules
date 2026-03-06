@@ -56,9 +56,9 @@ Packages are distributed through the self-hosted Forgejo instance on the Syntek 
 
 **Key Capabilities:**
 
-- **21 Backend Modules** — Authentication, RBAC, multi-tenancy, payments, invoicing, donations, events, forms, audit logging, structured logging, full-text search, reporting, background tasks, webhooks, bulk import/export, groups, feature flags, settings store, third-party integrations, and security middleware
-- **14 Frontend Web Packages** — Auth UI, session management, typed GraphQL client, data-fetching hooks, form primitives, design system, layout shell, data table, notifications, payments, search, reporting, settings scaffold, and onboarding wizard
-- **5 Mobile Packages** — Biometric auth, push notifications, payments, offline sync, and NativeWind design system
+- **39 Backend Modules** — Authentication, RBAC, multi-tenancy, notifications, payments, invoicing, donations, events, forms, audit logging, structured logging, full-text search, reporting, background tasks, webhooks, bulk import/export, groups, feature flags, settings store, third-party integrations, security middleware, media (Cloudinary), documents (MinIO), GDPR compliance, membership, subscriptions, internationalisation, CalDav, address and geo, accounting, email marketing, developer API keys, comments, loyalty and referrals, analytics, scheduling, locations, inventory, and surveys
+- **20 Frontend Web Packages** — Auth UI, session management, typed GraphQL client, data-fetching hooks, form primitives, design system, layout shell, data table, notifications, payments, search, reporting, settings scaffold, onboarding wizard, GDPR/cookie consent, donations, comments, feedback, maps, and scheduling
+- **6 Mobile Packages** — Biometric auth, push notifications, payments, offline sync, media capture, and NativeWind design system
 - **3 Rust Crates** — Field-level AES-256-GCM encryption, PyO3 Django bindings, and GraphQL middleware
 - **Zero-Plaintext Architecture** — All sensitive data is encrypted at the application layer by the Rust layer before any database write; the frontend never touches raw cryptographic operations
 - **Settings-Driven Configuration** — Every module is controlled through `SYNTEK_*` settings dictionaries; nothing is hardcoded
@@ -92,9 +92,9 @@ Packages are distributed through the self-hosted Forgejo instance on the Syntek 
 - **Purpose**: The shared building-block library installed into all Syntek projects
 - **Technology**: Django 6.0.4, Python 3.14.3, Next.js 16.1.6, React 19.2, TypeScript 5.9, React Native 0.84.x (Expo), NativeWind 4, Rust stable
 - **Features**:
-  - 21 independently installable Django backend modules
-  - 14 React / TypeScript web frontend packages
-  - 5 React Native mobile packages
+  - 39 independently installable Django backend modules
+  - 20 React / TypeScript web frontend packages
+  - 6 React Native mobile packages
   - 3 Rust crates providing the cryptographic security foundation
   - Zero-plaintext data guarantee across all modules
   - Settings-driven configuration with no hardcoded values
@@ -571,6 +571,316 @@ Comprehensive HTTP security middleware stack covering rate limiting, IP manageme
 
 ---
 
+#### Media — Cloudinary (`syntek-media`)
+
+```bash
+syntek add syntek-media
+```
+
+Cloudinary-backed media management for images and video, with metadata stored in PostgreSQL.
+
+- **Upload**: Direct upload to Cloudinary with per-tenant folder structure; chunked upload for large files
+- **Image Transformations**: Crop, resize, format conversion, quality adjustment, and CDN delivery URL generation on demand
+- **Video Support**: Video upload with transcoding status polling; thumbnail generation
+- **MIME Allowlist**: Images and video only — PDFs and office documents are handled by `syntek-documents`
+- **Metadata Model**: Original filename, dimensions, filesize, MIME type, Cloudinary public ID, and CDN URL stored in PostgreSQL
+- **Virus Scanning**: Configurable scanner adapter hook on upload
+- **GDPR Erasure Hook**: Deletes Cloudinary assets and anonymises PostgreSQL metadata on erasure request
+
+---
+
+#### Documents — MinIO (`syntek-documents`)
+
+```bash
+syntek add syntek-documents
+```
+
+MinIO-backed document storage for PDFs and office files, with presigned URL access control.
+
+- **Upload**: Tenant-isolated bucket paths in MinIO; configurable bucket name and endpoint via settings
+- **MIME Allowlist**: PDFs, spreadsheets, and Word documents only — images and video are handled by `syntek-media`
+- **Presigned URLs**: Time-limited presigned download URLs generated on demand; direct download without proxying through Django
+- **Document Model**: Filename, filesize, MIME type, MinIO object key, uploader, and upload timestamp stored in PostgreSQL
+- **File Versioning**: New uploads create a version record; previous versions retained with rollback support
+- **Virus Scanning**: Configurable scanner adapter hook on upload
+- **GDPR Erasure Hook**: Hard-deletes MinIO object and anonymises PostgreSQL metadata on erasure request
+
+---
+
+#### GDPR / Compliance (`syntek-gdpr`)
+
+```bash
+syntek add syntek-gdpr
+```
+
+Full GDPR and UK Data Protection Act 2018 compliance toolkit.
+
+- **Subject Access Requests (SAR)**: Collect and export all personal data held for a user as JSON or PDF
+- **Right to Erasure**: Anonymise or delete personal data across all registered modules via a single erasure request; modules register their erasure handlers with `syntek-gdpr`
+- **Consent Management**: Granular consent records per purpose category (analytics, marketing, functional); full consent history log
+- **Data Retention Policies**: Configurable retention periods per data category; automated enforcement via Celery Beat
+- **Processing Register**: Data processing activity register with controller and processor records; exportable for regulatory submissions
+- **Strawberry Queries**: `consentHistory`, `subjectAccessRequest(userId)`, `processingRegister`
+- **Strawberry Mutations**: `recordConsent`, `withdrawConsent`, `submitSAR`, `submitErasureRequest`
+
+---
+
+#### Membership (`syntek-membership`)
+
+```bash
+syntek add syntek-membership
+```
+
+Membership tier management with renewals, lapsed member handling, and a configurable member directory.
+
+- **Membership Tiers**: Configurable tier definitions with name, price, and associated permission bundles
+- **Membership Lifecycle**: Active, pending renewal, lapsed, and cancelled states with automated transitions at renewal date
+- **Renewal Reminders**: Configurable notification dispatch at configurable days before expiry via `syntek-notifications`
+- **Member Directory**: Opt-in directory listing with configurable visible fields and per-member privacy controls
+- **Bulk Import**: Import member lists from CSV with tier assignment
+- **Payments Integration**: Online membership payment via `syntek-payments`; Stripe Subscriptions for recurring billing
+
+---
+
+#### Subscriptions (`syntek-subscriptions`)
+
+```bash
+syntek add syntek-subscriptions
+```
+
+Recurring subscription lifecycle management extending `syntek-payments`.
+
+- **Subscription Model**: Plan, status, current period start/end, trial end, and cancel-at-period-end flag
+- **Billing Cycles**: Monthly, quarterly, and annual billing; pro-rata upgrades and downgrades
+- **Usage-Based Billing**: Metered usage records reported to Stripe; billing period summaries
+- **Grace Period Handling**: Failed payment retry schedule; subscription suspension after exhausted retries; reinstatement on successful payment
+- **Webhook-Driven State Sync**: Stripe events update subscription status in real time; no polling required
+
+---
+
+#### Internationalisation (`syntek-i18n`)
+
+```bash
+syntek add syntek-i18n
+```
+
+Locale detection, translation management, and UK-centric date, number, and currency formatting.
+
+- **Locale Detection**: Inferred from the `Accept-Language` header, user preference, or tenant default; falls back gracefully
+- **Translation Strings**: Django translation framework integration with `.po` / `.mo` file support and a management command for extraction
+- **Date Formatting**: UK-default `DD/MM/YYYY`; configurable per locale
+- **Number Formatting**: Locale-aware thousand separators and decimal points
+- **Currency Formatting**: GBP default; multi-currency display with locale-appropriate symbols and formatting
+- **GraphQL Locale Context**: Active locale resolved per request and available in all Strawberry resolvers
+
+---
+
+#### CalDav Sync (`syntek-caldav`)
+
+```bash
+syntek add syntek-caldav
+```
+
+CalDav client for syncing events and appointments with the Radicale server in `syntek-infrastructure`.
+
+- **CalDav Client**: `caldav` Python library integration; configurable server URL and credentials via `SYNTEK_CALDAV` settings
+- **Event Sync**: Push `syntek-events` records to CalDav calendars; pull external CalDav events into the local database
+- **Per-User Calendars**: Each user gets a personal CalDav calendar endpoint; events always scoped to tenant
+- **iCal Export**: Generate `.ics` files for any event, date range, or calendar view on demand
+
+---
+
+#### Address and Geo (`syntek-geo`)
+
+```bash
+syntek add syntek-geo
+```
+
+UK postcode lookup and address geocoding with Redis caching.
+
+- **UK Postcode Lookup**: postcodes.io or OS Places API; returns street, town, county, and coordinates per postcode
+- **Address Geocoding**: Convert an address string to latitude/longitude via Google Maps or OS Places API
+- **Response Caching**: All lookups cached in Redis with configurable TTL to avoid redundant external API calls
+- **Error Handling**: `InvalidPostcodeError` for malformed postcodes; graceful degradation when the external API is unavailable
+- **Strawberry Queries**: `lookupPostcode(postcode)`, `geocodeAddress(address)`
+
+---
+
+#### Accounting and Ledger (`syntek-accounting`)
+
+```bash
+syntek add syntek-accounting
+```
+
+Double-entry accounting ledger with UK VAT calculation and Xero / Sage / QuickBooks Online sync.
+
+- **Double-Entry Validation**: Every journal entry must balance (debits == credits); `UnbalancedEntryError` raised on rejection
+- **Chart of Accounts**: Assets, liabilities, equity, income, and expenses; configurable account codes per tenant
+- **VAT Calculation**: UK VAT period summaries with output tax, input tax, and net VAT payable
+- **Xero Sync**: Post transactions to Xero via `syntek-integrations`; sync status recorded per transaction
+- **Sage and QuickBooks Online**: Adapter-based sync for both platforms using the same `syntek-integrations` credential store
+- **Strawberry Queries**: `accounts`, `journalEntries`, `vatReturn(period)`
+- **Strawberry Mutations**: `postJournalEntry`, `syncToXero`, `syncToSage`, `syncToQBO`
+
+---
+
+#### Email Marketing (`syntek-email-marketing`)
+
+```bash
+syntek add syntek-email-marketing
+```
+
+Mailing list management, campaign dispatch, open/click tracking, and GDPR opt-out enforcement.
+
+- **Mailing Lists**: Create and manage subscriber lists with double opt-in confirmation support
+- **Campaign Dispatch**: HTML campaign sending via the configured email backend; unsubscribe list enforced at dispatch — no exceptions
+- **Unsubscribe Handling**: One-click unsubscribe link generation and handler; permanently excluded contacts cannot be re-added without a new explicit opt-in
+- **Open Tracking**: Pixel embedded in campaign emails; `EmailOpen` record created with timestamp on pixel load
+- **Click Tracking**: Redirect-based click tracking; `EmailClick` record created per link click
+- **GDPR Erasure Hook**: Anonymises email address and open/click records on erasure request from `syntek-gdpr`
+
+---
+
+#### Developer API Keys (`syntek-api-keys`)
+
+```bash
+syntek add syntek-api-keys
+```
+
+Scoped API key issuance for machine-to-machine access to the GraphQL API.
+
+- **Key Generation**: Cryptographically random keys shown to the developer once only; stored as HMAC-SHA256 hash — never plain text
+- **Scope-Based Access Control**: Keys issued with explicit scopes (e.g. `orders:read`); unauthorised scope returns 403 at the resolver level
+- **Revocation**: Immediate revocation via `revoked_at` timestamp; cached in Redis for sub-millisecond rejection; revoked key returns 401
+- **Audit Integration**: API key ID (not plaintext key) recorded as the actor in `syntek-audit` on every authenticated request
+- **Strawberry Queries**: `apiKeys` — metadata only; key values are never returned after creation
+- **Strawberry Mutations**: `createApiKey`, `revokeApiKey`
+
+---
+
+#### Comments and Discussions (`syntek-comments`)
+
+```bash
+syntek add syntek-comments
+```
+
+Threaded comments attachable to any Django model, with moderation and reactions.
+
+- **Generic FK**: Comments linked to any model via `content_type` / `object_id`; no schema changes required per target model
+- **Threaded Replies**: Parent FK on `Comment`; configurable maximum nesting depth
+- **Moderation**: Hold-for-review state triggered by configurable content patterns; `approveComment` mutation for moderators
+- **Reactions**: Emoji/type reactions per comment; unique-per-user constraint; aggregate counts maintained
+- **Strawberry Queries**: `comments(contentType, objectId)`, `commentThread(id)`
+- **Strawberry Mutations**: `addComment`, `editComment`, `deleteComment`, `addReaction`, `removeReaction`, `approveComment`
+
+---
+
+#### Loyalty and Referrals (`syntek-loyalty`)
+
+```bash
+syntek add syntek-loyalty
+```
+
+Points engine, tier progression, and referral attribution for customer loyalty programmes.
+
+- **Points Engine**: Configurable earn rules per action type; credits, debits, and running balance tracked per user via `LoyaltyTransaction`
+- **Tier Progression**: Automatic tier evaluation on balance change; promotion and demotion notifications dispatched via `syntek-notifications`
+- **Referral Links**: Unique referral link generation per user; conversion attribution on qualifying actions; configurable reward on conversion
+- **Redemption**: Points debit with negative-balance guard; redemption records linked to the originating `LoyaltyTransaction`
+- **Strawberry Queries**: `loyaltyAccount`, `loyaltyTransactions`, `referralStats`
+- **Strawberry Mutations**: `redeemPoints`, `generateReferralLink`
+
+---
+
+#### Analytics (`syntek-analytics`)
+
+```bash
+syntek add syntek-analytics
+```
+
+Privacy-first analytics integration with Plausible and Fathom.
+
+- **Plausible Integration**: Page view and custom event tracking via the Plausible Events API
+- **Fathom Integration**: Alternative privacy-first backend; switchable via `SYNTEK_ANALYTICS` settings
+- **Django Middleware**: Automatic server-side page view tracking for non-Next.js views
+- **Custom Event API**: `track_event(name, properties)` callable from any view or Celery task
+- **Consent-Gated**: Analytics scripts injected only after the user grants analytics consent via `syntek-gdpr`; no tracking without explicit consent
+- **Admin Dashboard**: Aggregate page view and event data queryable via Strawberry GraphQL
+
+---
+
+#### Scheduling (`syntek-scheduling`)
+
+```bash
+syntek add syntek-scheduling
+```
+
+Appointment and availability scheduling with calendar integration.
+
+- **Availability Slots**: Define available time windows per resource (person, room, or service); slot granularity configurable
+- **Booking Model**: Appointment records linked to slots, attendees, and resources; `pending`, `confirmed`, and `cancelled` states
+- **Recurring Events**: Weekly, monthly, and custom recurrence rules; individual occurrence exceptions
+- **Timezone Handling**: All times stored as UTC; displayed in the user's configured timezone
+- **Google Calendar Sync**: Push confirmed bookings to Google Calendar via `syntek-integrations`
+- **iCal Export**: Generate `.ics` files for confirmed appointments on demand
+- **Strawberry Queries**: `availableSlots(resourceId, dateRange)`, `appointments`
+- **Strawberry Mutations**: `bookAppointment`, `cancelAppointment`, `confirmAppointment`
+
+---
+
+#### Locations (`syntek-locations`)
+
+```bash
+syntek add syntek-locations
+```
+
+Location model with geospatial query support for proximity-based features.
+
+- **Location Model**: Address, coordinates (latitude/longitude), and optional label and category fields
+- **Geospatial Queries**: `nearby(lat, lng, radiusKm)` using PostgreSQL `earthdistance` extension; results ordered by distance
+- **Geocoding Integration**: Auto-geocode address fields via `syntek-geo` on save; reverse geocoding of coordinates to address string
+- **Generic FK Attachments**: Attach locations to any model without schema changes
+- **Strawberry Queries**: `locations`, `nearbyLocations(lat, lng, radius)`, `locationDetail(id)`
+
+---
+
+#### Inventory (`syntek-inventory`)
+
+```bash
+syntek add syntek-inventory
+```
+
+Stock level tracking with multi-location support and low-stock alerting.
+
+- **Inventory Items**: SKU, name, description, unit cost, and current stock level per item
+- **Stock Movements**: `StockMovement` records for every in/out/adjustment with reason code and reference document
+- **Multi-Location Stock**: Track stock levels independently per warehouse, shop, or storage location
+- **Low-Stock Alerts**: Configurable threshold per item; notification dispatched via `syntek-notifications` when stock falls below threshold
+- **Barcode/QR Code**: EAN-13 and QR code generation per item; scan-based lookup
+- **Reservations**: Reserve stock on order creation; release on cancellation; prevents overselling
+- **Strawberry Queries**: `inventory`, `stockMovements(itemId)`, `lowStockItems`
+- **Strawberry Mutations**: `adjustStock`, `transferStock`, `receiveStock`
+
+---
+
+#### Feedback and Surveys (`syntek-feedback`)
+
+```bash
+syntek add syntek-feedback
+```
+
+Survey builder and response collection with conditional question logic and analytics.
+
+- **Survey Model**: Multi-question surveys with configurable question types: rating scale, free text, single choice, multi-choice, and NPS
+- **Conditional Questions**: Show/hide questions based on previous answers using the same logic engine as `syntek-forms`
+- **Response Collection**: Anonymous and attributed response storage; duplicate submission prevention per user or fingerprint
+- **NPS Scoring**: Automatic Net Promoter Score calculation per survey period; promoter/passive/detractor breakdown
+- **Response Analytics**: Aggregate counts and percentages per question; full response export to CSV
+- **Strawberry Queries**: `surveys`, `surveyResponses(surveyId)`, `surveyAnalytics(surveyId)`
+- **Strawberry Mutations**: `createSurvey`, `submitSurveyResponse`
+
+---
+
 ### Frontend Web — Next.js + React + TypeScript
 
 All web packages are installed via `syntek add @syntek/<name>` (Rust CLI). Every package is fully typed with TypeScript. No package makes direct database calls or contains hardcoded API URLs — all data access goes through the typed GraphQL client.
@@ -825,6 +1135,86 @@ Reusable, fully customisable GDPR compliance UI components.
 
 ---
 
+#### Donations UI (`@syntek/ui-donations`)
+
+```bash
+syntek add @syntek/ui-donations
+```
+
+Donation form and giving history UI components for charities and non-profit organisations.
+
+- Donation amount selector: preset amounts with custom entry; one-off and recurring toggle
+- Gift Aid declaration form: eligibility question, confirmation checkbox, and validation
+- Campaign progress bar: target amount, raised amount, and percentage filled display
+- Giving history: paginated list of past donations with amounts, dates, and Gift Aid status indicators
+- Donation confirmation: receipt display with charity branding and Gift Aid claim reference
+
+---
+
+#### Comments UI (`@syntek/ui-comments`)
+
+```bash
+syntek add @syntek/ui-comments
+```
+
+Threaded comment UI connecting to `syntek-comments` via GraphQL.
+
+- `CommentThread` component: renders nested comment tree with configurable maximum display depth
+- `CommentForm` with inline validation, character count, and submission loading state
+- Reaction picker with aggregate counts and the current user's own reaction highlighted
+- Moderation indicators: held-for-review badge visible to users with the moderator role
+- Progressive disclosure: load more replies without a full page refresh
+
+---
+
+#### Feedback and Surveys UI (`@syntek/ui-feedback`)
+
+```bash
+syntek add @syntek/ui-feedback
+```
+
+Survey renderer and response UI connecting to `syntek-feedback` via GraphQL.
+
+- `SurveyForm` renderer: maps survey schema to appropriate field components automatically
+- Rating scale, NPS widget, and multi-choice question components
+- Conditional question visibility resolved client-side from the survey schema
+- Multi-page survey progress indicator
+- Response confirmation screen with configurable thank-you message
+
+---
+
+#### Maps and Locations UI (`@syntek/ui-maps`)
+
+```bash
+syntek add @syntek/ui-maps
+```
+
+Map components and location picker integrating Mapbox or Google Maps.
+
+- `Map` component: Mapbox GL JS or Google Maps wrapper; provider configured via `SYNTEK_MAPS` settings
+- `LocationMarker`: pin component with configurable icon and popup content
+- `LocationPicker` form field: address search-and-select input with live map preview
+- Proximity list: sorted list of locations by distance from a reference point
+- Cluster rendering: automatic marker clustering for dense datasets
+
+---
+
+#### Scheduling UI (`@syntek/ui-scheduling`)
+
+```bash
+syntek add @syntek/ui-scheduling
+```
+
+Calendar and appointment booking UI connecting to `syntek-scheduling` via GraphQL.
+
+- Calendar view: month, week, and day views built on `react-big-calendar`
+- Availability grid: visual slot picker showing available and booked slots per resource
+- `BookingForm` with resource selector, date/time picker, and attendee input
+- Appointment status indicators: pending, confirmed, and cancelled with colour-coded differentiation
+- Cancellation flow with confirmation modal and reason capture
+
+---
+
 ### Frontend Mobile — React Native + TypeScript + NativeWind
 
 All mobile packages are installed via `syntek add @syntek/mobile-<name>` (Rust CLI). All packages target both iOS and Android via Expo's managed workflow unless stated otherwise.
@@ -905,6 +1295,22 @@ NativeWind-based component library for React Native.
 - Platform-adaptive: components render with platform-appropriate styling (iOS vs Android) for feel while maintaining visual consistency
 - Motion primitives: shared element transitions, list animations, and micro-interactions via `react-native-reanimated`
 - Accessible components: all components include appropriate `accessibilityRole`, `accessibilityLabel`, and `accessibilityHint` props; VoiceOver and TalkBack tested
+
+---
+
+#### Media (`@syntek/mobile-media`)
+
+```bash
+syntek add @syntek/mobile-media
+```
+
+Camera, photo library, and video capture for React Native, uploading to `syntek-media` via GraphQL.
+
+- Camera capture: photo and video via `expo-camera`; permission request flow with pre-prompt explanation screen
+- Photo library picker: single and multi-select via `expo-image-picker`; original and compressed quality options
+- Upload progress: chunked upload with real-time progress bar; cancellable in-flight uploads
+- Image preview: thumbnail display with crop and rotate controls before upload
+- MIME type enforcement: validates file type client-side before upload to match the `syntek-media` allowlist
 
 ---
 
@@ -1490,4 +1896,4 @@ All code, issues, pull requests, and package releases are hosted on the Syntek s
 **Maintained by:** Syntek Development Team
 **Language:** British English (en-GB)
 **Versioning:** Semantic versioning per module — Forgejo, Syntek Hetzner Server
-**Last Updated:** 04.03.2026
+**Last Updated:** 06.03.2026
