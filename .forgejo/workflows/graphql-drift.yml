@@ -1,0 +1,45 @@
+name: GraphQL Schema Drift
+
+on:
+  push:
+    branches: [main, 'us*/**']
+    paths:
+      - 'shared/graphql/schema.graphql'
+      - 'shared/graphql/src/operations/**'
+      - 'shared/graphql/codegen.ts'
+      - 'shared/graphql/src/generated/**'
+  pull_request:
+    paths:
+      - 'shared/graphql/schema.graphql'
+      - 'shared/graphql/src/operations/**'
+      - 'shared/graphql/codegen.ts'
+      - 'shared/graphql/src/generated/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  drift-check:
+    name: Schema drift check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '10.28.2'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check for schema drift
+        run: pnpm --filter @syntek/graphql codegen:check
+        env:
+          # Falls back to schema.graphql SDL when unset.
+          GRAPHQL_SCHEMA_URL: ${{ vars.GRAPHQL_SCHEMA_URL }}
