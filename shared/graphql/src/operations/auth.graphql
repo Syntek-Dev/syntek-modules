@@ -1,0 +1,34 @@
+mutation Login($email: String!, $password: String!) {
+  login(email: $email, password: $password) {
+    token
+    user {
+      id
+      email
+      createdAt
+      roles {
+        id
+        name
+        permissions {
+          name
+          scope
+        }
+      }
+    }
+  }
+}
+
+query CurrentUser {
+  me {
+    id
+    email
+    createdAt
+    roles {
+      id
+      name
+      permissions {
+        name
+        scope
+      }
+    }
+  }
+}

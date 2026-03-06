@@ -1,0 +1,45 @@
+"""
+Syntek backend GraphQL schema — SDL for local codegen.
+
+This file mirrors the Strawberry schema exposed by the Django backend.
+Used as the codegen schema source when GRAPHQL_SCHEMA_URL is not set.
+Keep in sync with the backend schema; drift will be surfaced by `pnpm codegen:check` in CI.
+"""
+
+type Permission {
+  name: String!
+  scope: String!
+}
+
+type Role {
+  id: ID!
+  name: String!
+  permissions: [Permission!]!
+}
+
+type User {
+  id: ID!
+  email: String!
+  createdAt: String!
+  roles: [Role!]!
+}
+
+type LoginPayload {
+  token: String!
+  user: User!
+}
+
+type Tenant {
+  id: ID!
+  slug: String!
+  name: String!
+}
+
+type Query {
+  me: User
+  currentTenant: Tenant
+}
+
+type Mutation {
+  login(email: String!, password: String!): LoginPayload
+}
