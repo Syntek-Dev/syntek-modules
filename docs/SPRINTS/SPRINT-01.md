@@ -4,7 +4,7 @@
 
 **Total Points**: 11 / 11
 **MoSCoW Balance**: Must 100%
-**Status**: 🔄 In Progress
+**Status**: ✅ Completed
 
 ## Stories
 
@@ -12,15 +12,15 @@
 |---|---|---|---|---|---|
 | [US001](../STORIES/US001.md) | Monorepo Workspace Configuration | 5 | Must | ✅ Completed | — none — |
 | [US002](../STORIES/US002.md) | Shared TypeScript Types Package | 3 | Must | ✅ Completed | US001 ✓ |
-| [US004](../STORIES/US004.md) | Shared GraphQL Operations Package | 3 | Must | ⬜ Not Started | US001 ✓ |
+| [US004](../STORIES/US004.md) | Shared GraphQL Operations Package | 3 | Must | ✅ Completed | US001 ✓ |
 
 ## Progress
 
-**8 / 11 points complete**
+**11 / 11 points complete**
 
 ## Notes
 
 - US001 completed 06/03/2026 — 39/39 tests passing via `syntek-dev test --python`.
 - US002 completed 06/03/2026 — 46/46 tests passing via `syntek-dev test --web --web-package @syntek/types`.
-- US004 is unblocked and ready to start.
+- US004 completed 06/03/2026 — 29/29 tests passing via `syntek-dev test --web --web-package @syntek/graphql`.
 - US003 (Design Token System) is deferred to Sprint 02.
