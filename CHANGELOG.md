@@ -7,6 +7,28 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.3.0] — 06/03/2026
+
+### Added
+
+- **`shared/types/`** — `@syntek/types` package with full TypeScript type definitions (US002)
+  - Base types: `ID`, `Timestamp`, `PaginatedResponse<T>`, `ApiError`
+  - Auth types: `Permission`, `Role`, `User`, `Session`
+  - Tenant types: `Tenant`, `TenantSettings`
+  - Notification types: `NotificationChannel` (discriminated union), `Notification`
+- **`shared/types/src/__tests__/`** — 46 Vitest type-assertion and build-output tests (all passing)
+- **`shared/types/features/`** — BDD Gherkin scenarios for all US002 acceptance criteria
+- **`shared/types/dist/`** — compiled `.d.ts` declaration files and ES module output (gitignored, built on demand)
+- **`docs/TESTS/US002-TEST-STATUS.md`** — 46/46 PASS
+- **`docs/TESTS/US002-MANUAL-TESTING.md`** — all scenarios verified
+
+### Changed
+
+- **`docs/STORIES/US002.md`** — status updated to Completed; all tasks ticked
+- **`docs/SPRINTS/SPRINT-01.md`** — US002 marked Completed; sprint progress 8/11 points
+
+---
+
 ## [0.2.0] — 06/03/2026
 
 ### Added
