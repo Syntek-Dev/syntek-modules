@@ -1,0 +1,19 @@
+{
+  "pythonVersion": "3.14",
+  "pythonPlatform": "Linux",
+  "venvPath": ".",
+  "venv": ".venv",
+  "typeCheckingMode": "standard",
+  "useLibraryCodeForTypes": true,
+  "reportMissingImports": true,
+  "reportMissingTypeStubs": false,
+  "reportUnknownMemberType": false,
+  "include": ["packages/backend"],
+  "exclude": [
+    "**/__pycache__",
+    "**/migrations",
+    "**/.venv",
+    "**/node_modules",
+    "**/target"
+  ]
+}

@@ -55,6 +55,11 @@ yarn-error.log*
 out/
 .turbo/
 .vercel
+storybook-static/
+*.tsbuildinfo
+
+# Expo (React Native)
+.expo/
 
 # pnpm
 .pnpm-store/
@@ -71,11 +76,9 @@ target/
 
 # Lock Files Configuration
 # - uv.lock: Committed (ensures reproducible Python builds)
-# - Cargo.lock: Ignore for libraries, commit for binaries (project-cli)
-# - pnpm-lock.yaml: Ignore for library packages (consumers resolve their own deps)
+# - Cargo.lock: Root workspace lock committed (covers syntek-dev binary + all crates)
+# - pnpm-lock.yaml: Ignored for library packages (consumers resolve their own deps)
 pnpm-lock.yaml
-**/Cargo.lock
-!rust/project-cli/Cargo.lock
 
 # IDEs
 .vscode/
@@ -96,6 +99,16 @@ logs/
 coverage/
 .nyc_output/
 test-results/
+playwright-report/
+.maestro/
+junit.xml
+
+# Type checker caches
+.mypy_cache/
+
+# Security — never commit private keys
+*.pem
+*.key
 
 # Database
 *.db

@@ -1,0 +1,65 @@
+# uv workspace root — not a deployable app; shared tooling config only
+[tool.uv.workspace]
+members = ["packages/backend/*"]
+
+[tool.uv]
+python-version = ">=3.14"
+
+# ---------------------------------------------------------------------------
+# Ruff — linting and formatting for all Python code
+# ---------------------------------------------------------------------------
+[tool.ruff]
+line-length = 88
+target-version = "py314"
+src = ["packages/backend"]
+indent-width = 4
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "A",   # flake8-builtins
+    "C4",  # flake8-comprehensions
+    "PT",  # flake8-pytest-style
+    "SIM", # flake8-simplify
+    "TCH", # flake8-type-checking
+    "ARG", # flake8-unused-arguments
+    "DJ",  # flake8-django
+    "S",   # flake8-bandit (security)
+    "RUF", # ruff-specific rules
+]
+ignore = [
+    "DJ001", # null=True on string fields — intentional in some cases
+    "S101",  # assert — allowed in tests
+    "S311",  # random — not used for crypto; we use Rust for all crypto
+]
+
+[tool.ruff.lint.per-file-ignores]
+"*/tests/*" = ["S101", "ARG001", "ARG002", "S106"]
+"*/migrations/*" = ["E501", "N806", "RUF012"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+skip-magic-trailing-comma = false
+
+# ---------------------------------------------------------------------------
+# pytest
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = ["--strict-markers", "--tb=short", "-v"]
+markers = [
+    "unit: Unit tests — fast, no I/O",
+    "integration: Integration tests — may use DB or external services",
+    "e2e: End-to-end tests",
+    "slow: Tests that take more than 1s",
+]
