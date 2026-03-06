@@ -1,9 +1,8 @@
-# Testing Guide
+# Testing Guide — syntek-modules
 
-**Last Updated**: 24/02/2026
-**Version**: 1.6.0
-**Maintained By**: Development Team
-**Language**: British English (en_GB)
+**Last Updated**: 06/03/2026\
+**Version**: 0.1.0\
+**Language**: British English (en_GB)\
 **Timezone**: Europe/London
 
 ---
@@ -11,699 +10,444 @@
 ## Table of Contents
 
 - [Overview](#overview)
-- [Stack and Tooling](#stack-and-tooling)
-- [Directory Structure](#directory-structure)
-- [Naming Conventions](#naming-conventions)
-- [The Testing Pyramid](#the-testing-pyramid)
-  - [Unit Tests](#1-unit-tests)
-  - [Integration Tests](#2-integration-tests)
-  - [Feature and End-to-End Tests](#3-feature-and-end-to-end-tests)
-  - [API Tests](#4-api-tests)
-- [TDD Methodology](#tdd-test-driven-development)
-- [Test Data and Factories](#test-data-and-factories)
-- [Mocking Patterns](#mocking-patterns)
+- [Testing Matrix](#testing-matrix)
+- [Running Tests](#running-tests)
+- [Python / Django](#python--django)
+- [TypeScript / React (Web)](#typescript--react-web)
+- [React Native / Mobile](#react-native--mobile)
+- [Rust Crates](#rust-crates)
+- [GraphQL](#graphql)
 - [Database Isolation](#database-isolation)
-- [Security-Critical Tests](#security-critical-tests)
+- [Test Data and Factories](#test-data-and-factories)
 - [Rules and Principles](#rules-and-principles)
 
 ---
 
 ## Overview
 
-This guide defines how to write, organise, and run tests across all project stacks. Follow these conventions regardless of which agent writes the tests — consistency makes the test suite trustworthy and maintainable.
+This repo uses different testing frameworks per layer. All layers follow
+**Arrange–Act–Assert** and the testing pyramid: many unit, some integration, few E2E.
 
 ---
 
-## Stack and Tooling
+## Testing Matrix
 
-### TALL Stack (Laravel + Livewire + Alpine + Tailwind)
+| Layer | Unit / Integration | E2E / Browser | Framework |
+| ----- | ------------------ | ------------- | --------- |
+| Python / Django | pytest + factory\_boy + hypothesis | — | pytest-django, testcontainers-python |
+| GraphQL (Python) | pytest | — | pytest-django + strawberry test client |
+| Web (React/TS) | Vitest + RTL + MSW | Playwright | vitest, @testing-library/react, msw |
+| GraphQL (TS resolvers) | Vitest + MSW | — | vitest, msw |
+| Mobile (RN) | Jest + RNTL | Maestro | jest, @testing-library/react-native |
+| Rust | cargo test | — | built-in + proptest |
+| Postgres | pytest transactional fixtures | — | testcontainers-python |
 
-| Tool | Purpose | Command |
-|------|---------|---------|
-| **Pest PHP** | Primary test runner (unit + feature) | `ddev exec php artisan test` |
-| **Pest Arch** | Architecture and convention tests | `ddev exec php artisan test --filter arch` |
-| **Laravel HTTP tests** | Feature/API endpoint tests | Built into Pest/PHPUnit |
-| **Livewire testing** | Livewire component interaction tests | `Livewire::test()` helper |
-| **Laravel Dusk** | Browser-based E2E tests | `ddev exec php artisan dusk` |
-| **Faker** | Generating realistic test data | Used in factories |
+---
+
+## Running Tests
+
+### Full suite (all layers)
 
 ```bash
-# Run the full test suite
-ddev exec php artisan test
-
-# Run a specific test file
-ddev exec php artisan test tests/Unit/Services/PaymentServiceTest.php
-
-# Run tests matching a name pattern
-ddev exec php artisan test --filter "payment"
-
-# Run with coverage report
-ddev exec php artisan test --coverage
+syntek-dev test
 ```
 
-### Django Stack (Django + Wagtail + PostgreSQL)
-
-| Tool | Purpose | Command |
-|------|---------|---------|
-| **pytest-django** | Primary test runner | `docker compose exec web pytest` |
-| **factory_boy** | Test data factories | Used in fixtures/conftest.py |
-| **pytest-cov** | Coverage reports | `pytest --cov=app` |
-| **Django test client** | HTTP request simulation | `client.get("/api/...")` |
-| **DRF APIClient** | REST Framework API tests | `APIClient()` |
-| **Playwright** | Browser E2E tests | `docker compose exec web pytest --playwright` |
+### Per layer
 
 ```bash
-# Run the full test suite
-docker compose exec web pytest
+# Python
+pytest packages/backend/syntek-auth/tests/
 
-# Run a specific test file
-docker compose exec web pytest apps/payments/tests/test_services.py
+# TypeScript (all packages via Turborepo)
+pnpm test
 
-# Run tests matching a name pattern
-docker compose exec web pytest -k "payment"
+# Single package
+pnpm --filter @syntek/ui-auth test
 
-# Run with coverage report
-docker compose exec web pytest --cov=apps --cov-report=html
+# Rust
+cargo test --all
+
+# Markdown linting
+pnpm lint:md
 ```
 
-### React Stack (React + Next.js + TypeScript)
+---
 
-| Tool | Purpose | Command |
-|------|---------|---------|
-| **Vitest** | Primary unit/integration test runner | `docker compose exec app npm test` |
-| **React Testing Library** | Component rendering and interaction | Used in component tests |
-| **MSW (Mock Service Worker)** | API mocking for integration tests | `server.use(...)` |
-| **Playwright** | Browser E2E tests | `npx playwright test` |
-| **Storybook** | Visual component testing | `npm run storybook` |
+## Python / Django
+
+**Tools:** pytest-django, factory\_boy, pytest-cov, testcontainers-python
+
+Each backend module has its own `tests/` directory and a minimal `tests/settings.py`
+for Django configuration during testing. There is no project-level `manage.py` — tests
+run via pytest directly.
 
 ```bash
-# Run the full test suite
-docker compose exec app npm test
-
-# Run in watch mode
-docker compose exec app npm test -- --watch
-
 # Run with coverage
-docker compose exec app npm test -- --coverage
+pytest packages/backend/syntek-auth/ --cov=syntek_auth --cov-report=html
 
-# Run E2E tests
-npx playwright test
+# Run only unit tests
+pytest packages/backend/syntek-auth/ -m unit
+
+# Run only integration tests (spins up Postgres via testcontainers)
+pytest packages/backend/syntek-auth/ -m integration
 ```
 
-### React Native / Expo Stack
+### Module test settings
 
-| Tool | Purpose | Command |
-|------|---------|---------|
-| **Jest** | Primary test runner | `docker compose exec app npx jest` |
-| **React Native Testing Library** | Component rendering and interaction | Used in component tests |
-| **MSW** | API mocking | `server.use(...)` |
-
-```bash
-# Run the full test suite
-docker compose exec app npx jest
-
-# Run in watch mode
-docker compose exec app npx jest --watch
-
-# Run with coverage
-docker compose exec app npx jest --coverage
-```
-
-### Shared Library (TypeScript / NPM)
-
-| Tool | Purpose | Command |
-|------|---------|---------|
-| **Vitest** | Primary test runner | `npm test` |
-| **Vitest coverage** | Coverage reports | `npm run test:coverage` |
-
-```bash
-# Run the full test suite
-npm test
-
-# Run in watch mode
-npm run test:watch
-
-# Run with coverage
-npm run test:coverage
-```
-
----
-
-## Directory Structure
-
-### TALL Stack
-
-```
-tests/
-├── Unit/
-│   ├── Services/           # Service class unit tests
-│   │   └── PaymentServiceTest.php
-│   ├── Models/             # Model method unit tests
-│   └── Helpers/            # Helper function tests
-├── Feature/
-│   ├── Api/                # API endpoint tests
-│   │   └── PaymentControllerTest.php
-│   ├── Livewire/           # Livewire component tests
-│   │   └── CheckoutFormTest.php
-│   └── Auth/               # Authentication flow tests
-├── Browser/                # Laravel Dusk E2E tests
-│   └── CheckoutTest.php
-└── Arch/                   # Architecture tests (Pest Arch)
-    └── ArchTest.php
-```
-
-### Django Stack
-
-```
-apps/
-├── payments/
-│   ├── tests/
-│   │   ├── __init__.py
-│   │   ├── test_models.py      # Model method tests
-│   │   ├── test_services.py    # Service unit tests
-│   │   ├── test_views.py       # API endpoint tests
-│   │   └── test_serializers.py # Serialiser tests
-│   └── factories.py            # factory_boy factories
-├── users/
-│   └── tests/
-│       ├── test_auth.py
-│       └── test_models.py
-tests/
-├── conftest.py                 # Shared fixtures and test setup
-├── test_integration.py         # Cross-app integration tests
-└── e2e/                        # Playwright E2E tests
-    └── test_checkout.py
-```
-
-### React / Shared Library Stack
-
-```
-src/
-├── components/
-│   ├── Button/
-│   │   ├── Button.tsx
-│   │   ├── Button.test.tsx     # Component tests next to source
-│   │   └── Button.stories.tsx  # Storybook stories
-│   └── Form/
-│       ├── Form.tsx
-│       └── Form.test.tsx
-├── services/
-│   ├── payment.ts
-│   └── payment.test.ts         # Service unit tests next to source
-├── hooks/
-│   ├── useAuth.ts
-│   └── useAuth.test.ts
-tests/
-├── integration/                # Cross-module integration tests
-│   └── checkout-flow.test.ts
-└── e2e/                        # Playwright E2E tests
-    └── checkout.spec.ts
-```
-
----
-
-## Naming Conventions
-
-| Convention | Pattern | Example |
-|------------|---------|---------|
-| PHP test class | `<Subject>Test` | `PaymentServiceTest` |
-| PHP test method | `test_<behaviour>_<condition>` | `test_charge_fails_when_card_declined` |
-| Python test file | `test_<module>.py` | `test_payment_service.py` |
-| Python test function | `test_<behaviour>_<condition>` | `test_charge_fails_when_card_declined` |
-| TypeScript test file | `<subject>.test.ts(x)` | `payment-service.test.ts` |
-| TypeScript test name | `<behaviour> when <condition>` | `"returns error when card is declined"` |
-| E2E test file | `<flow>.spec.ts` or `Test.php` | `checkout.spec.ts` |
-
-**Avoid:**
-- `test_1`, `test_2` — no scenario is described
-- Mirroring the method name without a scenario: `test_charge` is useless; `test_charge_creates_invoice_on_success` is not
-
----
-
-## The Testing Pyramid
-
-Write tests in this ratio: many unit, some integration, few E2E.
-
-```
-          /    E2E     \       <- Few, slow, high confidence (user flows)
-         / Integration  \      <- Some, moderate speed (service boundaries)
-        /  Unit Tests    \     <- Many, fast, focused (function/method level)
-```
-
-### 1. Unit Tests
-
-Test a single class, function, or method in complete isolation. Mock or stub all external dependencies.
-
-**What to unit test:**
-- Service classes (business logic)
-- Model methods and scopes (computed properties, custom queries)
-- Helper and utility functions
-- Validation rules
-- Transformers/serialisers
-
-**TALL Stack example (Pest):**
-
-```php
-// tests/Unit/Services/PaymentServiceTest.php
-
-use App\Services\PaymentService;
-use App\Exceptions\PaymentFailedException;
-
-it('creates an invoice when payment succeeds', function () {
-    $mockGateway = mock(PaymentGateway::class)
-        ->shouldReceive('charge')
-        ->with(5000, 'gbp')
-        ->andReturn(new ChargeResult(success: true, transactionId: 'txn_123'))
-        ->getMock();
-
-    $service = new PaymentService($mockGateway);
-    $invoice = $service->charge(order: $this->order, amountPence: 5000);
-
-    expect($invoice)->toBeInstanceOf(Invoice::class)
-        ->and($invoice->transaction_id)->toBe('txn_123');
-});
-
-it('throws PaymentFailedException when the gateway declines the card', function () {
-    $mockGateway = mock(PaymentGateway::class)
-        ->shouldReceive('charge')
-        ->andReturn(new ChargeResult(success: false, errorCode: 'card_declined'))
-        ->getMock();
-
-    $service = new PaymentService($mockGateway);
-
-    expect(fn () => $service->charge(order: $this->order, amountPence: 5000))
-        ->toThrow(PaymentFailedException::class, 'card_declined');
-});
-```
-
-**Django example (pytest-django):**
+Each backend module provides `tests/settings.py`:
 
 ```python
-# apps/payments/tests/test_services.py
-
-import pytest
-from unittest.mock import MagicMock, patch
-from apps.payments.services import PaymentService
-from apps.payments.exceptions import PaymentFailedException
-
-def test_charge_creates_invoice_when_payment_succeeds(db, order_factory):
-    order = order_factory()
-    mock_gateway = MagicMock()
-    mock_gateway.charge.return_value = {"success": True, "transaction_id": "txn_123"}
-
-    service = PaymentService(gateway=mock_gateway)
-    invoice = service.charge(order=order, amount_pence=5000)
-
-    assert invoice.transaction_id == "txn_123"
-    mock_gateway.charge.assert_called_once_with(5000, "gbp")
-
-def test_charge_raises_when_card_declined(db, order_factory):
-    order = order_factory()
-    mock_gateway = MagicMock()
-    mock_gateway.charge.return_value = {"success": False, "error_code": "card_declined"}
-
-    service = PaymentService(gateway=mock_gateway)
-
-    with pytest.raises(PaymentFailedException, match="card_declined"):
-        service.charge(order=order, amount_pence=5000)
-```
-
-**TypeScript example (Vitest):**
-
-```typescript
-// src/services/payment.test.ts
-
-import { describe, it, expect, vi } from "vitest";
-import { PaymentService } from "./payment";
-
-describe("PaymentService.charge", () => {
-  it("returns invoice when payment succeeds", async () => {
-    const mockGateway = { charge: vi.fn().mockResolvedValue({ success: true, transactionId: "txn_123" }) };
-    const service = new PaymentService(mockGateway);
-
-    const invoice = await service.charge({ orderId: "ord_1", amountPence: 5000 });
-
-    expect(invoice.transactionId).toBe("txn_123");
-  });
-
-  it("throws PaymentError when card is declined", async () => {
-    const mockGateway = { charge: vi.fn().mockResolvedValue({ success: false, errorCode: "card_declined" }) };
-    const service = new PaymentService(mockGateway);
-
-    await expect(service.charge({ orderId: "ord_1", amountPence: 5000 }))
-      .rejects.toThrow("card_declined");
-  });
-});
-```
-
-### 2. Integration Tests
-
-Verify that multiple units work together across a real database or service boundary. Integration tests use a dedicated test database — never the development database.
-
-**What to integration test:**
-- Controller/view actions with real database queries
-- API endpoints from request to response
-- Service methods that coordinate multiple repositories
-- Queue jobs and event listeners
-
-**TALL Stack example (Pest Feature test):**
-
-```php
-// tests/Feature/Api/PaymentControllerTest.php
-
-use App\Models\User;
-use App\Models\Order;
-
-it('returns 201 and invoice when payment is accepted', function () {
-    $user = User::factory()->create();
-    $order = Order::factory()->for($user)->create(['total_pence' => 5000]);
-
-    $this->actingAs($user, 'sanctum')
-        ->postJson("/api/orders/{$order->id}/pay", ['payment_method' => 'pm_card_visa'])
-        ->assertStatus(201)
-        ->assertJsonStructure(['invoice' => ['id', 'transaction_id', 'amount_pence']]);
-});
-
-it('returns 422 when the order has already been paid', function () {
-    $user = User::factory()->create();
-    $order = Order::factory()->for($user)->paid()->create();
-
-    $this->actingAs($user, 'sanctum')
-        ->postJson("/api/orders/{$order->id}/pay", ['payment_method' => 'pm_card_visa'])
-        ->assertStatus(422)
-        ->assertJsonPath('error.code', 'ORDER_ALREADY_PAID');
-});
-
-it('returns 401 when the user is not authenticated', function () {
-    $order = Order::factory()->create();
-
-    $this->postJson("/api/orders/{$order->id}/pay", ['payment_method' => 'pm_card_visa'])
-        ->assertStatus(401);
-});
-```
-
-**Django example (pytest-django with APIClient):**
-
-```python
-# apps/payments/tests/test_views.py
-
-import pytest
-from rest_framework.test import APIClient
-from apps.payments.factories import OrderFactory
-
-@pytest.fixture
-def api_client():
-    return APIClient()
-
-def test_pay_order_returns_201_with_invoice(db, api_client, user_factory, order_factory):
-    user = user_factory()
-    order = order_factory(user=user, total_pence=5000, paid=False)
-    api_client.force_authenticate(user=user)
-
-    response = api_client.post(f"/api/orders/{order.id}/pay/", {"payment_method": "pm_card_visa"})
-
-    assert response.status_code == 201
-    assert "invoice" in response.data
-
-def test_pay_order_returns_401_when_unauthenticated(db, api_client, order_factory):
-    order = order_factory()
-
-    response = api_client.post(f"/api/orders/{order.id}/pay/", {})
-
-    assert response.status_code == 401
-```
-
-### 3. Feature and End-to-End Tests
-
-Simulate real user interactions through the browser. These tests are slow and should cover critical user journeys only.
-
-**What to E2E test:**
-- Checkout and payment flows
-- Authentication flows (login, registration, password reset)
-- Key CRUD journeys (create order, submit form, etc.)
-
-**TALL Stack Livewire component test:**
-
-```php
-// tests/Feature/Livewire/CheckoutFormTest.php
-
-use App\Livewire\CheckoutForm;
-use Livewire\Livewire;
-
-it('submits order and shows confirmation when valid card is entered', function () {
-    $user = User::factory()->create();
-    $cart = Cart::factory()->for($user)->withItems(3)->create();
-
-    Livewire::actingAs($user)
-        ->test(CheckoutForm::class, ['cartId' => $cart->id])
-        ->set('paymentMethod', 'pm_card_visa')
-        ->call('placeOrder')
-        ->assertDispatched('order-placed')
-        ->assertSee('Order confirmed');
-});
-```
-
-**Playwright E2E example (TypeScript):**
-
-```typescript
-// tests/e2e/checkout.spec.ts
-
-import { test, expect } from "@playwright/test";
-
-test("completes checkout with a valid card", async ({ page }) => {
-  await page.goto("/login");
-  await page.fill('[name="email"]', "test@example.com");
-  await page.fill('[name="password"]', "secret");
-  await page.click('[type="submit"]');
-
-  await page.goto("/cart");
-  await page.click('[data-testid="checkout-button"]');
-  await page.fill('[data-testid="card-number"]', "4242424242424242");
-  await page.click('[data-testid="pay-button"]');
-
-  await expect(page.locator('[data-testid="confirmation"]')).toBeVisible();
-});
-```
-
-### 4. API Tests
-
-Verify API contracts: request shape, response shape, status codes, and auth requirements. Every public API endpoint must have at minimum:
-
-1. Happy path with valid data
-2. Validation failure (422/400)
-3. Unauthenticated request (401)
-4. Unauthorised request (403) where applicable
-5. Not found case (404) where applicable
-
----
-
-## TDD (Test-Driven Development)
-
-**Cycle:** Red → Green → Refactor
-
-1. **Red** — Write a failing test for the next piece of behaviour.
-2. **Green** — Write the minimum code to make it pass.
-3. **Refactor** — Clean up without breaking the test.
-
-Use TDD for:
-- All service class methods
-- All API endpoint handlers
-- All complex validation logic
-- Any function with clear inputs and outputs
-
----
-
-## Test Data and Factories
-
-Use factories for all test data. Avoid constructing model instances inline in every test — factories ensure consistent, valid state.
-
-**TALL Stack (Laravel Factories):**
-
-```php
-// database/factories/OrderFactory.php
-
-class OrderFactory extends Factory
-{
-    public function definition(): array
-    {
-        return [
-            'user_id'     => User::factory(),
-            'status'      => 'pending',
-            'total_pence' => $this->faker->numberBetween(500, 100000),
-        ];
-    }
-
-    public function paid(): static
-    {
-        return $this->state(['status' => 'paid', 'paid_at' => now()]);
+# packages/backend/syntek-auth/tests/settings.py
+SECRET_KEY = "test-secret-key"  # noqa: S105
+INSTALLED_APPS = [
+    "django.contrib.contenttypes",
+    "django.contrib.auth",
+    "syntek_auth",
+]
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "syntek_test",
+        "USER": "postgres",
+        "PASSWORD": "postgres",
+        "HOST": "localhost",
+        "PORT": "5432",
     }
 }
 ```
 
-**Django Stack (factory_boy):**
+### Postgres via testcontainers
+
+Use `testcontainers-python` for integration tests that need a real PostgreSQL 18.3
+instance — no external database setup required:
 
 ```python
-# apps/payments/factories.py
+# packages/backend/syntek-auth/tests/conftest.py
+import pytest
+from testcontainers.postgres import PostgresContainer
 
+
+@pytest.fixture(scope="session")
+def postgres_container():
+    with PostgresContainer("postgres:18.3") as pg:
+        yield pg
+```
+
+### factory\_boy example
+
+```python
+# packages/backend/syntek-auth/tests/factories.py
 import factory
 from django.contrib.auth import get_user_model
-from apps.payments.models import Order
+
 
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = get_user_model()
 
     email = factory.Sequence(lambda n: f"user{n}@example.com")
-    password = factory.PostGenerationMethodCall("set_password", "secret")
-
-class OrderFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = Order
-
-    user = factory.SubFactory(UserFactory)
-    total_pence = factory.Faker("random_int", min=500, max=100000)
-    status = "pending"
-```
-
-**TypeScript (test helpers):**
-
-```typescript
-// tests/helpers/factories.ts
-
-export function buildOrder(overrides: Partial<Order> = {}): Order {
-  return {
-    id: "ord_test_1",
-    userId: "usr_test_1",
-    totalPence: 5000,
-    status: "pending",
-    createdAt: new Date("2026-01-01"),
-    ...overrides,
-  };
-}
+    password = factory.PostGenerationMethodCall("set_password", "secret-password-123")
+    is_active = True
 ```
 
 ---
 
-## Mocking Patterns
+## TypeScript / React (Web)
 
-### TALL Stack
+**Tools:** Vitest, React Testing Library, MSW, Playwright, Cypress
 
-Use Mockery (included with Pest) for service interfaces:
+Each `packages/web/*` package uses Vitest for unit and integration tests, and
+Playwright or Cypress for E2E tests. Tests live alongside source files.
 
-```php
-$mock = mock(PaymentGateway::class)
-    ->shouldReceive('charge')
-    ->once()
-    ->andReturn(new ChargeResult(success: true))
-    ->getMock();
+```bash
+# Unit + integration (watch mode)
+pnpm --filter @syntek/ui test --watch
+
+# Coverage
+pnpm --filter @syntek/ui-auth test --coverage
+
+# E2E (Playwright)
+pnpm --filter @syntek/ui-auth test:e2e
 ```
 
-Use Laravel's `Http::fake()` for outbound HTTP calls:
-
-```php
-Http::fake([
-    'api.stripe.com/*' => Http::response(['id' => 'pi_123'], 200),
-]);
-```
-
-### Django Stack
-
-Use `unittest.mock` for service dependencies:
-
-```python
-from unittest.mock import patch, MagicMock
-
-@patch("apps.payments.services.stripe.Charge.create")
-def test_charge_calls_stripe(mock_create, db, order_factory):
-    mock_create.return_value = {"id": "ch_123", "status": "succeeded"}
-    ...
-```
-
-Use `responses` library for outbound HTTP calls:
-
-```python
-import responses
-
-@responses.activate
-def test_webhook_delivery(db):
-    responses.add(responses.POST, "https://hooks.example.com/", json={"ok": True})
-    ...
-```
-
-### TypeScript / React Stack
-
-Use `vi.fn()` or `vi.mock()` for function mocking:
+### Vitest component test example
 
 ```typescript
-import { vi } from "vitest";
-vi.mock("../services/payment", () => ({ charge: vi.fn() }));
+// packages/web/ui-auth/src/LoginForm.test.tsx
+import { render, screen, fireEvent } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
+
+import { LoginForm } from "./LoginForm";
+
+describe("LoginForm", () => {
+  it("calls onSubmit with email and password when form is submitted", async () => {
+    const onSubmit = vi.fn();
+    render(<LoginForm onSubmit={onSubmit} />);
+
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "user@example.com" },
+    });
+    fireEvent.change(screen.getByLabelText("Password"), {
+      target: { value: "secret123" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /sign in/i }));
+
+    expect(onSubmit).toHaveBeenCalledWith({
+      email: "user@example.com",
+      password: "secret123",
+    });
+  });
+});
 ```
 
-Use MSW for API mocking in component and integration tests:
+### MSW for GraphQL mocking
 
 ```typescript
-import { http, HttpResponse } from "msw";
-import { server } from "../tests/server";
+// packages/web/ui-auth/tests/msw/handlers.ts
+import { graphql, HttpResponse } from "msw";
 
-server.use(
-  http.post("/api/orders/:id/pay", () => {
-    return HttpResponse.json({ invoice: { id: "inv_1" } }, { status: 201 });
-  })
-);
+export const handlers = [
+  graphql.mutation("Login", () => {
+    return HttpResponse.json({
+      data: { login: { token: "test-token", user: { id: "1" } } },
+    });
+  }),
+];
 ```
 
-### General Rules
+---
 
-- Mock at the boundary closest to the unit under test.
-- Never mock the module you are testing.
-- Always verify mock expectations (assert call counts and arguments where it matters).
-- Each test creates its own fresh mock instances — no shared mock state between tests.
+## React Native / Mobile
+
+**Tools:** Jest, React Native Testing Library (RNTL), Maestro
+
+```bash
+# Unit + integration
+pnpm --filter @syntek/mobile-auth test
+
+# Watch
+pnpm --filter @syntek/mobile-auth test --watch
+
+# Maestro E2E (requires device/emulator)
+maestro test mobile/mobile-auth/.maestro/
+```
+
+### RNTL component test example
+
+```typescript
+// mobile/mobile-auth/src/BiometricPrompt.test.tsx
+import { render, fireEvent } from "@testing-library/react-native";
+import { describe, it, expect, vi } from "vitest";
+
+import { BiometricPrompt } from "./BiometricPrompt";
+
+describe("BiometricPrompt", () => {
+  it("calls onAuthenticate when the prompt button is pressed", () => {
+    const onAuthenticate = vi.fn();
+    const { getByText } = render(<BiometricPrompt onAuthenticate={onAuthenticate} />);
+
+    fireEvent.press(getByText("Use Face ID"));
+
+    expect(onAuthenticate).toHaveBeenCalledOnce();
+  });
+});
+```
+
+---
+
+## Rust Crates
+
+**Tools:** cargo test (built-in), proptest for property-based testing
+
+```bash
+# Run all tests
+cargo test --all
+
+# Run tests for a specific crate
+cargo test -p syntek-crypto
+
+# Run with output
+cargo test --all -- --nocapture
+```
+
+### Cryptographic test requirements
+
+Every cryptographic function must have:
+
+1. A round-trip test (encrypt → decrypt returns original plaintext)
+2. A test confirming different inputs produce different ciphertexts
+3. A test confirming tampered ciphertext fails authentication (GCM tag failure)
+4. A test confirming memory is zeroised after use (where possible)
+
+---
+
+## GraphQL
+
+### Python (Strawberry) — use pytest
+
+```python
+# packages/backend/syntek-auth/tests/test_schema.py
+import pytest
+from strawberry.test import Client
+
+from syntek_auth.schema import schema
+
+
+@pytest.mark.django_db
+def test_login_mutation_returns_token(user_factory):
+    user = user_factory(email="test@example.com")
+    client = Client(schema)
+
+    result = client.execute(
+        """
+        mutation Login($email: String!, $password: String!) {
+          login(email: $email, password: $password) {
+            token
+          }
+        }
+        """,
+        variables={"email": "test@example.com", "password": "secret-password-123"},
+    )
+
+    assert result.errors is None
+    assert result.data["login"]["token"] is not None
+```
+
+### TypeScript resolvers — use Vitest with direct unit tests + MSW
+
+Direct resolver unit tests do not need a network:
+
+```typescript
+// packages/web/api-client/src/resolvers/auth.test.ts
+import { describe, it, expect, vi } from "vitest";
+import { loginResolver } from "./auth";
+
+describe("loginResolver", () => {
+  it("returns user and token on valid credentials", async () => {
+    const mockContext = { dataSources: { authApi: { login: vi.fn().mockResolvedValue({ token: "tok_1" }) } } };
+    const result = await loginResolver(null, { email: "a@b.com", password: "pw" }, mockContext);
+    expect(result.token).toBe("tok_1");
+  });
+});
+```
+
+Use MSW to mock the GraphQL endpoint in component-level tests.
 
 ---
 
 ## Database Isolation
 
-**Critical:** Tests must never use the development database.
-
-- **TALL Stack:** Use `RefreshDatabase` or `DatabaseTransactions` trait in Pest. Set `DB_DATABASE` to `projectname_test` in `.env.test`.
-- **Django Stack:** Use `@pytest.mark.django_db` or `pytest-django`'s automatic test database creation. Set `DATABASES` to the test database in `settings/testing.py`.
-- **TypeScript Stack:** Use in-memory databases (SQLite via Prisma) or mock the data layer entirely for unit tests. Use a dedicated test database for integration tests.
-
-Each test run must start from a known clean state. Never assume data left by a previous test.
+- **Python integration tests:** use `@pytest.mark.django_db` with transaction rollback
+  (default in pytest-django). Each test starts from a clean state.
+- **Testcontainers:** spin up an ephemeral PostgreSQL 18.3 container per session for
+  integration tests. Never point tests at the dev database.
+- **TypeScript:** mock the data layer via MSW or `vi.mock()`. No real DB in unit tests.
 
 ---
 
-## Security-Critical Tests
+## Test Data and Factories
 
-For input validation, authentication, and authorisation logic, write tests for the following attack scenarios in addition to the happy path:
+- **Python:** use `factory_boy` (`DjangoModelFactory`) for all model fixtures.
+  Never build model instances inline across tests.
+- **TypeScript:** use plain builder functions in `tests/helpers/builders.ts`.
+- **Rust:** use `Default` trait and explicit construction. Use `proptest` for
+  property-based tests on cryptographic functions.
 
-- **SQL injection:** Attempt SQL meta-characters in user-controlled fields
-- **XSS:** Attempt script injection in text inputs and verify output is escaped
-- **Mass assignment:** Attempt to set protected attributes via API payloads
-- **IDOR:** Attempt to access another user's resources using a valid auth token
-- **Privilege escalation:** Attempt actions that require a higher role than the authenticated user holds
+---
+
+## Property-Based Testing with Hypothesis
+
+Use `hypothesis` for any function that must hold across a wide range of inputs —
+especially cryptographic functions, validators, and data transformations.
+
+Install: `uv pip install hypothesis` (included in `install.sh`).
+
+```python
+# packages/backend/syntek-crypto-bridge/tests/test_crypto.py
+from hypothesis import given, settings
+from hypothesis import strategies as st
+
+from syntek_crypto_bridge import encrypt_field, decrypt_field
+
+
+@given(plaintext=st.text(min_size=1, max_size=500))
+@settings(max_examples=200)
+def test_encrypt_decrypt_round_trip(plaintext: str) -> None:
+    """AES-256-GCM round-trip: decrypt(encrypt(x)) == x for any input."""
+    key = b"a" * 32
+    ciphertext = encrypt_field(plaintext, key)
+    assert decrypt_field(ciphertext, key) == plaintext
+
+
+@given(
+    value=st.one_of(st.text(), st.integers(), st.floats(allow_nan=False)),
+    length=st.integers(min_value=1, max_value=64),
+)
+def test_password_validator_never_raises(value: object, length: int) -> None:
+    """Password validator must not raise; it returns True or False."""
+    from syntek_auth.validators import meets_minimum_length
+    result = meets_minimum_length(str(value), min_length=length)
+    assert isinstance(result, bool)
+```
+
+**Where to use hypothesis:**
+
+- Cryptographic functions (`syntek-crypto` / `syntek-pyo3`) — round-trip, tamper detection
+- Input validators — must never raise; must return a bool or raise a specific exception
+- Data transformation functions — idempotency, associativity
+- HMAC / signature functions — different inputs produce different outputs
+
+**Where NOT to use hypothesis:**
+
+- Tests that require database state (use factory\_boy + pytest fixtures instead)
+- E2E or integration tests (too slow for property-based iteration)
+
+---
+
+## Per-Package Testing Files
+
+Every package in this repo carries two testing files:
+
+### `TEST-STATUS.md`
+
+Tracks the automated test suite: what tests exist, what each one verifies, and
+whether it currently passes. Updated after each test run by the contributor or CI.
+
+Location:
+- `packages/backend/syntek-{name}/TEST-STATUS.md`
+- `packages/web/{name}/TEST-STATUS.md`
+- `mobile/{name}/TEST-STATUS.md`
+
+Template: `docs/GUIDES/templates/TEST-STATUS.md`
+
+### `docs/MANUAL-TESTING.md`
+
+Step-by-step guide for a human tester to verify the package works correctly.
+Covers happy paths, error paths, security edge cases, and a regression checklist.
+
+Location:
+- `packages/backend/syntek-{name}/docs/MANUAL-TESTING.md`
+- `packages/web/{name}/docs/MANUAL-TESTING.md`
+- `mobile/{name}/docs/MANUAL-TESTING.md`
+
+Template: `docs/GUIDES/templates/MANUAL-TESTING.md`
+
+**Convention:** Both files are created when a new module is scaffolded (`/add-module`).
+`TEST-STATUS.md` is kept up to date as tests are written. `MANUAL-TESTING.md` is
+written alongside the first implementation PR and updated whenever behaviour changes.
 
 ---
 
 ## Rules and Principles
 
-1. **Every new public service method has at least one unit test.** No exceptions.
-
-2. **Every new API endpoint has integration tests** covering at minimum: the happy path, a validation failure, an unauthenticated request, and a not-found case.
-
-3. **Tests must be deterministic.** No reliance on real time, random values, or external network services. Mock everything at the boundary.
-
-4. **Tests must be independent.** Each test sets up its own state and cleans up after itself. No test depends on another having run first.
-
-5. **Follow Arrange-Act-Assert:**
-   - **Arrange**: set up test data and mocks
-   - **Act**: call the function or trigger the action
-   - **Assert**: verify the outcome
-
-6. **Test behaviour, not implementation.** Assert on outputs and observable side effects, not on which internal methods were called (unless verifying a critical security boundary).
-
-7. **Keep unit tests fast.** Unit tests should complete in under 100ms each. If a test needs a real database or network, it belongs in the integration test suite.
-
-8. **Security-critical paths have negative tests.** Authentication, authorisation, and input validation all need tests that verify rejection of invalid or malicious input.
-
-9. **Test code is held to the same standard as production code.** A clear, slightly repetitive test is better than a clever abstraction that obscures what is being verified.
+1. Every new public function has at least one unit test.
+2. Every GraphQL mutation/query has an integration test covering the happy path,
+   an auth failure, and an invalid input case.
+3. Tests are deterministic — no real time, random values, or live network calls.
+4. Tests are independent — each test sets up its own state.
+5. Follow Arrange–Act–Assert in every test.
+6. Test behaviour, not implementation.
+7. Unit tests complete in under 100ms each.
+8. Security-critical paths (auth, encryption, RBAC) have negative tests that verify
+   rejection of invalid or malicious input.
+9. Test code is held to the same standard as production code.

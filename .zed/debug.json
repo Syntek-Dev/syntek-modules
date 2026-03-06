@@ -1,0 +1,78 @@
+[
+  {
+    "label": "pytest: all backend packages",
+    "adapter": "debugpy",
+    "request": "launch",
+    "module": "pytest",
+    "args": ["packages/backend/", "-v", "--tb=short"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "env": {},
+    "justMyCode": false
+  },
+  {
+    "label": "pytest: current file",
+    "adapter": "debugpy",
+    "request": "launch",
+    "module": "pytest",
+    "args": ["$ZED_FILE", "-v", "--tb=short"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "env": {},
+    "justMyCode": false
+  },
+  {
+    "label": "pytest: unit tests only",
+    "adapter": "debugpy",
+    "request": "launch",
+    "module": "pytest",
+    "args": ["packages/backend/", "-v", "-m", "unit"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "env": {},
+    "justMyCode": false
+  },
+  {
+    "label": "pytest: integration tests only",
+    "adapter": "debugpy",
+    "request": "launch",
+    "module": "pytest",
+    "args": ["packages/backend/", "-v", "-m", "integration"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "env": {},
+    "justMyCode": false
+  },
+  {
+    "label": "django: runserver (sandbox)",
+    "adapter": "debugpy",
+    "request": "launch",
+    "program": "$ZED_WORKTREE_ROOT/sandbox/manage.py",
+    "args": ["runserver"],
+    "cwd": "$ZED_WORKTREE_ROOT",
+    "env": {
+      "DJANGO_SETTINGS_MODULE": "sandbox.settings.dev"
+    },
+    "justMyCode": false
+  },
+  {
+    "label": "syntek-dev (debug build)",
+    "adapter": "LLDB",
+    "request": "launch",
+    "program": "$ZED_WORKTREE_ROOT/target/debug/syntek-dev",
+    "args": ["--help"],
+    "cwd": "$ZED_WORKTREE_ROOT"
+  },
+  {
+    "label": "syntek-dev: test --python",
+    "adapter": "LLDB",
+    "request": "launch",
+    "program": "$ZED_WORKTREE_ROOT/target/debug/syntek-dev",
+    "args": ["test", "--python"],
+    "cwd": "$ZED_WORKTREE_ROOT"
+  },
+  {
+    "label": "syntek-crypto: cargo test",
+    "adapter": "LLDB",
+    "request": "launch",
+    "program": "$ZED_WORKTREE_ROOT/target/debug/syntek-crypto",
+    "args": [],
+    "cwd": "$ZED_WORKTREE_ROOT/rust/syntek-crypto"
+  }
+]

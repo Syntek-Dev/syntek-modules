@@ -6,6 +6,52 @@
 
 ---
 
+## Contributing — Quick Start
+
+> **New to this repo?** Run the bootstrap script and the CLI will guide the rest.
+> See [`docs/GUIDES/GETTING-STARTED.md`](docs/GUIDES/GETTING-STARTED.md) for the full walkthrough.
+
+```bash
+# 1. Clone
+git clone git@git.syntek-studio.com:syntek/syntek-modules.git
+cd syntek-modules
+
+# 2. Bootstrap — creates .venv, installs tooling, builds syntek-dev, symlinks to PATH
+chmod +x install.sh && ./install.sh
+
+# 3. Activate Python venv
+source .venv/bin/activate
+
+# 4. Start development services
+syntek-dev up
+
+# 5. Run the full test suite
+syntek-dev test
+
+# 6. Run all linters
+syntek-dev lint
+```
+
+**Key CLI commands:**
+
+| Command | What it does |
+| ------- | ------------ |
+| `syntek-dev up` | Start all dev services (frontend watch, Storybook, Rust watcher) |
+| `syntek-dev test` | Run all test layers (pytest, cargo test, Vitest, Jest, Playwright) |
+| `syntek-dev test --python-package syntek-auth` | Test one backend module |
+| `syntek-dev test -m unit` | Run only unit tests (pytest marker) |
+| `syntek-dev lint` | Run all linters (ruff, basedpyright, ESLint, clippy, markdownlint) |
+| `syntek-dev lint --fix` | Auto-fix ruff and ESLint issues |
+| `syntek-dev format` | Format all code (ruff, prettier, cargo fmt) |
+| `syntek-dev check` | Fast quality check — lint + type-check, no tests |
+| `syntek-dev db migrate` | Run Django migrations via sandbox |
+| `syntek-dev db seed` | Seed the dev database with factory\_boy data |
+| `syntek-dev db seed-test` | Seed with test-specific scenario data |
+| `syntek-dev open api` | Open GraphQL playground in browser |
+| `syntek-dev open storybook` | Open Storybook component explorer |
+
+---
+
 ## Table of Contents
 
 - [Overview](#overview)
