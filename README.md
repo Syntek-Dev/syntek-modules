@@ -9,7 +9,7 @@
 ## Table of Contents
 
 - [Overview](#overview)
-- [5-Repository Architecture](#5-repository-architecture)
+- [Ecosystem Architecture](#ecosystem-architecture)
   - [Repository Breakdown](#repository-breakdown)
   - [How They Work Together](#how-they-work-together)
   - [Data Flow](#data-flow)
@@ -67,9 +67,9 @@ Packages are distributed through the self-hosted Forgejo instance on the Syntek 
 
 ---
 
-## 5-Repository Architecture
+## Ecosystem Architecture
 
-`syntek-modules` is one of five repositories that together form the Syntek development platform. Understanding the role of each repository is essential to understanding where modules fit in the overall ecosystem.
+`syntek-modules` is the foundational layer of a multi-repository ecosystem. Understanding the role of each repository is essential to understanding where modules fit in the overall picture.
 
 ### Repository Breakdown
 
@@ -101,17 +101,15 @@ Packages are distributed through the self-hosted Forgejo instance on the Syntek 
 - **Target Users**: Backend developers, frontend developers, mobile developers, security engineers
 
 #### 3. syntek-ai
-*AI systems for Syntek infrastructure and client projects*
+*Internal knowledge layer — YAML bot definitions, markdown prompts, and rule files*
 
-- **Purpose**: AI-powered features, automation, and content intelligence
-- **Technology**: Python, machine learning frameworks, Anthropic Claude integration
+- **Purpose**: Syntek-owned AI knowledge layer. Pure declarative files — no executable code. YAML bot definitions, markdown system prompts, YAML rule/guardrail definitions, and tool configuration files encoding Syntek's domain expertise (ministry, charity, SME operations).
+- **Technology**: YAML, Markdown. No code. Loaded by `syntek-platform`'s Django AI module at runtime.
 - **Features**:
-  - Content generation and optimisation for client projects
-  - SEO analysis, keyword recommendations, and structured data generation
-  - Code assistance, debugging, and automated code review
-  - Infrastructure monitoring intelligence and predictive scaling
-  - Integration with syntek-platform's CMS for AI-assisted content workflows
-- **Target Users**: AI engineers, content strategists, platform developers
+  - Pre-built bot products: Youth Ministry Bot, Church Admin Bot, Charity Fundraising Bot
+  - Same YAML/markdown format used by the AI Agent & Plugin Builder extension for community-built agents
+  - Powers both `ai.syntekstudio.com` and the in-platform AI assistant
+- **Access**: Internal to Syntek Studio only. Not directly accessible by external developers.
 
 #### 4. syntek-platform
 *The core CMS platform — Django / GraphQL / PostgreSQL backend, React / TypeScript / Tailwind web frontend, React Native / TypeScript / NativeWind mobile frontend*
@@ -119,62 +117,88 @@ Packages are distributed through the self-hosted Forgejo instance on the Syntek 
 - **Purpose**: Production-ready CMS and application platform used as the foundation for all client projects
 - **Technology**: Django 6.0.4, Strawberry GraphQL 0.307.1, PostgreSQL 18.3, React 19.2, TypeScript 5.9, Tailwind CSS 4.2, React Native 0.84.x (Expo), NativeWind 4
 - **Features**:
-  - Drag-and-drop page builder with real-time collaborative editing
+  - Drag-and-drop page builder with real-time collaborative editing — available on both web and mobile (React Native)
   - Online development environment: Monaco Editor and TTY terminal access
   - Multi-tenancy with schema-level isolation
   - GraphQL API layer consumed by both web and mobile frontends
   - Content versioning workflow: `feature` → `testing` → `dev` → `staging` → `production`
+  - Cloudinary for all media (images, video) — metadata stored in PostgreSQL, assets served via Cloudinary CDN
+  - MinIO for document storage only (PDFs, spreadsheets, office files) — presigned URLs; not used for images or static assets
+  - Next.js `.next` output handles all static file caching, bundling, and asset minification
   - Consumes modules from `syntek-modules` for all business logic
-- **Target Users**: Full-stack developers, frontend developers, content editors, project managers
+- **Target Users**: Full-stack developers, frontend developers, mobile developers, content editors, project managers
 
-#### 5. syntek-template
-*Starter templates with Docker, CI/CD workflows, and pre-built designs*
+#### 5. syntek-templates
+*Free curated starter templates for `syntek-platform` developers*
 
-- **Purpose**: Industry-specific project starter templates for rapid deployment
-- **Technology**: Next.js 16.1.6, Django 6.0.4, Docker, GitHub Actions / Forgejo CI
+- **Purpose**: Ready-to-use starting points — pages, content structure, and styling — that developers clone and customise. Zero custom CSS required; all styling via token overrides.
+- **Technology**: Django fixtures, Next.js page components, module manifest file
 - **Features**:
-  - 40 professional templates across 8 industry categories (e-commerce, church, charity, SMB, estate agent, high street shop, corporate, restaurant/pub)
-  - Pre-wired Docker Compose environments for local development
-  - CI/CD workflow definitions for automated testing and deployment
-  - Each template pre-installs appropriate `syntek-modules` packages
-  - Customisable design tokens, branding configuration, and layout systems
-- **Target Users**: Developers starting new client projects, project managers, designers
+  - Church and ministry websites, charity/non-profit sites, small business landing pages, portfolios, event microsites
+  - Each template declares required modules and minimum platform version
+  - Zero custom CSS — token overrides only
+- **Access**: Free. No license required. Available to all `syntek-platform` users.
+
+#### 6. syntek-premium
+*Paid premium starter templates*
+
+- **Purpose**: More polished designs, more page types, and more advanced content structures than the free tier. Same technical structure as `syntek-templates`.
+- **Features**:
+  - Higher design quality; more page types per template (blog, events, shop stubs, membership area)
+  - May include pre-configured extension stubs ready to activate with a valid extension license
+  - Ongoing Syntek support and updates
+- **Access**: Per-developer annual license (unlimited client installations). Syntek clients included automatically.
+
+#### 7–12. Additional Ecosystem Repositories
+
+| Repository | Purpose |
+|---|---|
+| `syntek-extensions` | Individually purchasable paid add-ons for `syntek-platform` (e-commerce, membership, events, email marketing, AI Agent Builder, etc.) |
+| `syntek-saas` | Internal Syntek-owned SaaS products (email UI kit, app UI kit, web UI kit) built on `syntek-modules` |
+| `syntek-licensing` | Developer license portal (Django + Next.js) + PostgreSQL. Rust key server lives in `syntek-infrastructure`. |
+| `syntek-docs` | Canonical documentation for the entire ecosystem — platform setup, module API reference, extension development guide |
+| `syntek-store` | Third-party developer marketplace. Developers publish modules, templates, extensions, and AI agents; receive 100% of sale price minus Square processing fees. |
+| `syntek-marketplace` | Internal Claude Code plugins for the Syntek development team (`syntek-dev-suite`, `syntek-infra-plugin`) |
 
 ### How They Work Together
 
 1. `syntek-infrastructure` provisions and hardens the servers that host everything
-2. `syntek-modules` provides the reusable packages that are installed into projects
-3. `syntek-ai` provides AI capabilities consumed by the platform and client projects
-4. `syntek-platform` is the production-ready CMS built on top of selected modules
-5. `syntek-template` provides starting-point project scaffolds that pre-select and install the appropriate modules for each industry vertical
-
-Each client project starts from a `syntek-template`, is customised, and pulls in `syntek-modules` packages as requirements evolve — making development significantly faster and more consistent across all client work.
+2. `syntek-modules` is the foundation — every Syntek-built product is constructed from modules
+3. `syntek-platform` is the free, self-hostable CMS core built on top of modules
+4. `syntek-extensions` adds paid functionality to the platform via its hook system
+5. `syntek-templates` and `syntek-premium` provide free and paid starting-point scaffolds
+6. `syntek-ai` provides the AI knowledge layer (YAML/markdown configs) loaded by the platform at runtime
+7. `syntek-licensing` gates paid features; the Rust key server in `syntek-infrastructure` handles cryptographic validation
+8. `syntek-store` allows third-party developers to publish and sell their own modules, templates, extensions, and AI agents
+9. `syntek-docs` is the single source of truth for all ecosystem documentation
+10. `syntek-marketplace` provides the internal Claude Code plugins used by the Syntek development team
 
 ### Data Flow
 
 ```
-Client Project Start
-        |
-        v
-syntek-template  ──────────────────────────────────────────┐
-(Choose industry template, scaffold project)               |
-        |                                                   |
-        v                                                   |
-syntek-modules  <──────────────────────────────────────┐   |
-(Install required packages: auth, payments,            |   |
- notifications, forms, audit, etc.)                    |   |
-        |                                              |   |
-        v                                              |   |
-syntek-platform                                        |   |
-(CMS core consumes modules via INSTALLED_APPS          |   |
- and SYNTEK_* settings)                                |   |
-        |                             syntek-ai ───────┘   |
-        v                             (AI features         |
-syntek-infrastructure                 consumed by          |
-(Deploy, host, monitor)               platform)            |
-                                                           |
-        └──────────────────────────────────────────────────┘
-              (Templates pre-wire modules + infrastructure)
+syntek-modules (foundation — Apache 2.0)
+        │ consumed by all products below
+        ├──► syntek-platform (CMS core — AGPL v3)
+        │         │ hook system
+        │         ├──► syntek-extensions (paid add-ons)
+        │         ├──► syntek-templates  (free starters)
+        │         └──► syntek-premium    (paid starters)
+        ├──► syntek-saas     (internal SaaS products)
+        └──► syntek-licensing (license portal UI)
+
+syntek-ai (YAML/MD knowledge files)
+        └──► loaded by syntek-platform Django AI module at runtime
+
+syntek-licensing ◄──► syntek-infrastructure (Rust key server)
+        └──► validates entitlements for extensions, modules, templates
+
+syntek-store
+        └──► third-party modules / templates / extensions / AI agents
+             license keys issued via syntek-licensing on purchase
+
+syntek-infrastructure
+        └──► hosts all of the above for Syntek-managed clients
+             (self-hosting: developers run on their own servers, no dependency on Syntek infra)
 ```
 
 ---
@@ -1064,6 +1088,9 @@ The `syntek-graphql-crypto` crate provides a **Strawberry GraphQL middleware** t
 | Changelogs | Per-module `CHANGELOG.md` |
 | CI/CD | Forgejo Actions |
 | Code Quality | Ruff, mypy (Python); ESLint, tsc (TypeScript); clippy (Rust) |
+| Media (images, video) | Cloudinary — metadata in PostgreSQL, assets via Cloudinary CDN |
+| Documents (PDFs, office files) | MinIO — presigned URLs; not used for images or static assets |
+| Static files / asset pipeline | Next.js `.next` output — caching, bundling, and minification |
 
 ---
 

@@ -42,6 +42,9 @@
 | **JS PM**           | pnpm workspaces + Turborepo                     | latest stable |
 | **Node.js**         | Node.js                                         | 24.14.0       |
 | **npm**             | npm                                             | 11.11.0       |
+| **Media**           | Cloudinary (images + video)                     | latest stable |
+| **Documents**       | MinIO (PDFs + office files only)                | latest stable |
+| **Static Assets**   | Next.js `.next` output (caching + minification) |               |
 | **Dev Environment** | uv venv (Python) — NO Docker for this repo      |               |
 | **Registry**        | Forgejo — git.syntek-studio.com                 |               |
 | **Install CLI**     | `syntek add <package>` (Rust CLI)               |               |
@@ -449,14 +452,21 @@ SYNTEK_DOCUMENTS = {
 
 ## Ecosystem Context
 
-`syntek-modules` is one of five repositories in the Syntek platform:
+`syntek-modules` is the foundational layer of the Syntek ecosystem. The full ecosystem:
 
 | Repository | Role |
 | ---------- | ---- |
 | `syntek-infrastructure` | NixOS + Rust CLI — server provisioning, Grafana, Prometheus, Loki, Glitchtip, Radicale (CalDav), Plausible |
 | `syntek-modules` | **(this repo)** — reusable packages installed into all projects |
-| `syntek-ai` | AI systems and content intelligence |
-| `syntek-platform` | Production CMS — Django + GraphQL + PostgreSQL + React + React Native |
-| `syntek-template` | Industry-specific project starters (40 templates) |
+| `syntek-platform` | Free, self-hostable CMS core (AGPL v3) — Django + GraphQL + PostgreSQL + React + React Native |
+| `syntek-ai` | Internal knowledge layer — YAML bot definitions, markdown prompts, rule files (no executable code) |
+| `syntek-extensions` | Paid add-ons for the platform (commercial license) |
+| `syntek-saas` | Internal Syntek-owned SaaS UI products |
+| `syntek-licensing` | License management portal + PostgreSQL (Rust key server lives in infra) |
+| `syntek-docs` | Canonical documentation for the entire ecosystem |
+| `syntek-templates` | Free starter templates (church, charity, small business, portfolio, events) |
+| `syntek-premium` | Paid premium starter templates (per-developer annual license) |
+| `syntek-store` | Third-party developer marketplace — modules, templates, extensions, AI agents |
+| `syntek-marketplace` | Internal Claude Code plugins for the Syntek development team |
 
 **Install flow for consuming projects:** `syntek add <package>` → Rust CLI wraps uv/pnpm/cargo → installs from Forgejo registry.
