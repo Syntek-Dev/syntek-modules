@@ -1,4 +1,7 @@
 packages:
-  - "packages/web/*"
-  - "mobile/*"
-  - "shared/*"
+  - packages/web/*
+  - mobile/*
+  - shared/*
+
+ignoredBuiltDependencies:
+  - esbuild

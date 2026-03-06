@@ -1,0 +1,62 @@
+pre-commit:
+  parallel: true
+  commands:
+
+    # ------------------------------------------------------------------
+    # GraphQL — schema drift check
+    # ------------------------------------------------------------------
+    graphql-drift:
+      glob: "shared/graphql/{schema.graphql,codegen.ts,src/operations/**,src/generated/**}"
+      run: pnpm --filter @syntek/graphql codegen:check
+      fail_text: |
+        Generated GraphQL types are out of date.
+        Run: pnpm codegen
+        Then stage shared/graphql/src/generated/graphql.ts and commit again.
+
+    # ------------------------------------------------------------------
+    # TypeScript — ESLint
+    # ------------------------------------------------------------------
+    eslint:
+      glob: "{shared,packages/web,mobile}/**/*.{ts,tsx,js,mjs}"
+      run: pnpm eslint {staged_files} --max-warnings 0
+
+    # ------------------------------------------------------------------
+    # TypeScript — type-check
+    # ------------------------------------------------------------------
+    tsc:
+      glob: "{shared,packages/web,mobile}/**/*.{ts,tsx}"
+      run: pnpm type-check
+
+    # ------------------------------------------------------------------
+    # Prettier — format check (all supported file types)
+    # ------------------------------------------------------------------
+    prettier:
+      glob: "**/*.{ts,tsx,js,mjs,json,yaml,yml,md,css}"
+      run: pnpm prettier --check {staged_files}
+
+    # ------------------------------------------------------------------
+    # Python — ruff lint + format check
+    # ------------------------------------------------------------------
+    ruff-lint:
+      glob: "packages/backend/**/*.py"
+      run: uv run ruff check {staged_files}
+
+    ruff-format:
+      glob: "packages/backend/**/*.py"
+      run: uv run ruff format --check {staged_files}
+
+    # ------------------------------------------------------------------
+    # Python — basedpyright type-check
+    # Runs on the whole backend when any Python file is staged
+    # (basedpyright resolves imports project-wide).
+    # ------------------------------------------------------------------
+    basedpyright:
+      glob: "packages/backend/**/*.py"
+      run: uv run basedpyright packages/backend/
+
+    # ------------------------------------------------------------------
+    # Rust — format check
+    # ------------------------------------------------------------------
+    cargo-fmt:
+      glob: "rust/**/*.rs"
+      run: cargo fmt --check
