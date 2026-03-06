@@ -1,5 +1,33 @@
 # Releases
 
+## v0.4.0 — 06/03/2026
+
+**Branch**: `us004/shared-graphql-operations-package`\
+**Type**: MINOR\
+**Story**: US004 — Shared GraphQL Operations Package
+
+### Highlights
+
+- `@syntek/graphql` — typed React Query hooks generated from the Syntek GraphQL schema
+- `useLoginMutation`, `useCurrentUserQuery`, `useCurrentTenantQuery` with full TypeScript inference
+- `pnpm codegen` regenerates types from `schema.graphql` SDL or a live schema URL
+- `pnpm codegen:check` (CI + pre-commit) fails if generated files are out of date
+- 29/29 Vitest tests green: codegen output verification + type-level assertions
+- lefthook pre-commit hooks covering all four stack layers in parallel
+- Per-layer CI workflows for GitHub and Forgejo (web, python, rust, graphql-drift)
+- **Sprint 01 — Repository Foundation: 11/11 points complete** ✅
+
+### Verify
+
+```bash
+syntek-dev test --web --web-package @syntek/graphql
+# → Test Files  2 passed (2)
+# → Tests  29 passed (29)
+# → Type Errors  no errors
+```
+
+---
+
 ## v0.3.0 — 06/03/2026
 
 **Branch**: `us002/shared-typescripts-package`\

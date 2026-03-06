@@ -7,6 +7,33 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.4.0] — 06/03/2026
+
+### Added
+
+- **`shared/graphql/`** — `@syntek/graphql` package with pre-generated typed React Query hooks (US004)
+  - `schema.graphql` — SDL schema mirroring the Syntek Django/Strawberry backend
+  - `src/operations/auth.graphql` — `Login` mutation, `CurrentUser` query
+  - `src/operations/tenant.graphql` — `CurrentTenant` query
+  - `src/generated/graphql.ts` — codegen output: `useLoginMutation`, `useCurrentUserQuery`, `useCurrentTenantQuery` with full TypeScript inference
+  - `src/lib/fetcher.ts` — minimal fetch wrapper (browser: `/graphql`, server: `GRAPHQL_ENDPOINT`)
+  - `src/__tests__/` — 29/29 Vitest tests green: 12 codegen-output + 17 type-inference
+  - `features/graphql_operations.feature` — BDD Gherkin scenarios for all US004 acceptance criteria
+- **`lefthook.yml`** — pre-commit hooks for all layers in parallel: graphql-drift, eslint, tsc, prettier, ruff-lint, ruff-format, basedpyright, cargo-fmt
+- **`docs/TESTS/US004-TEST-STATUS.md`** — 29/29 PASS
+- **`docs/TESTS/US004-MANUAL-TESTING.md`** — 4 manual scenarios documented
+- **`.github/workflows/`** — four separate path-filtered CI workflows: `web.yml`, `graphql-drift.yml`, `python.yml`, `rust.yml`
+- **`.forgejo/workflows/`** — identical workflows mirrored for Forgejo CI
+
+### Changed
+
+- **`docs/STORIES/US004.md`** — status updated to Completed; all tasks ticked
+- **`docs/SPRINTS/SPRINT-01.md`** — Sprint 01 marked Completed at 11/11 points (US001 ✅ US002 ✅ US004 ✅)
+- **`package.json`** — added `packageManager` field (fixes Turborepo), `prepare` script (lefthook), `codegen` script, husky replaced with lefthook
+- **`pnpm-workspace.yaml`** — added `ignoredBuiltDependencies` for esbuild
+
+---
+
 ## [0.3.0] — 06/03/2026
 
 ### Added
