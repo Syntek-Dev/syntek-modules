@@ -1,5 +1,29 @@
 # Releases
 
+## v0.3.0 — 06/03/2026
+
+**Branch**: `us002/shared-typescripts-package`\
+**Type**: MINOR\
+**Story**: US002 — Shared TypeScript Types Package
+
+### Highlights
+
+- `@syntek/types` — 14 TypeScript types exported from `shared/types/`
+- 46/46 Vitest tests green: 37 type-assertion tests + 9 build-output tests
+- `NotificationChannel` implemented as a proper discriminated union
+- `tsc --noEmit && vitest run` chained test script — type errors block the suite
+- Declaration files (`.d.ts`) generated via `pnpm --filter @syntek/types build`
+
+### Verify
+
+```bash
+syntek-dev test --web --web-package @syntek/types
+# → Test Files  2 passed (2)
+# → Tests  46 passed (46)
+```
+
+---
+
 ## v0.2.0 — 06/03/2026
 
 **Branch**: `us001/monorepo-workspace-config`\
