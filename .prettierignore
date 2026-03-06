@@ -1,0 +1,13 @@
+node_modules/
+.venv/
+dist/
+build/
+.next/
+out/
+target/
+pnpm-lock.yaml
+uv.lock
+coverage/
+.turbo/
+playwright-report/
+test-results/
