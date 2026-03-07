@@ -35,7 +35,8 @@ syntek-dev test --web
 - Markdownlint and ESLint configuration corrected — lint runs no longer flag generated files or
   `.claude/` internals
 - Rust `syntek-dev` crate: Clippy warnings resolved (cleaner API signatures, flattened conditionals)
-- TypeScript shared packages (`@syntek/graphql`, `@syntek/types`) normalised to consistent code style
+- TypeScript shared packages (`@syntek/graphql`, `@syntek/types`) normalised to consistent code
+  style
 - CI workflows (GitHub Actions + Forgejo) formatted consistently across all four pipeline files
 - `pyrightconfig.json` simplified by removing settings that were redundant with pyproject.toml
 - 144 documentation files reformatted for consistent Prettier output

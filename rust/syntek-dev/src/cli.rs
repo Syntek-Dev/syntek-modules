@@ -35,6 +35,9 @@ pub enum Commands {
     /// Quick quality check — lint + type-check only, no tests
     Check(LintArgs),
 
+    /// Run the full CI pipeline locally (format check, lint, type-check, test)
+    Ci,
+
     /// Open a local service in the browser
     Open(OpenArgs),
 }
