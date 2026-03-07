@@ -1,5 +1,32 @@
 # Releases
 
+## v0.4.1 — 07/03/2026
+
+**Branch**: `us004/shared-graphql-operations-package`\
+**Type**: PATCH\
+**Story**: Post-US004 tooling and housekeeping
+
+### Highlights
+
+- Markdownlint and ESLint configuration corrected — lint runs no longer flag generated files or
+  `.claude/` internals
+- Rust `syntek-dev` crate: Clippy warnings resolved (cleaner API signatures, flattened conditionals)
+- TypeScript shared packages (`@syntek/graphql`, `@syntek/types`) normalised to consistent code style
+- CI workflows (GitHub Actions + Forgejo) formatted consistently across all four pipeline files
+- `pyrightconfig.json` simplified by removing settings that were redundant with pyproject.toml
+- 144 documentation files reformatted for consistent Prettier output
+- No functional or API changes — all existing tests remain green
+
+### Verify
+
+```bash
+syntek-dev test --web
+syntek-dev lint
+cargo clippy -- -D warnings
+```
+
+---
+
 ## v0.4.0 — 06/03/2026
 
 **Branch**: `us004/shared-graphql-operations-package`\
