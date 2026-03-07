@@ -8,126 +8,149 @@
  * Green phase: run `pnpm --filter @syntek/graphql codegen` then re-run tests.
  */
 
-import { existsSync, readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { describe, it, expect } from 'vitest'
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const ROOT = resolve(fileURLToPath(new URL('../..', import.meta.url)))
-const GENERATED_FILE = resolve(ROOT, 'src/generated/graphql.ts')
+import { describe, it, expect } from "vitest";
+
+const ROOT = resolve(fileURLToPath(new URL("../..", import.meta.url)));
+const GENERATED_FILE = resolve(ROOT, "src/generated/graphql.ts");
 
 // ---------------------------------------------------------------------------
 // File existence
 // ---------------------------------------------------------------------------
 
-describe('Codegen output — file existence', () => {
-  it('src/generated/graphql.ts exists (run: pnpm --filter @syntek/graphql codegen)', () => {
-    expect(existsSync(GENERATED_FILE)).toBe(true)
-  })
-})
+describe("Codegen output — file existence", () => {
+  it("src/generated/graphql.ts exists (run: pnpm --filter @syntek/graphql codegen)", () => {
+    expect(existsSync(GENERATED_FILE)).toBe(true);
+  });
+});
 
 // ---------------------------------------------------------------------------
 // Auth hook exports
 // ---------------------------------------------------------------------------
 
-describe('Codegen output — auth hooks', () => {
-  it('exports useLoginMutation', () => {
+describe("Codegen output — auth hooks", () => {
+  it("exports useLoginMutation", () => {
     if (!existsSync(GENERATED_FILE)) {
-      expect.fail('src/generated/graphql.ts not found — run: pnpm --filter @syntek/graphql codegen')
+      expect.fail(
+        "src/generated/graphql.ts not found — run: pnpm --filter @syntek/graphql codegen",
+      );
     }
-    const content = readFileSync(GENERATED_FILE, 'utf8')
-    expect(content).toMatch(/export\s+(?:function|const)\s+useLoginMutation/)
-  })
+    const content = readFileSync(GENERATED_FILE, "utf8");
+    expect(content).toMatch(/export\s+(?:function|const)\s+useLoginMutation/);
+  });
 
-  it('exports useCurrentUserQuery', () => {
+  it("exports useCurrentUserQuery", () => {
     if (!existsSync(GENERATED_FILE)) {
-      expect.fail('src/generated/graphql.ts not found — run: pnpm --filter @syntek/graphql codegen')
+      expect.fail(
+        "src/generated/graphql.ts not found — run: pnpm --filter @syntek/graphql codegen",
+      );
     }
-    const content = readFileSync(GENERATED_FILE, 'utf8')
-    expect(content).toMatch(/export\s+(?:function|const)\s+useCurrentUserQuery/)
-  })
+    const content = readFileSync(GENERATED_FILE, "utf8");
+    expect(content).toMatch(/export\s+(?:function|const)\s+useCurrentUserQuery/);
+  });
 
-  it('exports LoginMutationVariables type', () => {
+  it("exports LoginMutationVariables type", () => {
     if (!existsSync(GENERATED_FILE)) {
-      expect.fail('src/generated/graphql.ts not found — run: pnpm --filter @syntek/graphql codegen')
+      expect.fail(
+        "src/generated/graphql.ts not found — run: pnpm --filter @syntek/graphql codegen",
+      );
     }
-    const content = readFileSync(GENERATED_FILE, 'utf8')
-    expect(content).toMatch(/export\s+type\s+LoginMutationVariables/)
-  })
+    const content = readFileSync(GENERATED_FILE, "utf8");
+    expect(content).toMatch(/export\s+type\s+LoginMutationVariables/);
+  });
 
-  it('exports LoginMutation type', () => {
+  it("exports LoginMutation type", () => {
     if (!existsSync(GENERATED_FILE)) {
-      expect.fail('src/generated/graphql.ts not found — run: pnpm --filter @syntek/graphql codegen')
+      expect.fail(
+        "src/generated/graphql.ts not found — run: pnpm --filter @syntek/graphql codegen",
+      );
     }
-    const content = readFileSync(GENERATED_FILE, 'utf8')
-    expect(content).toMatch(/export\s+type\s+LoginMutation\b/)
-  })
+    const content = readFileSync(GENERATED_FILE, "utf8");
+    expect(content).toMatch(/export\s+type\s+LoginMutation\b/);
+  });
 
-  it('exports CurrentUserQuery type', () => {
+  it("exports CurrentUserQuery type", () => {
     if (!existsSync(GENERATED_FILE)) {
-      expect.fail('src/generated/graphql.ts not found — run: pnpm --filter @syntek/graphql codegen')
+      expect.fail(
+        "src/generated/graphql.ts not found — run: pnpm --filter @syntek/graphql codegen",
+      );
     }
-    const content = readFileSync(GENERATED_FILE, 'utf8')
-    expect(content).toMatch(/export\s+type\s+CurrentUserQuery\b/)
-  })
+    const content = readFileSync(GENERATED_FILE, "utf8");
+    expect(content).toMatch(/export\s+type\s+CurrentUserQuery\b/);
+  });
 
-  it('LoginMutationVariables contains email field', () => {
+  it("LoginMutationVariables contains email field", () => {
     if (!existsSync(GENERATED_FILE)) {
-      expect.fail('src/generated/graphql.ts not found — run: pnpm --filter @syntek/graphql codegen')
+      expect.fail(
+        "src/generated/graphql.ts not found — run: pnpm --filter @syntek/graphql codegen",
+      );
     }
-    const content = readFileSync(GENERATED_FILE, 'utf8')
-    expect(content).toMatch(/email\s*:\s*Scalars\[["']String["']\]|email\s*:\s*string/)
-  })
+    const content = readFileSync(GENERATED_FILE, "utf8");
+    expect(content).toMatch(/email\s*:\s*Scalars\[["']String["']\]|email\s*:\s*string/);
+  });
 
-  it('LoginMutationVariables contains password field', () => {
+  it("LoginMutationVariables contains password field", () => {
     if (!existsSync(GENERATED_FILE)) {
-      expect.fail('src/generated/graphql.ts not found — run: pnpm --filter @syntek/graphql codegen')
+      expect.fail(
+        "src/generated/graphql.ts not found — run: pnpm --filter @syntek/graphql codegen",
+      );
     }
-    const content = readFileSync(GENERATED_FILE, 'utf8')
-    expect(content).toMatch(/password\s*:\s*Scalars\[["']String["']\]|password\s*:\s*string/)
-  })
-})
+    const content = readFileSync(GENERATED_FILE, "utf8");
+    expect(content).toMatch(/password\s*:\s*Scalars\[["']String["']\]|password\s*:\s*string/);
+  });
+});
 
 // ---------------------------------------------------------------------------
 // Tenant hook exports
 // ---------------------------------------------------------------------------
 
-describe('Codegen output — tenant hooks', () => {
-  it('exports useCurrentTenantQuery', () => {
+describe("Codegen output — tenant hooks", () => {
+  it("exports useCurrentTenantQuery", () => {
     if (!existsSync(GENERATED_FILE)) {
-      expect.fail('src/generated/graphql.ts not found — run: pnpm --filter @syntek/graphql codegen')
+      expect.fail(
+        "src/generated/graphql.ts not found — run: pnpm --filter @syntek/graphql codegen",
+      );
     }
-    const content = readFileSync(GENERATED_FILE, 'utf8')
-    expect(content).toMatch(/export\s+(?:function|const)\s+useCurrentTenantQuery/)
-  })
+    const content = readFileSync(GENERATED_FILE, "utf8");
+    expect(content).toMatch(/export\s+(?:function|const)\s+useCurrentTenantQuery/);
+  });
 
-  it('exports CurrentTenantQuery type', () => {
+  it("exports CurrentTenantQuery type", () => {
     if (!existsSync(GENERATED_FILE)) {
-      expect.fail('src/generated/graphql.ts not found — run: pnpm --filter @syntek/graphql codegen')
+      expect.fail(
+        "src/generated/graphql.ts not found — run: pnpm --filter @syntek/graphql codegen",
+      );
     }
-    const content = readFileSync(GENERATED_FILE, 'utf8')
-    expect(content).toMatch(/export\s+type\s+CurrentTenantQuery\b/)
-  })
-})
+    const content = readFileSync(GENERATED_FILE, "utf8");
+    expect(content).toMatch(/export\s+type\s+CurrentTenantQuery\b/);
+  });
+});
 
 // ---------------------------------------------------------------------------
 // Module structure
 // ---------------------------------------------------------------------------
 
-describe('Codegen output — module structure', () => {
-  it('generated file is a valid ES module (contains export keyword)', () => {
+describe("Codegen output — module structure", () => {
+  it("generated file is a valid ES module (contains export keyword)", () => {
     if (!existsSync(GENERATED_FILE)) {
-      expect.fail('src/generated/graphql.ts not found — run: pnpm --filter @syntek/graphql codegen')
+      expect.fail(
+        "src/generated/graphql.ts not found — run: pnpm --filter @syntek/graphql codegen",
+      );
     }
-    const content = readFileSync(GENERATED_FILE, 'utf8')
-    expect(content).toMatch(/export\s/)
-  })
+    const content = readFileSync(GENERATED_FILE, "utf8");
+    expect(content).toMatch(/export\s/);
+  });
 
-  it('generated file contains a GraphQL document (gql tag or DocumentNode)', () => {
+  it("generated file contains a GraphQL document (gql tag or DocumentNode)", () => {
     if (!existsSync(GENERATED_FILE)) {
-      expect.fail('src/generated/graphql.ts not found — run: pnpm --filter @syntek/graphql codegen')
+      expect.fail(
+        "src/generated/graphql.ts not found — run: pnpm --filter @syntek/graphql codegen",
+      );
     }
-    const content = readFileSync(GENERATED_FILE, 'utf8')
-    expect(content).toMatch(/export const \w+Document\s*=/)
-  })
-})
+    const content = readFileSync(GENERATED_FILE, "utf8");
+    expect(content).toMatch(/export const \w+Document\s*=/);
+  });
+});

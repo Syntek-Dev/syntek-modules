@@ -8,55 +8,56 @@
  * To reach green phase, run: pnpm --filter @syntek/types build
  */
 
-import { existsSync, readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { describe, it, expect } from 'vitest'
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const ROOT = resolve(fileURLToPath(new URL('../..', import.meta.url)))
-const DIST = resolve(ROOT, 'dist')
+import { describe, it, expect } from "vitest";
 
-describe('Build output — declaration files', () => {
-  it('dist/ directory exists (run: pnpm --filter @syntek/types build)', () => {
-    expect(existsSync(DIST)).toBe(true)
-  })
+const ROOT = resolve(fileURLToPath(new URL("../..", import.meta.url)));
+const DIST = resolve(ROOT, "dist");
 
-  it('index.d.ts is present', () => {
-    expect(existsSync(resolve(DIST, 'index.d.ts'))).toBe(true)
-  })
+describe("Build output — declaration files", () => {
+  it("dist/ directory exists (run: pnpm --filter @syntek/types build)", () => {
+    expect(existsSync(DIST)).toBe(true);
+  });
 
-  it('base.d.ts is present', () => {
-    expect(existsSync(resolve(DIST, 'base.d.ts'))).toBe(true)
-  })
+  it("index.d.ts is present", () => {
+    expect(existsSync(resolve(DIST, "index.d.ts"))).toBe(true);
+  });
 
-  it('auth.d.ts is present', () => {
-    expect(existsSync(resolve(DIST, 'auth.d.ts'))).toBe(true)
-  })
+  it("base.d.ts is present", () => {
+    expect(existsSync(resolve(DIST, "base.d.ts"))).toBe(true);
+  });
 
-  it('tenant.d.ts is present', () => {
-    expect(existsSync(resolve(DIST, 'tenant.d.ts'))).toBe(true)
-  })
+  it("auth.d.ts is present", () => {
+    expect(existsSync(resolve(DIST, "auth.d.ts"))).toBe(true);
+  });
 
-  it('notifications.d.ts is present', () => {
-    expect(existsSync(resolve(DIST, 'notifications.d.ts'))).toBe(true)
-  })
+  it("tenant.d.ts is present", () => {
+    expect(existsSync(resolve(DIST, "tenant.d.ts"))).toBe(true);
+  });
 
-  it('index.d.ts.map declaration sourcemap is present', () => {
-    expect(existsSync(resolve(DIST, 'index.d.ts.map'))).toBe(true)
-  })
-})
+  it("notifications.d.ts is present", () => {
+    expect(existsSync(resolve(DIST, "notifications.d.ts"))).toBe(true);
+  });
 
-describe('Build output — JS modules', () => {
-  it('index.js is present', () => {
-    expect(existsSync(resolve(DIST, 'index.js'))).toBe(true)
-  })
+  it("index.d.ts.map declaration sourcemap is present", () => {
+    expect(existsSync(resolve(DIST, "index.d.ts.map"))).toBe(true);
+  });
+});
 
-  it('index.js is a valid ES module (contains export keyword)', () => {
-    const indexPath = resolve(DIST, 'index.js')
+describe("Build output — JS modules", () => {
+  it("index.js is present", () => {
+    expect(existsSync(resolve(DIST, "index.js"))).toBe(true);
+  });
+
+  it("index.js is a valid ES module (contains export keyword)", () => {
+    const indexPath = resolve(DIST, "index.js");
     if (!existsSync(indexPath)) {
-      expect.fail('index.js not found — run: pnpm --filter @syntek/types build')
+      expect.fail("index.js not found — run: pnpm --filter @syntek/types build");
     }
-    const content = readFileSync(indexPath, 'utf8')
-    expect(content).toMatch(/export\s/)
-  })
-})
+    const content = readFileSync(indexPath, "utf8");
+    expect(content).toMatch(/export\s/);
+  });
+});

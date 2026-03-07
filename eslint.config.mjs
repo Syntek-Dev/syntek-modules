@@ -21,6 +21,7 @@ export default [
       ".venv/**",
       "playwright-report/**",
       "test-results/**",
+      "**/src/generated/**",
     ],
   },
 

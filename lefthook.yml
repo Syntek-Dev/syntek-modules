@@ -1,7 +1,6 @@
 pre-commit:
   parallel: true
   commands:
-
     # ------------------------------------------------------------------
     # GraphQL — schema drift check
     #
@@ -32,7 +31,7 @@ pre-commit:
           echo "[lefthook] pnpm unavailable on this machine — skipping eslint check"
           exit 0
         fi
-        pnpm eslint {staged_files} --max-warnings 0
+        pnpm eslint {staged_files} --no-warn-ignored --max-warnings 0
 
     # ------------------------------------------------------------------
     # TypeScript — type-check
