@@ -7,6 +7,32 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [0.4.1] — 07/03/2026
+
+### Fixed
+
+- **`lefthook.yml`** — markdownlint exclusions corrected: nested `node_modules` and `.claude/`
+  directories now properly excluded from lint runs
+- **`eslint.config.mjs`** — `no-undef` rule disabled for TypeScript files (handled by `tsc`);
+  `**/src/generated/**` added to ignore patterns; `--no-warn-ignored` flag added to lefthook ESLint
+  hook
+
+### Changed
+
+- **`rust/syntek-dev/src/`** — Clippy warnings resolved: `&PathBuf` changed to `&Path` in function
+  signatures, collapsible `if` statements flattened, `--allow-dirty` added to `clippy fix` invocation
+- **`shared/graphql/`**, **`shared/types/`** — Prettier and ESLint formatting normalised across all
+  TypeScript source files
+- **`.forgejo/workflows/`**, **`.github/workflows/`** — whitespace consistency normalised across all
+  four CI workflow files (`web.yml`, `graphql-drift.yml`, `python.yml`, `rust.yml`)
+- **`pyrightconfig.json`** — redundant settings removed; configuration simplified
+- **`docs/`** — Prettier formatting applied across 144 documentation files (GUIDES, SPRINTS, STORIES,
+  TESTS, PLANS)
+- **`CHANGELOG.md`**, **`RELEASES.md`**, **`VERSION-HISTORY.md`** — Prettier formatting applied to
+  version tracking files
+
+---
+
 ## [0.4.0] — 06/03/2026
 
 ### Added
