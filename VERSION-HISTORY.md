@@ -2,6 +2,7 @@
 
 | Version | Date       | Type  | Summary                                                                                    |
 | ------- | ---------- | ----- | ------------------------------------------------------------------------------------------ |
+| 0.5.0   | 07/03/2026 | MINOR | Add `syntek-dev ci` command, fix CI markdownlint (175 → 0), add coverage, upgrade lefthook |
 | 0.4.2   | 07/03/2026 | PATCH | Fix CI markdownlint failures (175), add vitest coverage, upgrade lefthook to 2.1.0         |
 | 0.4.1   | 07/03/2026 | PATCH | Tooling fixes, Rust Clippy warnings, CI normalisation, docs reformatting                   |
 | 0.4.0   | 06/03/2026 | MINOR | `@syntek/graphql` shared GraphQL operations package, 29/29 tests green, Sprint 01 complete |
