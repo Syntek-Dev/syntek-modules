@@ -8,6 +8,7 @@ Start the development environment for syntek-modules.
 **Run:** `./dev.sh`
 
 This script will:
+
 1. Activate the Python virtual environment (uv venv)
 2. Start Turborepo watch mode for all web and mobile packages
 3. Start Rust build watcher via cargo-watch

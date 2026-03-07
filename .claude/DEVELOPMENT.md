@@ -22,15 +22,16 @@
 
 ## Overview
 
-`syntek-modules` is a multi-stack library repository — **not a deployable app**. There is no Docker, no DDEV, and no `manage.py`. Each layer has its own package manager and toolchain:
+`syntek-modules` is a multi-stack library repository — **not a deployable app**. There is no Docker,
+no DDEV, and no `manage.py`. Each layer has its own package manager and toolchain:
 
-| Layer | Location | Tool |
-| ----- | -------- | ---- |
-| Backend (Django/Python) | `packages/backend/*` | `uv` + `.venv` |
-| Web frontend (React/TS) | `packages/web/*` | pnpm + Turborepo |
-| Mobile (React Native) | `mobile/*` | pnpm + Turborepo |
-| Rust (encryption crates) | `rust/*` | cargo |
-| Shared types/GraphQL | `shared/*` | pnpm + Turborepo |
+| Layer                    | Location             | Tool             |
+| ------------------------ | -------------------- | ---------------- |
+| Backend (Django/Python)  | `packages/backend/*` | `uv` + `.venv`   |
+| Web frontend (React/TS)  | `packages/web/*`     | pnpm + Turborepo |
+| Mobile (React Native)    | `mobile/*`           | pnpm + Turborepo |
+| Rust (encryption crates) | `rust/*`             | cargo            |
+| Shared types/GraphQL     | `shared/*`           | pnpm + Turborepo |
 
 ---
 
@@ -84,7 +85,8 @@ cargo build
 ./dev.sh
 ```
 
-This starts the TypeScript watch mode (all packages via Turborepo) and the Rust watcher if `cargo-watch` is installed. Python does not need a running server — modules are imported directly.
+This starts the TypeScript watch mode (all packages via Turborepo) and the Rust watcher if
+`cargo-watch` is installed. Python does not need a running server — modules are imported directly.
 
 ---
 
@@ -186,7 +188,7 @@ Examples:
 
 - Subject line under 72 characters
 - Imperative mood: "Add feature" not "Added feature"
-- Body explains *why*, not *what*
+- Body explains _why_, not _what_
 - Reference the story ID in the body: `Closes US-042`
 
 ### Pull requests
@@ -203,7 +205,9 @@ Every PR must include:
 
 ## Environment Variables
 
-Consuming projects provide environment variables to the modules. This repo itself needs no `.env` files during development — all secrets come from environment variables at runtime in consumer projects.
+Consuming projects provide environment variables to the modules. This repo itself needs no `.env`
+files during development — all secrets come from environment variables at runtime in consumer
+projects.
 
 For running integration tests against a real Postgres database, create `.env.test`:
 
@@ -251,7 +255,8 @@ pnpm install  # re-link workspace packages
 
 ### Rust clippy warnings treated as errors
 
-Fix the warning — do not suppress with `#[allow(...)]` unless the warning is a known false positive in the crate's context.
+Fix the warning — do not suppress with `#[allow(...)]` unless the warning is a known false positive
+in the crate's context.
 
 ### basedpyright reports Django model errors
 
@@ -261,4 +266,5 @@ Ensure `django-stubs` is installed in the venv:
 uv pip install django-stubs[compatible-mypy]
 ```
 
-The `pyrightconfig.json` at the root already sets `typeCheckingMode = "standard"` which works well with django-stubs.
+The `pyrightconfig.json` at the root already sets `typeCheckingMode = "standard"` which works well
+with django-stubs.

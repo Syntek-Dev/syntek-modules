@@ -8,6 +8,7 @@ Build and publish a production release of one or all packages.
 **Run:** `./production.sh`
 
 This script will:
+
 1. Prompt for confirmation (safety check)
 2. Run the full test suite (`./test.sh`)
 3. Build all packages
@@ -33,6 +34,7 @@ cargo publish --registry syntek
 ```
 
 **Version bump rules:**
+
 - `patch` — bug fixes, no API changes
 - `minor` — new features, backwards compatible
 - `major` — breaking API changes

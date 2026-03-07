@@ -1,10 +1,7 @@
 # Project: syntek-modules
 
-**Last Updated**: 04/03/2026
-**Version**: 0.1.0
-**Maintained By**: Syntek Development Team
-**Language**: British English (en_GB)
-**Timezone**: Europe/London
+**Last Updated**: 04/03/2026 **Version**: 0.1.0 **Maintained By**: Syntek Development Team
+**Language**: British English (en_GB) **Timezone**: Europe/London
 
 ---
 
@@ -27,27 +24,27 @@
 
 ## Stack Overview
 
-| Component           | Technology                                      | Version       |
-| ------------------- | ----------------------------------------------- | ------------- |
-| **Type**            | Multi-stack modular library (NOT a deployable app) |            |
-| **Backend**         | Django + Python                                 | 6.0.4 / 3.14.3 |
-| **API Layer**       | Strawberry GraphQL                              | 0.307.1       |
-| **Database**        | PostgreSQL                                      | 18.3          |
-| **Cache / Queue**   | Redis + Celery                                  | latest stable |
-| **Web Frontend**    | Next.js + React + TypeScript                    | 16.1.6 / 19.2 / 5.9 |
-| **Styling**         | Tailwind CSS                                    | 4.2           |
-| **Mobile**          | React Native (Expo) + NativeWind                | 0.84.x / 4    |
-| **Rust**            | Rust stable (encryption layer)                  | stable        |
-| **Python PM**       | uv (replaces pip)                               | latest stable |
-| **JS PM**           | pnpm workspaces + Turborepo                     | latest stable |
-| **Node.js**         | Node.js                                         | 24.14.0       |
-| **npm**             | npm                                             | 11.11.0       |
-| **Media**           | Cloudinary (images + video)                     | latest stable |
-| **Documents**       | MinIO (PDFs + office files only)                | latest stable |
-| **Static Assets**   | Next.js `.next` output (caching + minification) |               |
-| **Dev Environment** | uv venv (Python) — NO Docker for this repo      |               |
-| **Registry**        | Forgejo — git.syntek-studio.com                 |               |
-| **Install CLI**     | `syntek add <package>` (Rust CLI)               |               |
+| Component           | Technology                                         | Version             |
+| ------------------- | -------------------------------------------------- | ------------------- |
+| **Type**            | Multi-stack modular library (NOT a deployable app) |                     |
+| **Backend**         | Django + Python                                    | 6.0.4 / 3.14.3      |
+| **API Layer**       | Strawberry GraphQL                                 | 0.307.1             |
+| **Database**        | PostgreSQL                                         | 18.3                |
+| **Cache / Queue**   | Redis + Celery                                     | latest stable       |
+| **Web Frontend**    | Next.js + React + TypeScript                       | 16.1.6 / 19.2 / 5.9 |
+| **Styling**         | Tailwind CSS                                       | 4.2                 |
+| **Mobile**          | React Native (Expo) + NativeWind                   | 0.84.x / 4          |
+| **Rust**            | Rust stable (encryption layer)                     | stable              |
+| **Python PM**       | uv (replaces pip)                                  | latest stable       |
+| **JS PM**           | pnpm workspaces + Turborepo                        | latest stable       |
+| **Node.js**         | Node.js                                            | 24.14.0             |
+| **npm**             | npm                                                | 11.11.0             |
+| **Media**           | Cloudinary (images + video)                        | latest stable       |
+| **Documents**       | MinIO (PDFs + office files only)                   | latest stable       |
+| **Static Assets**   | Next.js `.next` output (caching + minification)    |                     |
+| **Dev Environment** | uv venv (Python) — NO Docker for this repo         |                     |
+| **Registry**        | Forgejo — git.syntek-studio.com                    |                     |
+| **Install CLI**     | `syntek add <package>` (Rust CLI)                  |                     |
 
 > All versions are the latest stable as of March 2026.
 
@@ -58,6 +55,7 @@
 All code in this project follows Rob Pike's 5 Rules of Programming and Linus Torvalds' Coding Rules.
 
 **Core rules:**
+
 - Measure before optimising — no speed hacks without profiling
 - Simple algorithms and simple data structures over fancy ones
 - Data structures dominate: get the data model right and the logic becomes obvious
@@ -80,7 +78,8 @@ See `.claude/CODING-PRINCIPLES.md` for the full rules.
 
 ## Package Architecture
 
-This repository contains four distinct package layers. Each layer has its own package manager and publishing mechanism.
+This repository contains four distinct package layers. Each layer has its own package manager and
+publishing mechanism.
 
 ### Layer 1 — Backend (Django / Python)
 
@@ -113,7 +112,8 @@ This repository contains four distinct package layers. Each layer has its own pa
 - **Dev tool:** cargo
 - **Published to:** Forgejo Cargo registry
 - **Purpose:** Field-level AES-256-GCM encryption, PyO3 Django bindings, GraphQL middleware
-- **CRITICAL:** All sensitive fields are encrypted before any DB write. Nothing is stored as plain text.
+- **CRITICAL:** All sensitive fields are encrypted before any DB write. Nothing is stored as plain
+  text.
 
 ### Shared
 
@@ -186,20 +186,20 @@ syntek-modules/
 
 ## Key Locations
 
-| Path | Purpose |
-| ---- | ------- |
-| `packages/backend/` | All Django backend modules |
-| `packages/web/` | All React web frontend packages |
-| `mobile/` | All React Native mobile packages |
-| `rust/syntek-crypto/` | Core encryption: AES-256-GCM, Argon2id, HMAC-SHA256, zeroize |
-| `rust/syntek-pyo3/` | PyO3 bindings — `encrypt_field`, `decrypt_field`, `hash_password`, `verify_password` |
-| `rust/syntek-graphql-crypto/` | GraphQL middleware preventing plaintext resolver output |
-| `shared/` | Shared TypeScript types and GraphQL operations |
-| `pnpm-workspace.yaml` | Declares all JS/TS workspace packages |
-| `turbo.json` | Turborepo pipeline for build, test, lint, type-check |
-| `pyproject.toml` | uv workspace root |
-| `Cargo.toml` | Rust workspace root |
-| `docs/METRICS/` | Self-learning system data |
+| Path                          | Purpose                                                                              |
+| ----------------------------- | ------------------------------------------------------------------------------------ |
+| `packages/backend/`           | All Django backend modules                                                           |
+| `packages/web/`               | All React web frontend packages                                                      |
+| `mobile/`                     | All React Native mobile packages                                                     |
+| `rust/syntek-crypto/`         | Core encryption: AES-256-GCM, Argon2id, HMAC-SHA256, zeroize                         |
+| `rust/syntek-pyo3/`           | PyO3 bindings — `encrypt_field`, `decrypt_field`, `hash_password`, `verify_password` |
+| `rust/syntek-graphql-crypto/` | GraphQL middleware preventing plaintext resolver output                              |
+| `shared/`                     | Shared TypeScript types and GraphQL operations                                       |
+| `pnpm-workspace.yaml`         | Declares all JS/TS workspace packages                                                |
+| `turbo.json`                  | Turborepo pipeline for build, test, lint, type-check                                 |
+| `pyproject.toml`              | uv workspace root                                                                    |
+| `Cargo.toml`                  | Rust workspace root                                                                  |
+| `docs/METRICS/`               | Self-learning system data                                                            |
 
 ---
 
@@ -298,85 +298,86 @@ cargo fmt
 
 ### Backend Modules (21)
 
-| Module | Package | Key Purpose |
-| ------ | ------- | ----------- |
-| Authentication | `syntek-auth` | MFA, passkeys, OAuth, Argon2id |
-| Permissions / RBAC | `syntek-permissions` | Roles, object-level permissions |
-| Multi-tenancy | `syntek-tenancy` | Schema isolation, domain routing |
-| Notifications | `syntek-notifications` | In-app, push, SMS, email |
-| Payments | `syntek-payments` | Stripe, subscriptions, refunds |
-| Invoicing | `syntek-invoicing` | PDF invoices, VAT, UK MTD |
-| Donations | `syntek-donations` | One-off, recurring, Gift Aid |
-| Events & Ticketing | `syntek-events` | Tickets, capacity, QR check-in |
-| Dynamic Forms | `syntek-forms` | Schema-driven, conditional logic |
-| Audit Logging | `syntek-audit` | Immutable trail, GDPR retention |
-| Structured Logging | `syntek-logging` | JSON logs, Sentry/Glitchtip integration |
-| Full-text Search | `syntek-search` | Elasticsearch/OpenSearch, facets |
-| Reporting & Exports | `syntek-reporting` | PDF/Excel/CSV, scheduled reports |
-| Background Tasks | `syntek-tasks` | Celery, priority queues, DLQ |
-| Webhooks | `syntek-webhooks` | Inbound/outbound, HMAC-SHA256 |
-| Bulk Import/Export | `syntek-bulk` | CSV/Excel/JSON, async, validation |
-| Groups / Teams | `syntek-groups` | Nested groups, org hierarchy |
-| Feature Flags | `syntek-flags` | Per-tenant, percentage rollout |
-| Per-tenant Settings | `syntek-settings` | Typed key-value store per tenant |
-| Integrations Framework | `syntek-integrations` | OAuth bridges, EspoCRM, CalDav |
-| Security Middleware | `syntek-security` | Rate limiting, CORS, CSP, HSTS |
-| Media (Cloudinary) | `syntek-media` | Cloudinary Python SDK, metadata in DB |
-| Documents (MinIO) | `syntek-documents` | MinIO SDK, PDF/doc storage, presigned URLs |
-| GDPR / Compliance | `syntek-gdpr` | SAR, erasure, consent, retention |
-| Membership | `syntek-membership` | Tiers, renewals, member directory |
-| Internationalisation | `syntek-i18n` | Translations, locale, UK formatting |
-| Calendar / CalDav | `syntek-caldav` | CalDav client for Radicale on infra |
-| Address / Geo | `syntek-geo` | UK postcode lookup, geocoding |
-| Accounting | `syntek-accounting` | Double-entry, VAT, Xero/Sage/QBO |
-| Email Marketing | `syntek-email-marketing` | Campaigns, lists, GDPR opt-out |
-| API Keys | `syntek-api-keys` | Developer key issuance, scopes |
-| Comments | `syntek-comments` | Threaded, moderation, reactions |
-| Loyalty & Referrals | `syntek-loyalty` | Points, tiers, referral attribution |
+| Module                 | Package                  | Key Purpose                                |
+| ---------------------- | ------------------------ | ------------------------------------------ |
+| Authentication         | `syntek-auth`            | MFA, passkeys, OAuth, Argon2id             |
+| Permissions / RBAC     | `syntek-permissions`     | Roles, object-level permissions            |
+| Multi-tenancy          | `syntek-tenancy`         | Schema isolation, domain routing           |
+| Notifications          | `syntek-notifications`   | In-app, push, SMS, email                   |
+| Payments               | `syntek-payments`        | Stripe, subscriptions, refunds             |
+| Invoicing              | `syntek-invoicing`       | PDF invoices, VAT, UK MTD                  |
+| Donations              | `syntek-donations`       | One-off, recurring, Gift Aid               |
+| Events & Ticketing     | `syntek-events`          | Tickets, capacity, QR check-in             |
+| Dynamic Forms          | `syntek-forms`           | Schema-driven, conditional logic           |
+| Audit Logging          | `syntek-audit`           | Immutable trail, GDPR retention            |
+| Structured Logging     | `syntek-logging`         | JSON logs, Sentry/Glitchtip integration    |
+| Full-text Search       | `syntek-search`          | Elasticsearch/OpenSearch, facets           |
+| Reporting & Exports    | `syntek-reporting`       | PDF/Excel/CSV, scheduled reports           |
+| Background Tasks       | `syntek-tasks`           | Celery, priority queues, DLQ               |
+| Webhooks               | `syntek-webhooks`        | Inbound/outbound, HMAC-SHA256              |
+| Bulk Import/Export     | `syntek-bulk`            | CSV/Excel/JSON, async, validation          |
+| Groups / Teams         | `syntek-groups`          | Nested groups, org hierarchy               |
+| Feature Flags          | `syntek-flags`           | Per-tenant, percentage rollout             |
+| Per-tenant Settings    | `syntek-settings`        | Typed key-value store per tenant           |
+| Integrations Framework | `syntek-integrations`    | OAuth bridges, EspoCRM, CalDav             |
+| Security Middleware    | `syntek-security`        | Rate limiting, CORS, CSP, HSTS             |
+| Media (Cloudinary)     | `syntek-media`           | Cloudinary Python SDK, metadata in DB      |
+| Documents (MinIO)      | `syntek-documents`       | MinIO SDK, PDF/doc storage, presigned URLs |
+| GDPR / Compliance      | `syntek-gdpr`            | SAR, erasure, consent, retention           |
+| Membership             | `syntek-membership`      | Tiers, renewals, member directory          |
+| Internationalisation   | `syntek-i18n`            | Translations, locale, UK formatting        |
+| Calendar / CalDav      | `syntek-caldav`          | CalDav client for Radicale on infra        |
+| Address / Geo          | `syntek-geo`             | UK postcode lookup, geocoding              |
+| Accounting             | `syntek-accounting`      | Double-entry, VAT, Xero/Sage/QBO           |
+| Email Marketing        | `syntek-email-marketing` | Campaigns, lists, GDPR opt-out             |
+| API Keys               | `syntek-api-keys`        | Developer key issuance, scopes             |
+| Comments               | `syntek-comments`        | Threaded, moderation, reactions            |
+| Loyalty & Referrals    | `syntek-loyalty`         | Points, tiers, referral attribution        |
 
 ### Web Packages (15)
 
-| Package | Purpose |
-| ------- | ------- |
-| `@syntek/ui` | Design system — Button, Input, Modal, Header, Footer, Navbar, etc. |
-| `@syntek/ui-auth` | Login, register, MFA, OAuth, passkeys |
-| `@syntek/ui-gdpr` | Cookie consent popup, privacy centre, GDPR forms |
-| `@syntek/session` | Session context, token refresh, idle timeout |
-| `@syntek/api-client` | Generated typed GraphQL client |
-| `@syntek/data-hooks` | usePaginatedQuery, useInfiniteScroll, useMutation |
-| `@syntek/forms` | Headless form primitives, Zod validation |
-| `@syntek/layout` | Sidebar, top nav, breadcrumbs, command palette |
-| `@syntek/data-table` | Sortable, filterable, paginated table |
-| `@syntek/ui-notifications` | Notification bell, feed, WebSocket updates |
-| `@syntek/ui-payments` | Stripe Elements, checkout, subscriptions |
-| `@syntek/ui-search` | Search bar, facets, autocomplete |
-| `@syntek/ui-reporting` | Charts (line, bar, pie, area), report builder |
-| `@syntek/ui-settings` | Account, security, billing settings pages |
-| `@syntek/ui-onboarding` | Multi-step wizard, progress, resumable state |
+| Package                    | Purpose                                                            |
+| -------------------------- | ------------------------------------------------------------------ |
+| `@syntek/ui`               | Design system — Button, Input, Modal, Header, Footer, Navbar, etc. |
+| `@syntek/ui-auth`          | Login, register, MFA, OAuth, passkeys                              |
+| `@syntek/ui-gdpr`          | Cookie consent popup, privacy centre, GDPR forms                   |
+| `@syntek/session`          | Session context, token refresh, idle timeout                       |
+| `@syntek/api-client`       | Generated typed GraphQL client                                     |
+| `@syntek/data-hooks`       | usePaginatedQuery, useInfiniteScroll, useMutation                  |
+| `@syntek/forms`            | Headless form primitives, Zod validation                           |
+| `@syntek/layout`           | Sidebar, top nav, breadcrumbs, command palette                     |
+| `@syntek/data-table`       | Sortable, filterable, paginated table                              |
+| `@syntek/ui-notifications` | Notification bell, feed, WebSocket updates                         |
+| `@syntek/ui-payments`      | Stripe Elements, checkout, subscriptions                           |
+| `@syntek/ui-search`        | Search bar, facets, autocomplete                                   |
+| `@syntek/ui-reporting`     | Charts (line, bar, pie, area), report builder                      |
+| `@syntek/ui-settings`      | Account, security, billing settings pages                          |
+| `@syntek/ui-onboarding`    | Multi-step wizard, progress, resumable state                       |
 
 ### Mobile Packages (5)
 
-| Package | Purpose |
-| ------- | ------- |
-| `@syntek/mobile-auth` | Biometric, social login, deep links, passkeys |
-| `@syntek/mobile-notifications` | FCM/APNs, notification centre, deep-link routing |
-| `@syntek/mobile-payments` | Apple Pay, Google Pay, Stripe mobile |
-| `@syntek/mobile-sync` | Offline SQLite cache, conflict resolution |
-| `@syntek/mobile-ui` | NativeWind component library, iOS/Android adaptive |
+| Package                        | Purpose                                            |
+| ------------------------------ | -------------------------------------------------- |
+| `@syntek/mobile-auth`          | Biometric, social login, deep links, passkeys      |
+| `@syntek/mobile-notifications` | FCM/APNs, notification centre, deep-link routing   |
+| `@syntek/mobile-payments`      | Apple Pay, Google Pay, Stripe mobile               |
+| `@syntek/mobile-sync`          | Offline SQLite cache, conflict resolution          |
+| `@syntek/mobile-ui`            | NativeWind component library, iOS/Android adaptive |
 
 ### Rust Crates (3)
 
-| Crate | Purpose |
-| ----- | ------- |
-| `syntek-crypto` | AES-256-GCM encryption, Argon2id hashing, HMAC-SHA256, zeroize |
-| `syntek-pyo3` | PyO3 bindings for Django |
-| `syntek-graphql-crypto` | GraphQL middleware — prevents plaintext resolver output |
+| Crate                   | Purpose                                                        |
+| ----------------------- | -------------------------------------------------------------- |
+| `syntek-crypto`         | AES-256-GCM encryption, Argon2id hashing, HMAC-SHA256, zeroize |
+| `syntek-pyo3`           | PyO3 bindings for Django                                       |
+| `syntek-graphql-crypto` | GraphQL middleware — prevents plaintext resolver output        |
 
 ---
 
 ## Configuration Pattern
 
-All backend modules are controlled entirely through `SYNTEK_*` settings dicts. Nothing is hardcoded. Frontends receive all configuration from Django via GraphQL.
+All backend modules are controlled entirely through `SYNTEK_*` settings dicts. Nothing is hardcoded.
+Frontends receive all configuration from Django via GraphQL.
 
 ```python
 # settings.py example
@@ -413,6 +414,7 @@ SYNTEK_DOCUMENTS = {
 ```
 
 **Rules:**
+
 - Secrets always come from environment variables — never hardcoded
 - Settings validated at Django startup via `AppConfig.ready()`
 - Frontend packages have no `.env` config — all comes from GraphQL
@@ -421,16 +423,18 @@ SYNTEK_DOCUMENTS = {
 
 ## Security Layer
 
-**Zero-plaintext guarantee:** Sensitive fields are encrypted by the Rust layer before any database write. The frontend never handles raw cryptographic operations.
+**Zero-plaintext guarantee:** Sensitive fields are encrypted by the Rust layer before any database
+write. The frontend never handles raw cryptographic operations.
 
-| Algorithm | Use | Standard |
-| --------- | --- | -------- |
-| AES-256-GCM | Field-level encryption at rest | NIST SP 800-38D |
-| Argon2id | Password hashing (m=64MB, t=3, p=4) | NIST SP 800-132 / OWASP |
-| HMAC-SHA-256 | Data integrity verification | FIPS 198-1 |
-| zeroize | Memory zeroisation after use | OWASP Cryptographic Storage |
+| Algorithm    | Use                                 | Standard                    |
+| ------------ | ----------------------------------- | --------------------------- |
+| AES-256-GCM  | Field-level encryption at rest      | NIST SP 800-38D             |
+| Argon2id     | Password hashing (m=64MB, t=3, p=4) | NIST SP 800-132 / OWASP     |
+| HMAC-SHA-256 | Data integrity verification         | FIPS 198-1                  |
+| zeroize      | Memory zeroisation after use        | OWASP Cryptographic Storage |
 
 **PyO3 bridge functions exposed to Django:**
+
 - `encrypt_field(plaintext, key)` → `ciphertext`
 - `decrypt_field(ciphertext, key)` → `plaintext`
 - `hash_password(password)` → `hash`
@@ -454,19 +458,20 @@ SYNTEK_DOCUMENTS = {
 
 `syntek-modules` is the foundational layer of the Syntek ecosystem. The full ecosystem:
 
-| Repository | Role |
-| ---------- | ---- |
+| Repository              | Role                                                                                                       |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------- |
 | `syntek-infrastructure` | NixOS + Rust CLI — server provisioning, Grafana, Prometheus, Loki, Glitchtip, Radicale (CalDav), Plausible |
-| `syntek-modules` | **(this repo)** — reusable packages installed into all projects |
-| `syntek-platform` | Free, self-hostable CMS core (AGPL v3) — Django + GraphQL + PostgreSQL + React + React Native |
-| `syntek-ai` | Internal knowledge layer — YAML bot definitions, markdown prompts, rule files (no executable code) |
-| `syntek-extensions` | Paid add-ons for the platform (commercial license) |
-| `syntek-saas` | Internal Syntek-owned SaaS UI products |
-| `syntek-licensing` | License management portal + PostgreSQL (Rust key server lives in infra) |
-| `syntek-docs` | Canonical documentation for the entire ecosystem |
-| `syntek-templates` | Free starter templates (church, charity, small business, portfolio, events) |
-| `syntek-premium` | Paid premium starter templates (per-developer annual license) |
-| `syntek-store` | Third-party developer marketplace — modules, templates, extensions, AI agents |
-| `syntek-marketplace` | Internal Claude Code plugins for the Syntek development team |
+| `syntek-modules`        | **(this repo)** — reusable packages installed into all projects                                            |
+| `syntek-platform`       | Free, self-hostable CMS core (AGPL v3) — Django + GraphQL + PostgreSQL + React + React Native              |
+| `syntek-ai`             | Internal knowledge layer — YAML bot definitions, markdown prompts, rule files (no executable code)         |
+| `syntek-extensions`     | Paid add-ons for the platform (commercial license)                                                         |
+| `syntek-saas`           | Internal Syntek-owned SaaS UI products                                                                     |
+| `syntek-licensing`      | License management portal + PostgreSQL (Rust key server lives in infra)                                    |
+| `syntek-docs`           | Canonical documentation for the entire ecosystem                                                           |
+| `syntek-templates`      | Free starter templates (church, charity, small business, portfolio, events)                                |
+| `syntek-premium`        | Paid premium starter templates (per-developer annual license)                                              |
+| `syntek-store`          | Third-party developer marketplace — modules, templates, extensions, AI agents                              |
+| `syntek-marketplace`    | Internal Claude Code plugins for the Syntek development team                                               |
 
-**Install flow for consuming projects:** `syntek add <package>` → Rust CLI wraps uv/pnpm/cargo → installs from Forgejo registry.
+**Install flow for consuming projects:** `syntek add <package>` → Rust CLI wraps uv/pnpm/cargo →
+installs from Forgejo registry.

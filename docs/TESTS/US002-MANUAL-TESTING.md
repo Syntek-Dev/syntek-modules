@@ -8,9 +8,9 @@
 
 ## Overview
 
-Verifies that `@syntek/types` exports consistent TypeScript type definitions that
-all web and mobile packages can import, that breaking changes fail compilation in
-consuming packages, and that the build produces `.d.ts` declaration files.
+Verifies that `@syntek/types` exports consistent TypeScript type definitions that all web and mobile
+packages can import, that breaking changes fail compilation in consuming packages, and that the
+build produces `.d.ts` declaration files.
 
 ---
 
@@ -38,20 +38,23 @@ consuming packages, and that the build produces `.d.ts` declaration files.
 
 - [x] `tsc --noEmit` exits 0
 - [x] No type errors in terminal output
-- [x] All 14 named exports are resolvable: `ID`, `Timestamp`, `PaginatedResponse`, `ApiError`, `User`, `Session`, `Permission`, `Role`, `Tenant`, `TenantSettings`, `Notification`, `NotificationChannel`
+- [x] All 14 named exports are resolvable: `ID`, `Timestamp`, `PaginatedResponse`, `ApiError`,
+      `User`, `Session`, `Permission`, `Role`, `Tenant`, `TenantSettings`, `Notification`,
+      `NotificationChannel`
 
 ---
 
 ### Scenario 2 — Breaking change causes compilation failure
 
-**What this tests**: AC2 — Modifying a type in a breaking way fails compilation in consuming packages
+**What this tests**: AC2 — Modifying a type in a breaking way fails compilation in consuming
+packages
 
 #### Steps
 
 1. In a consuming package's test file, write:
    ```typescript
-   import type { User } from '@syntek/types'
-   const u: User = {} // should error if User has required fields
+   import type { User } from "@syntek/types";
+   const u: User = {}; // should error if User has required fields
    ```
 2. Run `tsc --noEmit` in the consuming package
 3. Observe the error output
@@ -60,7 +63,8 @@ consuming packages, and that the build produces `.d.ts` declaration files.
 
 - [x] TypeScript reports an error — required properties (`id`, `email`, `roles`) missing
 - [x] The error clearly identifies which properties are missing
-- [x] Removing any required field from `User` in `@syntek/types` and rebuilding causes downstream package type-check to fail
+- [x] Removing any required field from `User` in `@syntek/types` and rebuilding causes downstream
+      package type-check to fail
 
 ---
 
@@ -104,4 +108,4 @@ Run before marking US002 as complete:
 
 | Issue | Workaround | Story |
 | ----- | ---------- | ----- |
-| None | — | — |
+| None  | —          | —     |

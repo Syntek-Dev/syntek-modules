@@ -1,8 +1,6 @@
 # Syntek Dev Suite - Plugin Usage Guide
 
-**Version:** 1.1.0
-**Plugin:** syntek-dev-suite
-**Maintained by:** Syntek Developers
+**Version:** 1.1.0 **Plugin:** syntek-dev-suite **Maintained by:** Syntek Developers
 
 ---
 
@@ -69,12 +67,12 @@
   - [E2E Test Configuration](#e2e-test-configuration)
 - [Getting Help](#getting-help)
 
-
 ---
 
 ## Quick Start
 
-The Syntek Dev Suite provides specialised AI agents for full-stack development. Each agent has domain expertise and understands your project's stack through the `CLAUDE.md` file.
+The Syntek Dev Suite provides specialised AI agents for full-stack development. Each agent has
+domain expertise and understands your project's stack through the `CLAUDE.md` file.
 
 ### Basic Usage
 
@@ -472,11 +470,8 @@ All `.md` files include a metadata header maintained by the version agent:
 ```markdown
 # Document Title
 
-**Last Updated**: DD/MM/YYYY
-**Version**: X.Y.Z
-**Maintained By**: Development Team
-**Language**: British English (en_GB)
-**Timezone**: Europe/London
+**Last Updated**: DD/MM/YYYY **Version**: X.Y.Z **Maintained By**: Development Team **Language**:
+British English (en_GB) **Timezone**: Europe/London
 
 ---
 ```
@@ -500,6 +495,7 @@ Skills are loaded automatically based on your project's `Skill Target` in `CLAUD
 ### Global Skill
 
 The `global-workflow` skill is always loaded and provides:
+
 - British English localisation
 - Date format: DD/MM/YYYY
 - Time format: 24-hour clock (14:30)
@@ -513,7 +509,8 @@ The `global-workflow` skill is always loaded and provides:
 
 ## Self-Learning and A/B Testing
 
-The plugin includes a self-learning system that improves agent performance based on your feedback. Each project develops its own optimised prompts over time.
+The plugin includes a self-learning system that improves agent performance based on your feedback.
+Each project develops its own optimised prompts over time.
 
 ### How It Works
 
@@ -525,7 +522,8 @@ The plugin includes a self-learning system that improves agent performance based
 
 ### A/B Testing
 
-Each agent can run A/B tests on prompt variants to discover what works best for your specific project:
+Each agent can run A/B tests on prompt variants to discover what works best for your specific
+project:
 
 ```bash
 # List active A/B tests
@@ -575,7 +573,8 @@ After each agent run, provide feedback to improve future runs:
 
 ## Markdown All in One Extension
 
-The Syntek Dev Suite is configured for optimal use with the **Markdown All in One** VS Code extension.
+The Syntek Dev Suite is configured for optimal use with the **Markdown All in One** VS Code
+extension.
 
 ### Key Features
 
@@ -605,11 +604,13 @@ TOCs auto-update when you save. To exclude a heading from the TOC:
 ## Internal Notes <!-- omit in toc -->
 ```
 
-**Installation:** When opening a Syntek Dev Suite project in VS Code, you'll be prompted to install recommended extensions.
+**Installation:** When opening a Syntek Dev Suite project in VS Code, you'll be prompted to install
+recommended extensions.
 
 **Extension ID:** `yzhang.markdown-all-in-one`
 
-For the complete guide, see [docs/GUIDES/MARKDOWN-ALL-IN-ONE.md](docs/GUIDES/MARKDOWN-ALL-IN-ONE.md).
+For the complete guide, see
+[docs/GUIDES/MARKDOWN-ALL-IN-ONE.md](docs/GUIDES/MARKDOWN-ALL-IN-ONE.md).
 
 ---
 
@@ -637,8 +638,9 @@ When you add dependencies or change frameworks, update `.claude/CLAUDE.md`:
 
 ```markdown
 ## Key Dependencies
+
 - PDF: `barryvdh/laravel-dompdf`
-- AI: `openai-php/laravel`  # Add new ones here
+- AI: `openai-php/laravel` # Add new ones here
 ```
 
 ### 4. Let Agents Read Files
@@ -656,8 +658,10 @@ Don't paste code into commands. The agent will read files:
 ### 5. Use the Right Model
 
 - **Opus** (complex): `/syntek-dev-suite:plan`, `/syntek-dev-suite:debug`, `/syntek-dev-suite:data`
-- **Sonnet** (balanced): `/syntek-dev-suite:backend`, `/syntek-dev-suite:frontend`, `/syntek-dev-suite:qa-tester`
-- **Haiku** (fast): `/syntek-dev-suite:docs`, `/syntek-dev-suite:syntax`, `/syntek-dev-suite:stories`
+- **Sonnet** (balanced): `/syntek-dev-suite:backend`, `/syntek-dev-suite:frontend`,
+  `/syntek-dev-suite:qa-tester`
+- **Haiku** (fast): `/syntek-dev-suite:docs`, `/syntek-dev-suite:syntax`,
+  `/syntek-dev-suite:stories`
 
 ### 6. Chain Commands Logically
 
@@ -705,7 +709,8 @@ Each project has environment-specific scripts:
 
 ## Browser Configuration
 
-**CRITICAL:** Always use Chrome for testing, debugging, and E2E tests. Never use Firefox unless explicitly requested.
+**CRITICAL:** Always use Chrome for testing, debugging, and E2E tests. Never use Firefox unless
+explicitly requested.
 
 ### Browser Environment Variable
 
