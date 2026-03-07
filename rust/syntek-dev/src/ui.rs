@@ -40,10 +40,6 @@ pub fn summary_pass() {
 pub fn summary_fail(count: u32) {
     println!();
     println!("{}", "===========================================".dimmed());
-    println!(
-        "  {} {} layer(s) failed",
-        "FAILED:".bold().red(),
-        count
-    );
+    println!("  {} {} layer(s) failed", "FAILED:".bold().red(), count);
     println!("{}", "===========================================".dimmed());
 }
