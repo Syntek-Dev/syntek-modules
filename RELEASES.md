@@ -63,7 +63,8 @@ syntek-dev test --web --web-package @syntek/types
 - Full workspace test suite (39/39 passing via `syntek-dev test --python`)
 - Python dependency lockfile (`uv.lock`) — `install.sh` now uses `uv sync` for reproducible installs
 - PyO3 upgraded to 0.28.2 — all 4 Rust crates compile cleanly against Python 3.14.3
-- `syntek-dev test --python` now discovers both `tests/` (workspace tests) and `packages/backend/` (module tests) automatically
+- `syntek-dev test --python` now discovers both `tests/` (workspace tests) and `packages/backend/`
+  (module tests) automatically
 
 ### Install
 
