@@ -79,6 +79,7 @@ markers = [
 [dependency-groups]
 dev = [
     "ruff>=0.9",
+    "basedpyright>=1.29",
     "pytest>=8.0",
     "pytest-bdd>=8.0",
     "pytest-django>=4.9",
