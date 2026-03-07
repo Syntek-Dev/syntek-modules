@@ -8,6 +8,7 @@ Scaffold a new module package in the correct layer.
 **Layers:** `backend`, `web`, `mobile`, `rust`
 
 **Examples:**
+
 ```bash
 /add-module backend syntek-crm
 /add-module web @syntek/ui-crm
@@ -16,6 +17,7 @@ Scaffold a new module package in the correct layer.
 ```
 
 **Backend package structure (`packages/backend/syntek-<name>/`):**
+
 ```
 syntek-<name>/
 ├── pyproject.toml
@@ -35,6 +37,7 @@ syntek-<name>/
 ```
 
 **Web package structure (`packages/web/<name>/`):**
+
 ```
 <name>/
 ├── package.json
@@ -46,6 +49,7 @@ syntek-<name>/
 ```
 
 **Remember:**
+
 - Register in `pnpm-workspace.yaml` (for web/mobile)
 - Register in `Cargo.toml` workspace (for Rust)
 - Register in root `pyproject.toml` (for backend)

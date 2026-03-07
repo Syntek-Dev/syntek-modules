@@ -1,6 +1,6 @@
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use std::env;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// Locate the workspace root by walking up from the current directory,
 /// looking for a Cargo.toml that contains `[workspace]`.
@@ -24,7 +24,7 @@ pub fn find_root() -> Result<PathBuf> {
 }
 
 /// Return the path to a binary in the project's Python virtual environment.
-pub fn venv_bin(root: &PathBuf, name: &str) -> String {
+pub fn venv_bin(root: &Path, name: &str) -> String {
     let path = root.join(".venv").join("bin").join(name);
     if path.exists() {
         path.to_string_lossy().to_string()
@@ -34,19 +34,19 @@ pub fn venv_bin(root: &PathBuf, name: &str) -> String {
 }
 
 /// Return true if the Python virtual environment exists.
-pub fn venv_exists(root: &PathBuf) -> bool {
+pub fn venv_exists(root: &Path) -> bool {
     root.join(".venv").join("bin").join("python").exists()
 }
 
 /// Return the path to sandbox/manage.py, if it exists.
-pub fn sandbox_manage(root: &PathBuf) -> Option<PathBuf> {
+pub fn sandbox_manage(root: &Path) -> Option<PathBuf> {
     let p = root.join("sandbox").join("manage.py");
     if p.exists() { Some(p) } else { None }
 }
 
 /// List backend package directories that contain a pyproject.toml.
 #[allow(dead_code)]
-pub fn backend_packages(root: &PathBuf) -> Vec<PathBuf> {
+pub fn backend_packages(root: &Path) -> Vec<PathBuf> {
     let backend = root.join("packages").join("backend");
     if !backend.exists() {
         return vec![];

@@ -1,0 +1,53 @@
+name: Python (Django)
+
+on:
+  push:
+    branches: [main, "us*/**"]
+    paths:
+      - "packages/backend/**"
+      - "pyproject.toml"
+      - "pyrightconfig.json"
+  pull_request:
+    paths:
+      - "packages/backend/**"
+      - "pyproject.toml"
+      - "pyrightconfig.json"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    name: Lint, type-check, test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Install dependencies
+        run: uv sync --all-extras
+
+      - name: Lint (ruff)
+        run: uv run ruff check packages/backend/
+
+      - name: Format check (ruff)
+        run: uv run ruff format --check packages/backend/
+
+      - name: Type-check (basedpyright)
+        run: uv run basedpyright packages/backend/
+
+      - name: Test (pytest)
+        run: |
+          EXIT_CODE=0
+          uv run pytest packages/backend/ -x -q || EXIT_CODE=$?
+          if [ "$EXIT_CODE" -eq 5 ]; then
+            echo "No tests collected — OK until backend packages have tests"
+            exit 0
+          fi
+          exit "$EXIT_CODE"

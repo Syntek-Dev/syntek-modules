@@ -94,7 +94,11 @@ pub async fn run(args: LintArgs) -> Result<()> {
     if run_all || args.clippy {
         ui::section("clippy — Rust");
 
-        let extra = if args.fix { &["--fix"][..] } else { &["--", "-D", "warnings"][..] };
+        let extra = if args.fix {
+            &["--fix", "--allow-dirty"][..]
+        } else {
+            &["--", "-D", "warnings"][..]
+        };
 
         let mut a = vec!["clippy", "--all-targets", "--all-features"];
         a.extend_from_slice(extra);
@@ -110,13 +114,7 @@ pub async fn run(args: LintArgs) -> Result<()> {
     if run_all || args.markdown {
         ui::section("markdownlint — Markdown");
 
-        if !proc::run(
-            "pnpm",
-            &["lint:md"],
-            &root,
-        )
-        .await?
-        {
+        if !proc::run("pnpm", &["lint:md"], &root).await? {
             failed += 1;
         }
     }

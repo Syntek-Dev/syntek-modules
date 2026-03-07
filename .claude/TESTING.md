@@ -25,22 +25,22 @@
 
 ## Overview
 
-This repo uses different testing frameworks per layer. All layers follow
-**Arrange–Act–Assert** and the testing pyramid: many unit, some integration, few E2E.
+This repo uses different testing frameworks per layer. All layers follow **Arrange–Act–Assert** and
+the testing pyramid: many unit, some integration, few E2E.
 
 ---
 
 ## Testing Matrix
 
-| Layer | Unit / Integration | E2E / Browser | Framework |
-| ----- | ------------------ | ------------- | --------- |
-| Python / Django | pytest + factory\_boy + hypothesis | — | pytest-django, testcontainers-python |
-| GraphQL (Python) | pytest | — | pytest-django + strawberry test client |
-| Web (React/TS) | Vitest + RTL + MSW | Playwright | vitest, @testing-library/react, msw |
-| GraphQL (TS resolvers) | Vitest + MSW | — | vitest, msw |
-| Mobile (RN) | Jest + RNTL | Maestro | jest, @testing-library/react-native |
-| Rust | cargo test | — | built-in + proptest |
-| Postgres | pytest transactional fixtures | — | testcontainers-python |
+| Layer                  | Unit / Integration                | E2E / Browser | Framework                              |
+| ---------------------- | --------------------------------- | ------------- | -------------------------------------- |
+| Python / Django        | pytest + factory_boy + hypothesis | —             | pytest-django, testcontainers-python   |
+| GraphQL (Python)       | pytest                            | —             | pytest-django + strawberry test client |
+| Web (React/TS)         | Vitest + RTL + MSW                | Playwright    | vitest, @testing-library/react, msw    |
+| GraphQL (TS resolvers) | Vitest + MSW                      | —             | vitest, msw                            |
+| Mobile (RN)            | Jest + RNTL                       | Maestro       | jest, @testing-library/react-native    |
+| Rust                   | cargo test                        | —             | built-in + proptest                    |
+| Postgres               | pytest transactional fixtures     | —             | testcontainers-python                  |
 
 ---
 
@@ -75,11 +75,10 @@ pnpm lint:md
 
 ## Python / Django
 
-**Tools:** pytest-django, factory\_boy, pytest-cov, testcontainers-python
+**Tools:** pytest-django, factory_boy, pytest-cov, testcontainers-python
 
-Each backend module has its own `tests/` directory and a minimal `tests/settings.py`
-for Django configuration during testing. There is no project-level `manage.py` — tests
-run via pytest directly.
+Each backend module has its own `tests/` directory and a minimal `tests/settings.py` for Django
+configuration during testing. There is no project-level `manage.py` — tests run via pytest directly.
 
 ```bash
 # Run with coverage
@@ -118,8 +117,8 @@ DATABASES = {
 
 ### Postgres via testcontainers
 
-Use `testcontainers-python` for integration tests that need a real PostgreSQL 18.3
-instance — no external database setup required:
+Use `testcontainers-python` for integration tests that need a real PostgreSQL 18.3 instance — no
+external database setup required:
 
 ```python
 # packages/backend/syntek-auth/tests/conftest.py
@@ -133,7 +132,7 @@ def postgres_container():
         yield pg
 ```
 
-### factory\_boy example
+### factory_boy example
 
 ```python
 # packages/backend/syntek-auth/tests/factories.py
@@ -156,8 +155,8 @@ class UserFactory(factory.django.DjangoModelFactory):
 
 **Tools:** Vitest, React Testing Library, MSW, Playwright, Cypress
 
-Each `packages/web/*` package uses Vitest for unit and integration tests, and
-Playwright or Cypress for E2E tests. Tests live alongside source files.
+Each `packages/web/*` package uses Vitest for unit and integration tests, and Playwright or Cypress
+for E2E tests. Tests live alongside source files.
 
 ```bash
 # Unit + integration (watch mode)
@@ -324,7 +323,9 @@ import { loginResolver } from "./auth";
 
 describe("loginResolver", () => {
   it("returns user and token on valid credentials", async () => {
-    const mockContext = { dataSources: { authApi: { login: vi.fn().mockResolvedValue({ token: "tok_1" }) } } };
+    const mockContext = {
+      dataSources: { authApi: { login: vi.fn().mockResolvedValue({ token: "tok_1" }) } },
+    };
     const result = await loginResolver(null, { email: "a@b.com", password: "pw" }, mockContext);
     expect(result.token).toBe("tok_1");
   });
@@ -337,28 +338,28 @@ Use MSW to mock the GraphQL endpoint in component-level tests.
 
 ## Database Isolation
 
-- **Python integration tests:** use `@pytest.mark.django_db` with transaction rollback
-  (default in pytest-django). Each test starts from a clean state.
-- **Testcontainers:** spin up an ephemeral PostgreSQL 18.3 container per session for
-  integration tests. Never point tests at the dev database.
+- **Python integration tests:** use `@pytest.mark.django_db` with transaction rollback (default in
+  pytest-django). Each test starts from a clean state.
+- **Testcontainers:** spin up an ephemeral PostgreSQL 18.3 container per session for integration
+  tests. Never point tests at the dev database.
 - **TypeScript:** mock the data layer via MSW or `vi.mock()`. No real DB in unit tests.
 
 ---
 
 ## Test Data and Factories
 
-- **Python:** use `factory_boy` (`DjangoModelFactory`) for all model fixtures.
-  Never build model instances inline across tests.
+- **Python:** use `factory_boy` (`DjangoModelFactory`) for all model fixtures. Never build model
+  instances inline across tests.
 - **TypeScript:** use plain builder functions in `tests/helpers/builders.ts`.
-- **Rust:** use `Default` trait and explicit construction. Use `proptest` for
-  property-based tests on cryptographic functions.
+- **Rust:** use `Default` trait and explicit construction. Use `proptest` for property-based tests
+  on cryptographic functions.
 
 ---
 
 ## Property-Based Testing with Hypothesis
 
-Use `hypothesis` for any function that must hold across a wide range of inputs —
-especially cryptographic functions, validators, and data transformations.
+Use `hypothesis` for any function that must hold across a wide range of inputs — especially
+cryptographic functions, validators, and data transformations.
 
 Install: `uv pip install hypothesis` (included in `install.sh`).
 
@@ -399,7 +400,7 @@ def test_password_validator_never_raises(value: object, length: int) -> None:
 
 **Where NOT to use hypothesis:**
 
-- Tests that require database state (use factory\_boy + pytest fixtures instead)
+- Tests that require database state (use factory_boy + pytest fixtures instead)
 - E2E or integration tests (too slow for property-based iteration)
 
 ---
@@ -410,10 +411,11 @@ Every package in this repo carries two testing files:
 
 ### `TEST-STATUS.md`
 
-Tracks the automated test suite: what tests exist, what each one verifies, and
-whether it currently passes. Updated after each test run by the contributor or CI.
+Tracks the automated test suite: what tests exist, what each one verifies, and whether it currently
+passes. Updated after each test run by the contributor or CI.
 
 Location:
+
 - `packages/backend/syntek-{name}/TEST-STATUS.md`
 - `packages/web/{name}/TEST-STATUS.md`
 - `mobile/{name}/TEST-STATUS.md`
@@ -422,10 +424,11 @@ Template: `docs/GUIDES/templates/TEST-STATUS.md`
 
 ### `docs/MANUAL-TESTING.md`
 
-Step-by-step guide for a human tester to verify the package works correctly.
-Covers happy paths, error paths, security edge cases, and a regression checklist.
+Step-by-step guide for a human tester to verify the package works correctly. Covers happy paths,
+error paths, security edge cases, and a regression checklist.
 
 Location:
+
 - `packages/backend/syntek-{name}/docs/MANUAL-TESTING.md`
 - `packages/web/{name}/docs/MANUAL-TESTING.md`
 - `mobile/{name}/docs/MANUAL-TESTING.md`
@@ -433,21 +436,21 @@ Location:
 Template: `docs/GUIDES/templates/MANUAL-TESTING.md`
 
 **Convention:** Both files are created when a new module is scaffolded (`/add-module`).
-`TEST-STATUS.md` is kept up to date as tests are written. `MANUAL-TESTING.md` is
-written alongside the first implementation PR and updated whenever behaviour changes.
+`TEST-STATUS.md` is kept up to date as tests are written. `MANUAL-TESTING.md` is written alongside
+the first implementation PR and updated whenever behaviour changes.
 
 ---
 
 ## Rules and Principles
 
 1. Every new public function has at least one unit test.
-2. Every GraphQL mutation/query has an integration test covering the happy path,
-   an auth failure, and an invalid input case.
+2. Every GraphQL mutation/query has an integration test covering the happy path, an auth failure,
+   and an invalid input case.
 3. Tests are deterministic — no real time, random values, or live network calls.
 4. Tests are independent — each test sets up its own state.
 5. Follow Arrange–Act–Assert in every test.
 6. Test behaviour, not implementation.
 7. Unit tests complete in under 100ms each.
-8. Security-critical paths (auth, encryption, RBAC) have negative tests that verify
-   rejection of invalid or malicious input.
+8. Security-critical paths (auth, encryption, RBAC) have negative tests that verify rejection of
+   invalid or malicious input.
 9. Test code is held to the same standard as production code.

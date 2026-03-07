@@ -2,7 +2,7 @@
 
 **Last Updated**: 06/03/2026\
 **Audience**: Module contributors and maintainers\
-**Language**: British English (en\_GB)
+**Language**: British English (en_GB)
 
 ---
 
@@ -30,21 +30,21 @@
 
 Ensure all of the following are installed before running `install.sh`:
 
-| Tool | Minimum version | Install |
-| ---- | --------------- | ------- |
-| **Rust / cargo** | stable | [rustup.rs](https://rustup.rs) |
-| **uv** | latest | `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
-| **Node.js** | 24.x | [nodejs.org](https://nodejs.org) |
-| **pnpm** | 10.x | `npm install -g pnpm@10` |
-| **Git** | 2.x | via package manager |
+| Tool             | Minimum version | Install                                            |
+| ---------------- | --------------- | -------------------------------------------------- |
+| **Rust / cargo** | stable          | [rustup.rs](https://rustup.rs)                     |
+| **uv**           | latest          | `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
+| **Node.js**      | 24.x            | [nodejs.org](https://nodejs.org)                   |
+| **pnpm**         | 10.x            | `npm install -g pnpm@10`                           |
+| **Git**          | 2.x             | via package manager                                |
 
 Optional but recommended:
 
-| Tool | Install | Used for |
-| ---- | ------- | -------- |
-| **cargo-watch** | `cargo install cargo-watch` | Rust auto-recompile on file change |
-| **maturin** | `uv pip install maturin` | Building PyO3 extensions (included in install.sh) |
-| **basedpyright** | Bundled in Zed LSP | Python type checking |
+| Tool             | Install                     | Used for                                          |
+| ---------------- | --------------------------- | ------------------------------------------------- |
+| **cargo-watch**  | `cargo install cargo-watch` | Rust auto-recompile on file change                |
+| **maturin**      | `uv pip install maturin`    | Building PyO3 extensions (included in install.sh) |
+| **basedpyright** | Bundled in Zed LSP          | Python type checking                              |
 
 ---
 
@@ -63,8 +63,8 @@ chmod +x install.sh && ./install.sh
 
 1. Checks that all required tools are installed
 2. Creates a Python 3.14 virtual environment at `.venv/`
-3. Installs Python dev tooling: `ruff`, `pytest`, `pytest-django`, `pytest-cov`,
-   `factory-boy`, `testcontainers`, `hypothesis`, `django-stubs`, `maturin`
+3. Installs Python dev tooling: `ruff`, `pytest`, `pytest-django`, `pytest-cov`, `factory-boy`,
+   `testcontainers`, `hypothesis`, `django-stubs`, `maturin`
 4. Runs `pnpm install` to install all TypeScript/JavaScript dependencies
 5. Builds the `syntek-dev` CLI binary via `cargo build --release -p syntek-dev`
 6. Symlinks the binary to `~/.local/bin/syntek-dev`
@@ -86,7 +86,7 @@ export PATH="$HOME/.local/bin:$PATH"
 
 ## Project Structure
 
-```
+```text
 syntek-modules/
 ├── packages/
 │   ├── backend/          Django / Python modules (uv workspace members)
@@ -114,8 +114,8 @@ syntek-modules/
 
 ## The syntek-dev CLI
 
-The `syntek-dev` CLI manages all development operations across all four layers of
-this monorepo. It replaces the old shell scripts.
+The `syntek-dev` CLI manages all development operations across all four layers of this monorepo. It
+replaces the old shell scripts.
 
 Run from anywhere inside the repository — it locates the workspace root automatically.
 
@@ -220,9 +220,9 @@ syntek-dev format --rust        # cargo fmt
 
 ### Database Management
 
-The `db` commands require `sandbox/manage.py` — a minimal Django project that has
-all backend modules installed for local development and testing. See the sandbox
-setup section in `docs/GUIDES/SANDBOX.md` once it is created.
+The `db` commands require `sandbox/manage.py` — a minimal Django project that has all backend
+modules installed for local development and testing. See the sandbox setup section in
+`docs/GUIDES/SANDBOX.md` once it is created.
 
 ```bash
 # Migrations
@@ -264,8 +264,8 @@ syntek-dev open admin       # Django admin — http://localhost:8000/admin
 2. **Pull latest**: `git pull origin main`
 3. **Create a branch**: `git checkout -b us042/syntek-payments`
 4. **Start dev services**: `syntek-dev up`
-5. **Write failing test first** (TDD — see `TEST-STATUS.md` and `MANUAL-TESTING.md` in
-   each package directory)
+5. **Write failing test first** (TDD — see `TEST-STATUS.md` and `MANUAL-TESTING.md` in each package
+   directory)
 6. **Write implementation** to make the test pass
 7. **Quick check before commit**: `syntek-dev check`
 8. **Full suite before PR**: `syntek-dev test`
@@ -280,20 +280,20 @@ syntek-dev open admin       # Django admin — http://localhost:8000/admin
 
 This repository is a **package library**, not a deployable application:
 
-- Each backend module (`packages/backend/syntek-<name>/`) builds to its own `dist/`
-  as Python wheel files (`.whl`) when publishing to the Forgejo PyPI registry.
-- Each web package (`packages/web/<name>/`) builds to its own `dist/` as JavaScript/
-  TypeScript output when publishing to the Forgejo npm registry.
-- These are **ephemeral build artefacts** — the source of truth is always the source
-  files + the published version in the registry.
-- **No `.next/` folder exists** in this repo. There is no Next.js application here.
-  Web packages are pure React component libraries, not Next.js apps. The `.next/`
-  entry in `.gitignore` is a precaution for any sandbox app that may be added later.
+- Each backend module (`packages/backend/syntek-<name>/`) builds to its own `dist/` as Python wheel
+  files (`.whl`) when publishing to the Forgejo PyPI registry.
+- Each web package (`packages/web/<name>/`) builds to its own `dist/` as JavaScript/ TypeScript
+  output when publishing to the Forgejo npm registry.
+- These are **ephemeral build artefacts** — the source of truth is always the source files + the
+  published version in the registry.
+- **No `.next/` folder exists** in this repo. There is no Next.js application here. Web packages are
+  pure React component libraries, not Next.js apps. The `.next/` entry in `.gitignore` is a
+  precaution for any sandbox app that may be added later.
 - Mobile packages build to `dist/` for npm publishing, same pattern.
 
-The distinction from a full app: in a deployed Next.js app, `.next/` is the
-deployment artefact. Here, `dist/` is a transient staging directory used during
-`cargo build --release` → `maturin build` → `uv build` → publish cycle.
+The distinction from a full app: in a deployed Next.js app, `.next/` is the deployment artefact.
+Here, `dist/` is a transient staging directory used during `cargo build --release` → `maturin build`
+→ `uv build` → publish cycle.
 
 ---
 
@@ -323,14 +323,14 @@ basedpyright packages/backend/syntek-auth/
 
 Use the `/add-module` skill in Claude Code:
 
-```
+```text
 /add-module
 ```
 
 Or follow the manual steps:
 
-1. Create `packages/backend/syntek-<name>/` with `pyproject.toml`, `syntek_<name>/`,
-   `tests/`, `TEST-STATUS.md`, and `docs/MANUAL-TESTING.md`
+1. Create `packages/backend/syntek-<name>/` with `pyproject.toml`, `syntek_<name>/`, `tests/`,
+   `TEST-STATUS.md`, and `docs/MANUAL-TESTING.md`
 2. Copy templates from `docs/GUIDES/templates/`
 3. Register the module in `.claude/CLAUDE.md` Module Registry
 4. Add it to `pnpm-workspace.yaml` if it has a web component
@@ -379,5 +379,5 @@ cargo build -p syntek-dev
 uv pip install "django-stubs[compatible-mypy]"
 ```
 
-`pyrightconfig.json` at the root already points to the correct venv. Restart the
-Zed LSP if the errors persist (`Zed: Restart Language Server` from the command palette).
+`pyrightconfig.json` at the root already points to the correct venv. Restart the Zed LSP if the
+errors persist (`Zed: Restart Language Server` from the command palette).

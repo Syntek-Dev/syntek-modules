@@ -1,0 +1,40 @@
+{
+  "name": "@syntek/graphql",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pre-generated typed GraphQL operations and React Query hooks for all Syntek web packages",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.build.json",
+    "codegen": "graphql-codegen --config codegen.ts",
+    "codegen:check": "graphql-codegen --config codegen.ts --check",
+    "type-check": "tsc --noEmit",
+    "test": "tsc --noEmit && vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src --max-warnings 0"
+  },
+  "dependencies": {
+    "@syntek/types": "workspace:*",
+    "@tanstack/react-query": "^5.0.0",
+    "graphql": "^16.0.0"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/typescript": "^4.0.0",
+    "@graphql-codegen/typescript-operations": "^4.0.0",
+    "@graphql-codegen/typescript-react-query": "^6.0.0",
+    "@types/node": "^22.0.0",
+    "@vitest/coverage-v8": "^3.2.4",
+    "typescript": "^5.9.0",
+    "vitest": "^3.0.0"
+  }
+}

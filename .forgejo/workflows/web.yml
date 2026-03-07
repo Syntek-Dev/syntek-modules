@@ -1,0 +1,70 @@
+name: Web (TypeScript)
+
+on:
+  push:
+    branches: [main, "us*/**"]
+    paths:
+      - "shared/**"
+      - "packages/web/**"
+      - "mobile/**"
+      - "pnpm-workspace.yaml"
+      - "pnpm-lock.yaml"
+      - "turbo.json"
+      - "tsconfig*.json"
+      - "eslint.config.mjs"
+      - ".prettierrc"
+  pull_request:
+    paths:
+      - "shared/**"
+      - "packages/web/**"
+      - "mobile/**"
+      - "pnpm-workspace.yaml"
+      - "pnpm-lock.yaml"
+      - "turbo.json"
+      - "tsconfig*.json"
+      - "eslint.config.mjs"
+      - ".prettierrc"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    name: Lint, type-check, test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "10.28.2"
+
+      - name: Generate lockfile
+        run: pnpm install --lockfile-only
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Prettier
+        run: pnpm format:check
+
+      - name: ESLint
+        run: pnpm lint
+
+      - name: Markdown lint
+        run: pnpm lint:md
+
+      - name: Type-check
+        run: pnpm type-check
+
+      - name: Test
+        run: pnpm test
+
+      - name: Coverage report
+        run: pnpm test -- --coverage
