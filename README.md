@@ -2256,8 +2256,8 @@ instance.
 
 ### Email Contacts
 
-| Purpose                                   | Address                    |
-| ----------------------------------------- | -------------------------- |
+| Purpose                                   | Address                      |
+| ----------------------------------------- | ---------------------------- |
 | Security vulnerability reports            | <security@syntek-studio.com> |
 | Technical support and integration queries | <support@syntek-studio.com>  |
 

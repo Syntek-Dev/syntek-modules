@@ -11,9 +11,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ### Fixed
 
-- **`markdownlint` CI** — 175 lint failures resolved: MD036 rule disabled (bold-as-heading),
-  MD040 (fenced code block language), MD031 (blank lines around fenced blocks), and MD034 (bare
-  URLs) violations corrected across documentation and workflow files
+- **`markdownlint` CI** — 175 lint failures resolved: MD036 rule disabled (bold-as-heading), MD040
+  (fenced code block language), MD031 (blank lines around fenced blocks), and MD034 (bare URLs)
+  violations corrected across documentation and workflow files
 - **`lefthook.yml`** — upgraded lefthook from `^1.0.0` to `^2.1.0` (installed 2.1.3)
 
 ### Added
@@ -38,14 +38,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 ### Changed
 
 - **`rust/syntek-dev/src/`** — Clippy warnings resolved: `&PathBuf` changed to `&Path` in function
-  signatures, collapsible `if` statements flattened, `--allow-dirty` added to `clippy fix` invocation
+  signatures, collapsible `if` statements flattened, `--allow-dirty` added to `clippy fix`
+  invocation
 - **`shared/graphql/`**, **`shared/types/`** — Prettier and ESLint formatting normalised across all
   TypeScript source files
 - **`.forgejo/workflows/`**, **`.github/workflows/`** — whitespace consistency normalised across all
   four CI workflow files (`web.yml`, `graphql-drift.yml`, `python.yml`, `rust.yml`)
 - **`pyrightconfig.json`** — redundant settings removed; configuration simplified
-- **`docs/`** — Prettier formatting applied across 144 documentation files (GUIDES, SPRINTS, STORIES,
-  TESTS, PLANS)
+- **`docs/`** — Prettier formatting applied across 144 documentation files (GUIDES, SPRINTS,
+  STORIES, TESTS, PLANS)
 - **`CHANGELOG.md`**, **`RELEASES.md`**, **`VERSION-HISTORY.md`** — Prettier formatting applied to
   version tracking files
 

@@ -3,6 +3,7 @@ use anyhow::Result;
 use crate::cli::{Cli, Commands};
 
 mod check;
+mod ci;
 mod db;
 mod format;
 mod lint;
@@ -18,6 +19,7 @@ pub async fn run(cli: Cli) -> Result<()> {
         Commands::Format(args) => format::run(args).await,
         Commands::Db { command } => db::run(command).await,
         Commands::Check(args) => check::run(args).await,
+        Commands::Ci => ci::run().await,
         Commands::Open(args) => open::run(args).await,
     }
 }
