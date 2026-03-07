@@ -1,5 +1,29 @@
 # Releases
 
+## v0.4.2 — 07/03/2026
+
+**Branch**: `us004/shared-graphql-operations-package`\
+**Type**: PATCH\
+**Story**: CI fixes, coverage tooling, lefthook upgrade
+
+### Highlights
+
+- 175 markdownlint CI failures resolved — MD036 disabled, MD040/MD031/MD034 violations corrected
+  across documentation and CI configuration files
+- `@vitest/coverage-v8` added to `@syntek/graphql` for TypeScript test coverage reporting
+- Coverage report step added to `web.yml` in both GitHub Actions and Forgejo pipelines
+- lefthook upgraded from `^1.0.0` to `^2.1.0` (installed 2.1.3)
+- No functional or API changes — all existing tests remain green
+
+### Verify
+
+```bash
+pnpm lint:md
+syntek-dev test --web
+```
+
+---
+
 ## v0.4.1 — 07/03/2026
 
 **Branch**: `us004/shared-graphql-operations-package`\

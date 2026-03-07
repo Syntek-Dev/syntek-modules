@@ -7,6 +7,24 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [0.4.2] — 07/03/2026
+
+### Fixed
+
+- **`markdownlint` CI** — 175 lint failures resolved: MD036 rule disabled (bold-as-heading),
+  MD040 (fenced code block language), MD031 (blank lines around fenced blocks), and MD034 (bare
+  URLs) violations corrected across documentation and workflow files
+- **`lefthook.yml`** — upgraded lefthook from `^1.0.0` to `^2.1.0` (installed 2.1.3)
+
+### Added
+
+- **`shared/graphql/`** — `@vitest/coverage-v8` added for TypeScript test coverage reporting;
+  coverage configured in `shared/graphql/vitest.config.ts`
+- **`.github/workflows/web.yml`**, **`.forgejo/workflows/web.yml`** — "Coverage report" CI step
+  added to both GitHub Actions and Forgejo pipelines (mirrored)
+
+---
+
 ## [0.4.1] — 07/03/2026
 
 ### Fixed
