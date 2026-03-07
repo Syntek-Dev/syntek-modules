@@ -2,28 +2,28 @@ name: Web (TypeScript)
 
 on:
   push:
-    branches: [main, 'us*/**']
+    branches: [main, "us*/**"]
     paths:
-      - 'shared/**'
-      - 'packages/web/**'
-      - 'mobile/**'
-      - 'pnpm-workspace.yaml'
-      - 'pnpm-lock.yaml'
-      - 'turbo.json'
-      - 'tsconfig*.json'
-      - 'eslint.config.mjs'
-      - '.prettierrc'
+      - "shared/**"
+      - "packages/web/**"
+      - "mobile/**"
+      - "pnpm-workspace.yaml"
+      - "pnpm-lock.yaml"
+      - "turbo.json"
+      - "tsconfig*.json"
+      - "eslint.config.mjs"
+      - ".prettierrc"
   pull_request:
     paths:
-      - 'shared/**'
-      - 'packages/web/**'
-      - 'mobile/**'
-      - 'pnpm-workspace.yaml'
-      - 'pnpm-lock.yaml'
-      - 'turbo.json'
-      - 'tsconfig*.json'
-      - 'eslint.config.mjs'
-      - '.prettierrc'
+      - "shared/**"
+      - "packages/web/**"
+      - "mobile/**"
+      - "pnpm-workspace.yaml"
+      - "pnpm-lock.yaml"
+      - "turbo.json"
+      - "tsconfig*.json"
+      - "eslint.config.mjs"
+      - ".prettierrc"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -38,15 +38,15 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         with:
-          version: '10.28.2'
+          version: "10.28.2"
 
       - name: Generate lockfile
         run: pnpm install --lockfile-only
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '24'
-          cache: 'pnpm'
+          node-version: "24"
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install
