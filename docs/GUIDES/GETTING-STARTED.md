@@ -86,7 +86,7 @@ export PATH="$HOME/.local/bin:$PATH"
 
 ## Project Structure
 
-```
+```text
 syntek-modules/
 ├── packages/
 │   ├── backend/          Django / Python modules (uv workspace members)
@@ -323,7 +323,7 @@ basedpyright packages/backend/syntek-auth/
 
 Use the `/add-module` skill in Claude Code:
 
-```
+```text
 /add-module
 ```
 

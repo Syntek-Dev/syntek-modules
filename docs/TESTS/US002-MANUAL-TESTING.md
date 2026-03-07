@@ -52,10 +52,12 @@ packages
 #### Steps
 
 1. In a consuming package's test file, write:
+
    ```typescript
    import type { User } from "@syntek/types";
    const u: User = {}; // should error if User has required fields
    ```
+
 2. Run `tsc --noEmit` in the consuming package
 3. Observe the error output
 
