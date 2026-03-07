@@ -1,5 +1,32 @@
 # Releases
 
+## v0.5.0 — 07/03/2026
+
+**Branch**: `us004/shared-graphql-operations-package`\
+**Type**: MINOR\
+**Story**: Add `syntek-dev ci` command, fix CI lint, add coverage, upgrade lefthook
+
+### Highlights
+
+- `syntek-dev ci` — run the full CI pipeline locally with a single command: Prettier, ESLint,
+  markdownlint, type-check, Vitest (all packages), Rust fmt/clippy/test in sequence
+- 175 markdownlint CI failures resolved — MD036 disabled for intentional user story bold convention;
+  MD040/MD031/MD034 violations corrected across documentation and workflow files
+- `@vitest/coverage-v8` added to `@syntek/graphql` for TypeScript test coverage reporting; coverage
+  step added to `web.yml` in both GitHub Actions and Forgejo pipelines
+- lefthook upgraded from `^1.0.0` to `^2.1.0` (installed 2.1.3)
+- No API or schema changes — all 29/29 graphql tests and 46/46 types tests remain green
+
+### Verify
+
+```bash
+syntek-dev ci
+pnpm lint:md
+syntek-dev test --web
+```
+
+---
+
 ## v0.4.2 — 07/03/2026
 
 **Branch**: `us004/shared-graphql-operations-package`\

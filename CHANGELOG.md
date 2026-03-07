@@ -7,6 +7,28 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [0.5.0] — 07/03/2026
+
+### Added
+
+- **`rust/syntek-dev`** — `syntek-dev ci` command — runs the full CI pipeline locally: Prettier,
+  ESLint, markdownlint, type-check, Vitest (all packages), Rust fmt/clippy/test, in sequence
+- **`shared/graphql/`** — `@vitest/coverage-v8` installed; coverage configured in
+  `shared/graphql/vitest.config.ts`; CI coverage step added to `web.yml` (GitHub Actions + Forgejo)
+
+### Changed
+
+- **`package.json`** — lefthook upgraded from `^1.0.0` to `^2.1.0` (installed 2.1.3)
+
+### Fixed
+
+- **`markdownlint`** — 175 CI lint failures resolved: MD036 disabled for intentional user story bold
+  convention; MD040 (fenced code block language tags), MD031 (blank lines around fenced blocks), and
+  MD034 (bare URLs) violations corrected across documentation and workflow files
+- **`CHANGELOG.md`**, **`README.md`**, **`RELEASES.md`** — Prettier formatting corrected
+
+---
+
 ## [0.4.2] — 07/03/2026
 
 ### Fixed
