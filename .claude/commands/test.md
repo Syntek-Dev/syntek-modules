@@ -8,6 +8,7 @@ Run all tests across all layers.
 **Run:** `./test.sh`
 
 This script will:
+
 1. Run `pytest` for all Python backend packages
 2. Run `pnpm test` (via Turborepo) for all web and mobile packages
 3. Run `cargo test` for all Rust crates
@@ -36,6 +37,7 @@ cargo tarpaulin
 ```
 
 **CI gate requirements:**
+
 - Python: 80% line coverage minimum
 - TypeScript: 80% line coverage minimum
 - Rust: all tests pass, clippy clean

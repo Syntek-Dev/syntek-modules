@@ -8,6 +8,7 @@ Build and publish a prerelease (staging) version of one or all packages.
 **Run:** `./staging.sh`
 
 This script will:
+
 1. Run the full test suite (`./test.sh`)
 2. Build all packages (Turborepo for JS/TS, cargo for Rust)
 3. Bump prerelease version on affected packages
@@ -30,6 +31,7 @@ cargo publish --registry syntek --dry-run
 ```
 
 Staging packages are installed in test projects with:
+
 ```bash
 syntek add syntek-auth@staging
 syntek add @syntek/ui-auth@staging

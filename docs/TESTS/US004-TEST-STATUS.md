@@ -10,12 +10,12 @@
 
 ## Summary
 
-| Suite | Tests | Passed | Failed | Skipped |
-| ----- | ----- | ------ | ------ | ------- |
-| Unit (type) | 17 | 17 | 0 | 0 |
-| Integration (codegen output) | 12 | 12 | 0 | 0 |
-| E2E | 0 | 0 | 0 | 0 |
-| **Total** | **29** | **29** | **0** | **0** |
+| Suite                        | Tests  | Passed | Failed | Skipped |
+| ---------------------------- | ------ | ------ | ------ | ------- |
+| Unit (type)                  | 17     | 17     | 0      | 0       |
+| Integration (codegen output) | 12     | 12     | 0      | 0       |
+| E2E                          | 0      | 0      | 0      | 0       |
+| **Total**                    | **29** | **29** | **0**  | **0**   |
 
 ---
 
@@ -25,7 +25,8 @@
 
 - [ ] `LoginMutationVariables.email is string` — email is a required string field
 - [ ] `LoginMutationVariables.password is string` — password is a required string field
-- [ ] `LoginMutationVariables is not Record<string, unknown>` — closed object, not an index signature
+- [ ] `LoginMutationVariables is not Record<string, unknown>` — closed object, not an index
+      signature
 
 ### Type inference — LoginMutation
 
@@ -96,7 +97,7 @@
 
 | Test | Failure reason | Story / Issue |
 | ---- | -------------- | ------------- |
-| — | No failures | — |
+| —    | No failures    | —             |
 
 ---
 
@@ -124,8 +125,8 @@ pnpm --filter @syntek/graphql codegen:check
 ## Notes
 
 - Tests intentionally fail in Red phase — this is correct TDD behaviour.
-- `tsc --noEmit` will report type errors on `type-inference.test.ts` because the stub
-  exports `Record<string, unknown>` instead of the real generated shapes.
+- `tsc --noEmit` will report type errors on `type-inference.test.ts` because the stub exports
+  `Record<string, unknown>` instead of the real generated shapes.
 - `codegen-output.test.ts` will fail at runtime because `src/generated/graphql.ts` is absent.
 - To reach Green phase: run `pnpm codegen`, then update `src/index.ts` to re-export from
   `./generated/graphql.js`, then run `pnpm build`.

@@ -8,10 +8,10 @@
 
 ## Overview
 
-`@syntek/graphql` pre-generates typed React Query hooks from the Syntek backend GraphQL schema.
-A tester should verify that: codegen runs against a live (or introspected) schema, the output
-file is valid TypeScript, consuming packages get full type inference, and CI correctly rejects
-stale generated files.
+`@syntek/graphql` pre-generates typed React Query hooks from the Syntek backend GraphQL schema. A
+tester should verify that: codegen runs against a live (or introspected) schema, the output file is
+valid TypeScript, consuming packages get full type inference, and CI correctly rejects stale
+generated files.
 
 ---
 
@@ -20,8 +20,8 @@ stale generated files.
 Before testing, ensure the following are in place:
 
 - [ ] pnpm dependencies installed at workspace root: `pnpm install`
-- [ ] Backend GraphQL schema is reachable at `http://localhost:8000/graphql`
-  (or set `GRAPHQL_SCHEMA_URL` environment variable to an SDL file path or remote URL)
+- [ ] Backend GraphQL schema is reachable at `http://localhost:8000/graphql` (or set
+      `GRAPHQL_SCHEMA_URL` environment variable to an SDL file path or remote URL)
 - [ ] Active terminal in the repo root
 
 ---
@@ -57,7 +57,8 @@ rm -f shared/graphql/src/generated/graphql.ts
 
 - [ ] `src/generated/graphql.ts` is created
 - [ ] File exports `useLoginMutation`, `useCurrentUserQuery`, `useCurrentTenantQuery`
-- [ ] File exports `LoginMutationVariables`, `LoginMutation`, `CurrentUserQuery`, `CurrentTenantQuery`
+- [ ] File exports `LoginMutationVariables`, `LoginMutation`, `CurrentUserQuery`,
+      `CurrentTenantQuery`
 - [ ] `LoginMutationVariables` has `email: string` and `password: string` fields
 - [ ] No TypeScript errors when opening the file in an editor
 
@@ -65,8 +66,8 @@ rm -f shared/graphql/src/generated/graphql.ts
 
 ### Scenario 2 — TypeScript infers response types in consuming packages
 
-**What this tests**: After codegen, a consuming package can import a hook and get
-full TypeScript inference on the response and variables.
+**What this tests**: After codegen, a consuming package can import a hook and get full TypeScript
+inference on the response and variables.
 
 #### Setup
 
@@ -83,7 +84,7 @@ pnpm --filter @syntek/graphql build
 1. In any `packages/web/*` package, add `@syntek/graphql` as a dependency.
 2. Write a test file:
    ```ts
-   import { useLoginMutation } from '@syntek/graphql'
+   import { useLoginMutation } from "@syntek/graphql";
    // hover over `useLoginMutation` in your editor
    ```
 3. Run `pnpm --filter <package> type-check`
@@ -124,8 +125,8 @@ pnpm --filter @syntek/graphql build
 
 ### Scenario 4 — Breaking schema change surfaces in consuming packages
 
-**What this tests**: When the backend removes or renames a field in the GraphQL schema,
-re-running codegen + type-checking reveals the breakage in consuming packages.
+**What this tests**: When the backend removes or renames a field in the GraphQL schema, re-running
+codegen + type-checking reveals the breakage in consuming packages.
 
 #### Steps
 
@@ -162,9 +163,9 @@ Run before marking a PR ready for review:
 
 ## Known Issues
 
-| Issue | Workaround | Story / Issue |
-| ----- | ---------- | ------------- |
-| Codegen requires a live backend to introspect the schema | Use a local SDL file as `schema` in `codegen.ts`, or start the Django dev server | US004 |
+| Issue                                                    | Workaround                                                                       | Story / Issue |
+| -------------------------------------------------------- | -------------------------------------------------------------------------------- | ------------- |
+| Codegen requires a live backend to introspect the schema | Use a local SDL file as `schema` in `codegen.ts`, or start the Django dev server | US004         |
 
 ---
 

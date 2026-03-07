@@ -8,9 +8,9 @@
 
 ## Overview
 
-This guide verifies that a contributor can clone the repository and immediately
-develop across all package layers (Python, TypeScript, Rust) from a single root
-using consistent tooling — no per-layer setup beyond tool installation.
+This guide verifies that a contributor can clone the repository and immediately develop across all
+package layers (Python, TypeScript, Rust) from a single root using consistent tooling — no per-layer
+setup beyond tool installation.
 
 ---
 
@@ -137,6 +137,6 @@ uv venv && source .venv/bin/activate
 
 ## Known Issues
 
-| Issue | Workaround | Story |
-| ----- | ---------- | ----- |
+| Issue                                            | Workaround                                   | Story  |
+| ------------------------------------------------ | -------------------------------------------- | ------ |
 | `packages/backend/syntek-auth` is a minimal stub | Full module scaffolded in subsequent stories | US002+ |
