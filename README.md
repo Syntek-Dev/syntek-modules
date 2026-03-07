@@ -272,7 +272,7 @@ _Paid premium starter templates_
 
 ### Data Flow
 
-```
+```text
 syntek-modules (foundation — Apache 2.0)
         │ consumed by all products below
         ├──► syntek-platform (CMS core — AGPL v3)
@@ -2003,7 +2003,7 @@ cd crates/syntek-pyo3 && maturin develop
 
 Branches follow the same pattern as the wider Syntek ecosystem:
 
-```
+```text
 feature/<module-name>/<description>  →  dev  →  staging  →  main
 ```
 
@@ -2238,7 +2238,7 @@ standards and frameworks.
 ### Security Reporting
 
 Security vulnerabilities in any module must be reported responsibly to
-**security@syntek-studio.com**. Do not open public issues for security vulnerabilities.
+**<security@syntek-studio.com>**. Do not open public issues for security vulnerabilities.
 
 The security team will acknowledge reports within 48 hours and aim to release a patched version
 within 14 days for critical issues.
@@ -2258,8 +2258,8 @@ instance.
 
 | Purpose                                   | Address                    |
 | ----------------------------------------- | -------------------------- |
-| Security vulnerability reports            | security@syntek-studio.com |
-| Technical support and integration queries | support@syntek-studio.com  |
+| Security vulnerability reports            | <security@syntek-studio.com> |
+| Technical support and integration queries | <support@syntek-studio.com>  |
 
 ### Status
 

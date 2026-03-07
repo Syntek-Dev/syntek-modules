@@ -198,7 +198,7 @@ A story is only complete when:
 
 ## Build Order
 
-```
+```text
 Phase 1 — Foundation (US001–US005, US074)
   US001 → US002 | US003 | US004 | US005 | US074
 

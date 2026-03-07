@@ -61,7 +61,7 @@ repo.
 
 ## Repository Map
 
-```
+```text
 Syntek Organisation
 │
 ├── syntek-infrastructure     # NixOS / Hetzner — hosts Syntek-managed client services only
@@ -643,7 +643,7 @@ Full architecture and implementation detail: `docs/PLANS/PLAN-SYNTEK-AI-AND-MULT
 
 ## Data Flow & Integration Map
 
-```
+```text
                         ┌─────────────────────┐
                         │   syntek-modules     │  ← Foundation layer
                         │  (npm + PyPI pkgs)   │    All products build on this

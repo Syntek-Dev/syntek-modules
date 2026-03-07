@@ -45,10 +45,13 @@ rm -f shared/graphql/src/generated/graphql.ts
 #### Steps
 
 1. Run codegen:
+
    ```bash
    pnpm --filter @syntek/graphql codegen
    ```
+
 2. Inspect the generated file:
+
    ```bash
    cat shared/graphql/src/generated/graphql.ts
    ```
@@ -83,10 +86,12 @@ pnpm --filter @syntek/graphql build
 
 1. In any `packages/web/*` package, add `@syntek/graphql` as a dependency.
 2. Write a test file:
+
    ```ts
    import { useLoginMutation } from "@syntek/graphql";
    // hover over `useLoginMutation` in your editor
    ```
+
 3. Run `pnpm --filter <package> type-check`
 
 #### Expected Result
@@ -112,6 +117,7 @@ pnpm --filter @syntek/graphql build
 
 1. Edit `src/generated/graphql.ts` — change one exported type field name (simulate drift).
 2. Run the CI drift check:
+
    ```bash
    pnpm --filter @syntek/graphql codegen:check
    ```
@@ -132,10 +138,13 @@ codegen + type-checking reveals the breakage in consuming packages.
 
 1. Temporarily remove the `token` field from the `LoginPayload` type in the backend schema.
 2. Re-run codegen:
+
    ```bash
    pnpm --filter @syntek/graphql codegen
    ```
+
 3. Run type-check across the workspace:
+
    ```bash
    pnpm type-check
    ```
