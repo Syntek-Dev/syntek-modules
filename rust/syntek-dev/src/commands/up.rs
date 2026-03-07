@@ -30,15 +30,13 @@ pub async fn run(args: UpArgs) -> Result<()> {
     }
 
     // Storybook for @syntek/ui
-    if start_all || args.storybook {
-        if process::exists("pnpm") {
-            ui::step("Starting Storybook for @syntek/ui (http://localhost:6006)...");
-            children.push(process::spawn(
-                "pnpm",
-                &["--filter", "@syntek/ui", "storybook"],
-                &root,
-            )?);
-        }
+    if (start_all || args.storybook) && process::exists("pnpm") {
+        ui::step("Starting Storybook for @syntek/ui (http://localhost:6006)...");
+        children.push(process::spawn(
+            "pnpm",
+            &["--filter", "@syntek/ui", "storybook"],
+            &root,
+        )?);
     }
 
     // Rust watcher
