@@ -43,4 +43,11 @@ jobs:
         run: uv run basedpyright packages/backend/
 
       - name: Test (pytest)
-        run: uv run pytest packages/backend/ -x -q
+        run: |
+          EXIT_CODE=0
+          uv run pytest packages/backend/ -x -q || EXIT_CODE=$?
+          if [ "$EXIT_CODE" -eq 5 ]; then
+            echo "No tests collected — OK until backend packages have tests"
+            exit 0
+          fi
+          exit "$EXIT_CODE"
