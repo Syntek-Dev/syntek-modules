@@ -4,10 +4,19 @@ pre-commit:
 
     # ------------------------------------------------------------------
     # GraphQL — schema drift check
+    #
+    # Guard: verify pnpm resolves cleanly before running. On some
+    # machines (e.g. NixOS with a mismatched HOME) pnpm exists as a
+    # binary but cannot start. The version probe catches this case.
     # ------------------------------------------------------------------
     graphql-drift:
       glob: "shared/graphql/{schema.graphql,codegen.ts,src/operations/**,src/generated/**}"
-      run: pnpm --filter @syntek/graphql codegen:check
+      run: |
+        if ! pnpm --version >/dev/null 2>&1; then
+          echo "[lefthook] pnpm unavailable on this machine — skipping graphql-drift check"
+          exit 0
+        fi
+        pnpm --filter @syntek/graphql codegen:check
       fail_text: |
         Generated GraphQL types are out of date.
         Run: pnpm codegen
@@ -18,45 +27,84 @@ pre-commit:
     # ------------------------------------------------------------------
     eslint:
       glob: "{shared,packages/web,mobile}/**/*.{ts,tsx,js,mjs}"
-      run: pnpm eslint {staged_files} --max-warnings 0
+      run: |
+        if ! pnpm --version >/dev/null 2>&1; then
+          echo "[lefthook] pnpm unavailable on this machine — skipping eslint check"
+          exit 0
+        fi
+        pnpm eslint {staged_files} --max-warnings 0
 
     # ------------------------------------------------------------------
     # TypeScript — type-check
     # ------------------------------------------------------------------
     tsc:
       glob: "{shared,packages/web,mobile}/**/*.{ts,tsx}"
-      run: pnpm type-check
+      run: |
+        if ! pnpm --version >/dev/null 2>&1; then
+          echo "[lefthook] pnpm unavailable on this machine — skipping tsc check"
+          exit 0
+        fi
+        pnpm type-check
 
     # ------------------------------------------------------------------
     # Prettier — format check (all supported file types)
     # ------------------------------------------------------------------
     prettier:
       glob: "**/*.{ts,tsx,js,mjs,json,yaml,yml,md,css}"
-      run: pnpm prettier --check {staged_files}
+      run: |
+        if ! pnpm --version >/dev/null 2>&1; then
+          echo "[lefthook] pnpm unavailable on this machine — skipping prettier check"
+          exit 0
+        fi
+        pnpm prettier --check {staged_files}
 
     # ------------------------------------------------------------------
     # Python — ruff lint + format check
+    #
+    # Guard: uv must be present and executable.
     # ------------------------------------------------------------------
     ruff-lint:
       glob: "packages/backend/**/*.py"
-      run: uv run ruff check {staged_files}
+      run: |
+        if ! command -v uv >/dev/null 2>&1; then
+          echo "[lefthook] uv not found — skipping ruff-lint check"
+          exit 0
+        fi
+        uv run ruff check {staged_files}
 
     ruff-format:
       glob: "packages/backend/**/*.py"
-      run: uv run ruff format --check {staged_files}
+      run: |
+        if ! command -v uv >/dev/null 2>&1; then
+          echo "[lefthook] uv not found — skipping ruff-format check"
+          exit 0
+        fi
+        uv run ruff format --check {staged_files}
 
     # ------------------------------------------------------------------
     # Python — basedpyright type-check
-    # Runs on the whole backend when any Python file is staged
-    # (basedpyright resolves imports project-wide).
+    # Runs on the whole backend when any Python file is staged.
+    # (basedpyright resolves imports project-wide.)
     # ------------------------------------------------------------------
     basedpyright:
       glob: "packages/backend/**/*.py"
-      run: uv run basedpyright packages/backend/
+      run: |
+        if ! command -v uv >/dev/null 2>&1; then
+          echo "[lefthook] uv not found — skipping basedpyright check"
+          exit 0
+        fi
+        uv run basedpyright packages/backend/
 
     # ------------------------------------------------------------------
     # Rust — format check
+    #
+    # Guard: cargo must be present and executable.
     # ------------------------------------------------------------------
     cargo-fmt:
       glob: "rust/**/*.rs"
-      run: cargo fmt --check
+      run: |
+        if ! command -v cargo >/dev/null 2>&1; then
+          echo "[lefthook] cargo not found — skipping cargo-fmt check"
+          exit 0
+        fi
+        cargo fmt --check

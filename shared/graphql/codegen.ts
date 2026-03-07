@@ -14,7 +14,7 @@ import type { CodegenConfig } from '@graphql-codegen/cli'
 
 // Use the local SDL file by default so codegen works without a running server.
 // Override with a live introspection URL in CI or when iterating against the backend.
-const schema = process.env['GRAPHQL_SCHEMA_URL'] ?? './schema.graphql'
+const schema = process.env['GRAPHQL_SCHEMA_URL'] || './schema.graphql'
 
 const config: CodegenConfig = {
   schema,
