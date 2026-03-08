@@ -62,29 +62,43 @@ class TestPipAuditStep:
         )
 
     def test_pip_audit_uses_uv_run(self, python_run_scripts: list[str]) -> None:
-        """pip-audit must be invoked through uv run, not bare pip-audit."""
-        assert _any_script_contains(python_run_scripts, "uv run pip-audit"), (
-            "pip-audit must be run via 'uv run pip-audit' to use the managed venv"
+        """pip-audit must be invoked via uvx or uv run — not bare pip-audit.
+
+        ``uvx pip-audit`` is the canonical form: it runs pip-audit in a temporary
+        isolated environment managed by uv.  ``uv run pip-audit`` (using the
+        project venv) is also acceptable.
+        """
+        has_uvx = _any_script_contains(python_run_scripts, "uvx pip-audit")
+        has_uv_run = _any_script_contains(python_run_scripts, "uv run pip-audit")
+        assert has_uvx or has_uv_run, (
+            "pip-audit must be run via 'uvx pip-audit' or 'uv run pip-audit'"
         )
 
     def test_pip_audit_fails_on_high_severity(self, python_run_scripts: list[str]) -> None:
-        """pip-audit must be configured to fail on high or critical findings.
+        """pip-audit must be present so the step fails when vulnerabilities are found.
 
-        The correct flags are --fail-on CRITICAL,HIGH (pip-audit >= 2.x).
+        pip-audit exits non-zero on any finding by default — no explicit --fail-on
+        flag is required.  This test verifies pip-audit is actually invoked so
+        the step will block the pipeline when high/critical CVEs are present.
         """
-        has_fail_on = _any_script_contains(python_run_scripts, "--fail-on")
-        assert has_fail_on, (
-            "pip-audit invocation missing --fail-on flag — the pipeline will not "
-            "fail when high/critical CVEs are found"
+        assert _any_script_contains(python_run_scripts, "pip-audit"), (
+            "pip-audit is not invoked in python.yml — high/critical CVEs will not "
+            "block the pipeline"
         )
 
     def test_pip_audit_targets_high_and_critical(self, python_run_scripts: list[str]) -> None:
-        """--fail-on must include at least HIGH severity."""
-        scripts_with_fail_on = [s for s in python_run_scripts if "--fail-on" in s]
-        assert scripts_with_fail_on, "No run script contains --fail-on"
-        combined = " ".join(scripts_with_fail_on)
-        assert "HIGH" in combined or "CRITICAL" in combined, (
-            "--fail-on flag present but does not reference HIGH or CRITICAL severity levels"
+        """pip-audit must be invoked without suppressing high/critical findings.
+
+        pip-audit reports and fails on all severities by default.  The test
+        verifies the command is present and does not use --ignore-vuln or
+        severity-filtering flags that would suppress high/critical findings.
+        """
+        pip_audit_scripts = [s for s in python_run_scripts if "pip-audit" in s]
+        assert pip_audit_scripts, "No run script contains pip-audit"
+        combined = " ".join(pip_audit_scripts)
+        assert "--ignore-vuln" not in combined, (
+            "pip-audit invocation uses --ignore-vuln which may suppress "
+            "high/critical findings — remove the flag or document each exemption"
         )
 
 

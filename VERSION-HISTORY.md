@@ -2,6 +2,7 @@
 
 | Version | Date       | Type  | Summary                                                                                             |
 | ------- | ---------- | ----- | --------------------------------------------------------------------------------------------------- |
+| 0.10.0  | 08/03/2026 | MINOR | `syntek-manifest` Rust crate — module manifest spec & CLI shared framework, 127 tests, US074 done   |
 | 0.9.0   | 08/03/2026 | MINOR | CI/CD pipeline complete — security audit, affected-only tests, coverage PR comments, Sprint 02 done |
 | 0.8.0   | 08/03/2026 | MINOR | `@syntek/tokens` design token system, no-hardcoded-design-values ESLint rule, Sprint 02 complete    |
 | 0.7.0   | 08/03/2026 | MINOR | Security policy, CodeQL/Semgrep SAST, Dependabot/Renovate dependency automation, branch docs        |

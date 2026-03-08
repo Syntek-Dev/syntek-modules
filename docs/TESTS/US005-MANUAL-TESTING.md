@@ -2,7 +2,7 @@
 
 **Package**: CI workflow configuration — `.forgejo/workflows/`\
 **Last Updated**: `2026-03-08`\
-**Status**: Completed — green phase\
+**Status**: Completed — test alignment pass\
 **Tested against**: Forgejo Actions (Forgejo v9+) / GitHub Actions compatible
 
 ---
@@ -227,7 +227,7 @@ directory.
 
 Run before marking the US005 implementation PR ready for review:
 
-- [x] All 43 CI structure tests pass: `uv run pytest tests/ci/ -v`
+- [x] All 43 CI structure tests pass: `uv run pytest tests/ci/ -v` (82 total across all layers)
 - [x] Scenario 1 passes (clean audit on a clean branch)
 - [x] Scenario 2 fails as expected (vulnerable dep blocks the pipeline)
 - [x] Scenario 3 passes (Turborepo --affected narrows scope)
