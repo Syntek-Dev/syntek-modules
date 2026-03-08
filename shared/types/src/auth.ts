@@ -14,12 +14,17 @@ export interface Role {
 export interface User {
   id: ID;
   email: string;
+  displayName: string;
+  isActive: boolean;
   roles: Role[];
   createdAt: Timestamp;
+  updatedAt: Timestamp;
 }
 
 export interface Session {
   id: ID;
   userId: ID;
+  tenantId: ID;
+  createdAt: Timestamp;
   expiresAt: Timestamp;
 }
