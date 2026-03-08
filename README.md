@@ -3,6 +3,7 @@
 **A library of independently installable, production-grade packages for Django, React, React Native,
 and Rust — providing the reusable building blocks that power every Syntek project.**
 
+> **Full documentation:** [syntekstudio.com/dev/docs](https://syntekstudio.com/dev/docs)\
 > Versioned and hosted on the Syntek Hetzner Forgejo instance at
 > [git.syntek-studio.com](https://git.syntek-studio.com).
 
@@ -1797,7 +1798,7 @@ resolver execution and ensures no encrypted field values are ever returned as ra
 | Language        | Python                     | 3.14.3                        |
 | API Layer       | Strawberry GraphQL         | 0.307.1 (September 2025 spec) |
 | Database        | PostgreSQL                 | 18.3                          |
-| Cache / Broker  | Redis                      | latest stable                 |
+| Cache / Broker  | Valkey                     | latest stable                 |
 | Task Queue      | Celery                     | latest stable                 |
 | Package Manager | uv                         | latest stable                 |
 | Search          | Elasticsearch / OpenSearch | 8.x / 2.x                     |
