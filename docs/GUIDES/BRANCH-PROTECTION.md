@@ -28,7 +28,7 @@ protection rules directly.
 
 ## Branch Flow
 
-```
+```text
 us###/feature → testing → dev → staging → main
 ```
 

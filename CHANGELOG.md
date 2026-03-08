@@ -12,25 +12,25 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 ### Added
 
 - **`SECURITY.md`** — public-facing vulnerability disclosure policy; covers supported versions,
-  reporting process via GitHub private vulnerability reporting, response SLA, scope definition,
-  and dependency security section
+  reporting process via GitHub private vulnerability reporting, response SLA, scope definition, and
+  dependency security section
 - **`renovate.json`** — Renovate dependency automation config; covers npm/pnpm, pip, cargo, and
   github-actions ecosystems on a weekly Monday schedule (Europe/London timezone)
-- **`docs/GUIDES/BRANCH-PROTECTION.md`** — guide documenting branch protection rules for GitHub
-  and Forgejo, required CI checks per branch, and how maintainers apply or update rules via web UI
+- **`docs/GUIDES/BRANCH-PROTECTION.md`** — guide documenting branch protection rules for GitHub and
+  Forgejo, required CI checks per branch, and how maintainers apply or update rules via web UI
 - **`.github/dependabot.yml`** — Dependabot config for all four stacks (npm, pip, cargo,
   github-actions) on a weekly Monday 08:00 Europe/London schedule
 - **`.github/workflows/codeql.yml`** — CodeQL SAST workflow for Python and TypeScript; runs on
   push/PR to main and on a weekly schedule
-- **`.forgejo/workflows/semgrep.yml`** — Semgrep SAST workflow (Forgejo equivalent of CodeQL);
-  two jobs covering Python/Django and TypeScript/React
+- **`.forgejo/workflows/semgrep.yml`** — Semgrep SAST workflow (Forgejo equivalent of CodeQL); two
+  jobs covering Python/Django and TypeScript/React
 - **`.forgejo/workflows/renovate.yml`** — Renovate self-hosted workflow for Forgejo; uses the
   `gitea` platform against `git.syntek-studio.com`
 
 ### Removed
 
-- **`.github/setup-branch-protection.sh`** — deleted to prevent developers from scripting
-  unreviewed changes to branch protection rules; rules are now documented and applied via web UI
+- **`.github/setup-branch-protection.sh`** — deleted to prevent developers from scripting unreviewed
+  changes to branch protection rules; rules are now documented and applied via web UI
 
 ---
 
