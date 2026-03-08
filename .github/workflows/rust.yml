@@ -28,11 +28,6 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
-      - name: Install cargo tools
-        uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-audit,cargo-llvm-cov
-
       - name: Format check
         run: cargo fmt --check
 
@@ -43,10 +38,14 @@ jobs:
         run: cargo test --all
 
       - name: Security audit (cargo audit)
-        run: cargo audit --deny unsound --deny yanked
+        run: |
+          cargo install cargo-audit@0.21.1
+          cargo audit --deny warnings
 
       - name: Coverage (cargo llvm-cov)
-        run: cargo llvm-cov --all --lcov --output-path lcov.info
+        run: |
+          cargo install cargo-llvm-cov@0.6.16
+          cargo llvm-cov --all --lcov --output-path lcov.info
 
       - name: Upload coverage artifact
         if: always()

@@ -22,6 +22,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          # Full history required for the three-dot diff in the
+          # changed-package detection step below (git diff "$BASE"...HEAD).
           fetch-depth: 0
 
       - uses: actions/setup-python@v5
@@ -43,7 +45,7 @@ jobs:
         run: uv run basedpyright packages/backend/
 
       - name: Security audit (pip-audit)
-        run: uvx pip-audit
+        run: uv run pip-audit
 
       - name: Detect changed packages
         id: changed
@@ -108,7 +110,7 @@ jobs:
 
       - name: Coverage report (PR comment)
         if: github.event_name == 'pull_request'
-        uses: MishaKav/pytest-coverage-comment@main
+        uses: MishaKav/pytest-coverage-comment@v1.1.54
         with:
           pytest-xml-coverage-path: coverage.xml
           title: Python coverage report
