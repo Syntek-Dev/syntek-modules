@@ -19,11 +19,11 @@
   `pytest` to the specific backend packages that changed, rather than running the full
   `packages/backend/` suite every time.
 - **Coverage PR comments** — after each successful run, coverage data is posted directly to the PR
-  as a bot comment (MishaKav/pytest-coverage-comment for Python, davelosert/vitest-coverage-report-action
-  for TypeScript, lcov-reporter-action for Rust). Comments are guarded to only appear on PRs, not
-  plain pushes.
-- **43/43 CI validation tests** pass on branch `us005/ci-cd-pipeline` (08/03/2026). Test suite
-  in `tests/ci/` validates YAML structure of all three workflow files against the US005 acceptance
+  as a bot comment (MishaKav/pytest-coverage-comment for Python,
+  davelosert/vitest-coverage-report-action for TypeScript, lcov-reporter-action for Rust). Comments
+  are guarded to only appear on PRs, not plain pushes.
+- **43/43 CI validation tests** pass on branch `us005/ci-cd-pipeline` (08/03/2026). Test suite in
+  `tests/ci/` validates YAML structure of all three workflow files against the US005 acceptance
   criteria.
 - Sprint 02 (Design Tokens, CI/CD & Manifest Framework) is now fully complete — 20/20 points.
 

@@ -13,9 +13,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 - **`.forgejo/workflows/python.yml`** — `uv run pip-audit --fail-on HIGH,CRITICAL` security audit
   step; changed-files detection step for per-package pytest targeting; `--cov` and
-  `--cov-report=xml:coverage.xml` flags on the pytest invocation;
-  `MishaKav/pytest-coverage-comment` PR comment step (guarded with
-  `if: github.event_name == 'pull_request'`)
+  `--cov-report=xml:coverage.xml` flags on the pytest invocation; `MishaKav/pytest-coverage-comment`
+  PR comment step (guarded with `if: github.event_name == 'pull_request'`)
 - **`.forgejo/workflows/web.yml`** — `pnpm audit --audit-level=high` security audit step;
   `pnpm turbo run test --affected` replaces bare `pnpm test` for affected-only test runs;
   `--coverage.reporter=json-summary` flag; `davelosert/vitest-coverage-report-action` PR comment
@@ -33,8 +32,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
   Turborepo `--affected` test runs, and Vitest coverage PR comment steps
 - **`tests/ci/test_rust_workflow.py`** — 17 tests covering baseline regression guards, cargo audit
   vulnerability scanning, `cargo llvm-cov` coverage collection, and lcov PR comment steps
-- **`docs/TESTS/US005-TEST-STATUS.md`** — test status tracking for US005; 43/43 passing, green
-  phase complete 08/03/2026
+- **`docs/TESTS/US005-TEST-STATUS.md`** — test status tracking for US005; 43/43 passing, green phase
+  complete 08/03/2026
 - **`docs/TESTS/US005-MANUAL-TESTING.md`** — 6-scenario manual testing guide covering clean audit
   runs, vulnerable dependency detection, Turborepo scope narrowing, coverage comment posting,
   push-event guard, and per-package Python targeting
