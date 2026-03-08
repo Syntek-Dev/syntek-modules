@@ -10,8 +10,8 @@
 
 - `.github/workflows/web.yml` and `.github/workflows/graphql-drift.yml` — removed the hardcoded
   `version: "10.28.2"` key from the `pnpm/action-setup@v4` step in both workflows
-- `pnpm/action-setup@v4` now reads the pnpm version directly from `packageManager: pnpm@10.31.0`
-  in `package.json`, eliminating the version mismatch that caused CI to fail
+- `pnpm/action-setup@v4` now reads the pnpm version directly from `packageManager: pnpm@10.31.0` in
+  `package.json`, eliminating the version mismatch that caused CI to fail
 - No functional, API, or schema changes — all tests remain green
 
 ### Verify
