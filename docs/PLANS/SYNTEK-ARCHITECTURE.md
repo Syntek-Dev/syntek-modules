@@ -187,11 +187,12 @@ Syntek's own managed clients. Any developer can run an identical stack independe
 - Multi-site management from a single installation
 - Django backend with a GraphQL API layer (Strawberry)
 - Next.js frontend with SSR/SSG support; Next.js `.next` output handles all static file caching and
-  asset minification
+  minification of **build-time** assets
 - React Native (Expo) mobile frontend — mobile editing and content management are first-class
   capabilities alongside web
 - Built-in user/role/permission management
-- Page builder with block-based content modelling
+- Page builder with block-based content modelling; each page stores its content structure as a JSON
+  blob in the `pages` table
 - Cloudinary for all media (images, video) — metadata stored in PostgreSQL, assets served via
   Cloudinary CDN
 - MinIO for document storage only (PDFs, spreadsheets, office files) — presigned URLs for access;
@@ -203,6 +204,75 @@ Syntek's own managed clients. Any developer can run an identical stack independe
 - AI hook system (delegates to `syntek-ai` if configured, or accepts developer-supplied bot configs
   and API keys)
 - License validation client (calls `syntek-licensing` API to gate paid features)
+
+**Design Token Theming Architecture:**
+
+Token overrides are per-tenant branding values (e.g. `--color-primary: oklch(0.55 0.2 250)`) that
+platform administrators edit through the branding form. They are distinct from page content and are
+not stored in the `pages` JSON blob — they are tenant-wide and apply to every page.
+
+The token system is split across three layers:
+
+| Layer                                     | Owner             | Responsibility                                                                                  |
+| ----------------------------------------- | ----------------- | ----------------------------------------------------------------------------------------------- |
+| Token schema (`TOKEN_MANIFEST`)           | `@syntek/tokens`  | Static descriptor array — what tokens exist, which widget to render, what the default value is  |
+| CSS string generation (`buildThemeStyle`) | `@syntek/tokens`  | Converts an override map `{ "--color-primary": "oklch(...)" }` into a `:root { ... }` CSS block |
+| Override storage and serving              | `syntek-platform` | Persists overrides per tenant; serves compiled CSS; manages CDN caching                         |
+
+`@syntek/tokens` exposes only these two surfaces to the platform. Everything else — persistence,
+caching, serving, and cache revalidation — is owned by `syntek-platform`.
+
+**Optimised token override flow (production):**
+
+```text
+Administrator edits branding form in syntek-platform
+  → isValidCssColour() validates each value (from @syntek/tokens)
+  → resolveTailwindColour() resolves any Tailwind swatch selections to hex (from @syntek/tokens)
+  → overrides saved to syntek-settings (per-tenant key-value store)
+  → buildThemeStyle(overrides) generates `:root { --color-primary: oklch(...); }` (from @syntek/tokens)
+  → platform minifies the CSS string (strips whitespace)
+  → sha256 hash computed over the minified CSS
+  → tenant_themes table updated: { overrides (jsonb), compiled_css (text), css_hash (varchar), updated_at }
+  → revalidateTag(`theme-${tenantId}`) clears Next.js route cache for the CSS endpoint
+
+On every page SSR request:
+  → root layout.tsx renders: <link rel="stylesheet" href={`/api/theme/${tenantId}.css?v=${css_hash}`} />
+  → Next.js Full Route Cache caches the rendered HTML (including the versioned <link> URL)
+
+CDN / browser request for /api/theme/{tenantId}.css?v={hash}:
+  → Next.js API route reads compiled_css from tenant_themes (single DB read, no regeneration)
+  → responds with compiled CSS
+  → Cache-Control: public, max-age=31536000, immutable
+  → ETag: "{css_hash}"
+  → CDN caches response against the versioned URL indefinitely
+
+On next branding save:
+  → new hash → new <link href> URL → CDN treats as cache miss → fetches fresh → caches again
+  → old versioned URL remains valid on CDN (old cached HTML pages still work)
+```
+
+**tenant_themes table** (owned by syntek-platform, not syntek-modules):
+
+```sql
+CREATE TABLE tenant_themes (
+  tenant_id     uuid        PRIMARY KEY REFERENCES tenants(id) ON DELETE CASCADE,
+  overrides     jsonb       NOT NULL DEFAULT '{}',
+  compiled_css  text        NOT NULL DEFAULT '',
+  css_hash      varchar(64) NOT NULL DEFAULT '',
+  updated_at    timestamptz NOT NULL DEFAULT now()
+);
+```
+
+**Key decisions:**
+
+- `@syntek/tokens` is purely static — it never reads from or writes to any database
+- `TOKEN_MANIFEST` is not stored in the DB; it is a build-time constant read at server startup
+- Token overrides are stored in `syntek-settings` (raw map) and `tenant_themes` (compiled + hashed)
+- Next.js does not minify runtime-generated CSS; the platform minifies before writing to
+  `tenant_themes`
+- The `<link href>` URL includes the hash — old cached HTML referencing old CSS is always valid
+- The CDN caches based on HTTP headers (`Cache-Control: immutable`), not the DB table; the table
+  provides the pre-compiled string and the stable hash needed to construct the versioned URL
 
 **Free tier includes:**
 
@@ -764,24 +834,27 @@ shared hosting platform for platform developers.
 
 ## Technology Stack Summary
 
-| Layer                                     | Technology                                                                 |
-| ----------------------------------------- | -------------------------------------------------------------------------- |
-| Infrastructure                            | NixOS, Hetzner AX162-R, ZFS, Cloudflare Tunnels, agenix, OpenBao           |
-| License key crypto                        | Rust (`rust-tools/license-server/`)                                        |
-| AI LLM routing                            | Rust (`rust-tools/ai-gateway/`)                                            |
-| Backend (platform, extensions, licensing) | Python 3.14.3, Django 6.0.4, PostgreSQL 18.3, Celery                       |
-| API layer                                 | GraphQL (Strawberry), Django REST Framework (licensing/internal APIs)      |
-| Frontend                                  | Next.js 16.1.6, React 19.2, TypeScript 5.9, Tailwind CSS 4.2 (token-based) |
-| Static files / asset pipeline             | Next.js `.next` output — caching, bundling, and minification               |
-| Mobile                                    | React Native 0.84.x (Expo), NativeWind 4, TypeScript 5.9                   |
-| Media (images, video)                     | Cloudinary — metadata in PostgreSQL, assets served via Cloudinary CDN      |
-| Documents (PDFs, office files)            | MinIO — presigned URLs; not used for images or static assets               |
-| Package distribution                      | PyPI (Python packages), npm (TypeScript/JS packages)                       |
-| Payments                                  | Square (developer store + licensing renewal)                               |
-| Documentation                             | Markdown → Docusaurus static site                                          |
-| Secrets                                   | agenix (NixOS boot-time), OpenBao (runtime)                                |
-| VPN                                       | Defguard (WireGuard-based, Syntek internal only)                           |
-| Operational automation                    | n8n (hosted on `syntek-infrastructure`)                                    |
+| Layer                                     | Technology                                                                                                                                                                                             |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Infrastructure                            | NixOS, Hetzner AX162-R, ZFS, Cloudflare Tunnels, agenix, OpenBao                                                                                                                                       |
+| License key crypto                        | Rust (`rust-tools/license-server/`)                                                                                                                                                                    |
+| AI LLM routing                            | Rust (`rust-tools/ai-gateway/`)                                                                                                                                                                        |
+| Backend (platform, extensions, licensing) | Python 3.14.3, Django 6.0.4, PostgreSQL 18.3, Celery                                                                                                                                                   |
+| API layer                                 | GraphQL (Strawberry), Django REST Framework (licensing/internal APIs)                                                                                                                                  |
+| Frontend                                  | Next.js 16.1.6, React 19.2, TypeScript 5.9, Tailwind CSS 4.2 (token-based)                                                                                                                             |
+| Build-time static assets                  | Next.js `.next` output — caching, bundling, and minification of JS/CSS produced at `next build`                                                                                                        |
+| Dynamic theme CSS                         | Per-tenant `/api/theme/{tenantId}.css?v={hash}` endpoint; CSS pre-compiled and cached in `tenant_themes` PostgreSQL table; `Cache-Control: immutable`; CDN-cacheable; `revalidateTag` on branding save |
+| Design token schema                       | `@syntek/tokens` — `TOKEN_MANIFEST` (static descriptor), `buildThemeStyle` (CSS generator), `TAILWIND_COLOURS`, `isValidCssColour`; no DB access                                                       |
+| Token override storage                    | `syntek-settings` (raw per-tenant override map); `tenant_themes` (compiled CSS + sha256 hash)                                                                                                          |
+| Mobile                                    | React Native 0.84.x (Expo), NativeWind 4, TypeScript 5.9                                                                                                                                               |
+| Media (images, video)                     | Cloudinary — metadata in PostgreSQL, assets served via Cloudinary CDN                                                                                                                                  |
+| Documents (PDFs, office files)            | MinIO — presigned URLs; not used for images or static assets                                                                                                                                           |
+| Package distribution                      | PyPI (Python packages), npm (TypeScript/JS packages)                                                                                                                                                   |
+| Payments                                  | Square (developer store + licensing renewal)                                                                                                                                                           |
+| Documentation                             | Markdown → Docusaurus static site                                                                                                                                                                      |
+| Secrets                                   | agenix (NixOS boot-time), OpenBao (runtime)                                                                                                                                                            |
+| VPN                                       | Defguard (WireGuard-based, Syntek internal only)                                                                                                                                                       |
+| Operational automation                    | n8n (hosted on `syntek-infrastructure`)                                                                                                                                                                |
 
 ---
 
@@ -792,7 +865,12 @@ shared hosting platform for platform developers.
   goes in modules.
 - **Design tokens, not hardcoded values.** Never hardcode a colour, font size, spacing, or shadow
   value in any product. Always reference a design token. The token default values are defined in
-  `syntek-modules` and overridden through configuration in consuming products.
+  `syntek-modules` (`@syntek/tokens`) and overridden through configuration in consuming products.
+  The `TOKEN_MANIFEST` is the single source of truth for what tokens exist and which widget renders
+  for each one. `@syntek/tokens` owns the schema and CSS generation only — persistence, serving, and
+  cache revalidation are the consuming product's responsibility. The `tenant_themes` table and
+  `/api/theme/{id}.css` endpoint pattern (described under `syntek-platform`) is the required
+  implementation for any product that serves per-tenant token overrides via Next.js and a CDN.
 - **Settings schema.** Every module and extension must expose a typed settings schema. Configuration
   is always explicit, never implicit.
 - **Per-developer licensing.** Licenses are issued to the developer, not to individual client
