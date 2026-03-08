@@ -1,24 +1,33 @@
 # Test Status — @syntek/tokens (US075)
 
 **Package**: `@syntek/tokens` (`shared/tokens/`)\
-**Last Run**: `2026-03-08T00:00:00Z`\
-**Run by**: TDD scaffold (red phase)\
-**Overall Result**: `FAIL` (red phase — all new tests expected to fail)\
-**Coverage**: pending green phase
+**Last Run**: `2026-03-08T21:45:00Z`\
+**Run by**: Vitest 3.2.4 (green phase — full implementation)\
+**Overall Result**: `PASS` — 659 tests passed, 0 failed\
+**Coverage**: 100% lines/statements across all source files
 
 ---
 
 ## Summary
 
-| Suite       | Tests   | Passed | Failed  | Skipped |
-| ----------- | ------- | ------ | ------- | ------- |
-| Unit        | ~90     | 0      | ~90     | 0       |
-| Integration | 0       | 0      | 0       | 0       |
-| E2E         | 0       | 0      | 0       | 0       |
-| **Total**   | **~90** | **0**  | **~90** | **0**   |
+| Suite       | Tests   | Passed  | Failed | Skipped |
+| ----------- | ------- | ------- | ------ | ------- |
+| Unit        | 659     | 659     | 0      | 0       |
+| Integration | 0       | 0       | 0      | 0       |
+| E2E         | 0       | 0       | 0      | 0       |
+| **Total**   | **659** | **659** | **0**  | **0**   |
 
-> Exact counts subject to change as stubs are filled in. All tests from prior US003 stories continue
-> to pass — only the new US075 tests are in the red phase.
+Test suite breakdown:
+
+| File                           | Tests | Result  |
+| ------------------------------ | ----- | ------- |
+| `token-manifest.test.ts`       | 110   | ✅ PASS |
+| `tailwind-colours.test.ts`     | 317   | ✅ PASS |
+| `css-colour-validator.test.ts` | 66    | ✅ PASS |
+| `token-exports.test.ts`        | 62    | ✅ PASS |
+| `token-values.test.ts`         | 63    | ✅ PASS |
+| `token-types.test.ts`          | 27    | ✅ PASS |
+| `theme-utils.test.ts`          | 14    | ✅ PASS |
 
 ---
 
@@ -26,149 +35,150 @@
 
 ### TOKEN_MANIFEST structural invariants
 
-- [ ] `is exported as an array` — TOKEN_MANIFEST is an Array instance
-- [ ] `has at least one entry` — fails: stub returns `[]`
-- [ ] `every entry has a non-empty string key` — vacuously passes with empty array
-- [ ] `every entry cssVar starts with '--'` — vacuously passes
-- [ ] `every entry category is a valid TokenCategory` — vacuously passes
-- [ ] `every entry type is a valid TokenWidgetType` — vacuously passes
-- [ ] `every entry default is a string or number` — vacuously passes
-- [ ] `every entry label is a non-empty string` — vacuously passes
-- [ ] `all keys are unique` — vacuously passes
-- [ ] `all cssVar names are unique` — vacuously passes
+- [x] `is exported as an array` — TOKEN_MANIFEST is an Array instance
+- [x] `has at least one entry` — manifest contains all token categories
+- [x] `every entry has a non-empty string key`
+- [x] `every entry cssVar starts with '--'`
+- [x] `every entry category is a valid TokenCategory`
+- [x] `every entry type is a valid TokenWidgetType`
+- [x] `every entry default is a string or number`
+- [x] `every entry label is a non-empty string`
+- [x] `all keys are unique`
+- [x] `all cssVar names are unique`
 
 ### Colour token entries
 
-- [ ] `there is at least one colour token` — fails: no entries
-- [ ] `all colour tokens have type "color"` — vacuously passes
-- [ ] `all colour token defaults are hex strings` — vacuously passes
-- [ ] `has entry for COLOR_PRIMARY` — fails: not found
-- [ ] `COLOR_PRIMARY has cssVar "--color-primary"` — fails
-- [ ] `COLOR_PRIMARY has type "color"` — fails
-- [ ] `COLOR_PRIMARY default is "#2563eb"` — fails
-- [ ] _(same for COLOR_SECONDARY, COLOR_DESTRUCTIVE, COLOR_MUTED, COLOR_SURFACE, COLOR_BACKGROUND,
+- [x] `there is at least one colour token` — 11 colour tokens present
+- [x] `all colour tokens have type "color"`
+- [x] `all colour token defaults are hex strings`
+- [x] `has entry for COLOR_PRIMARY`
+- [x] `COLOR_PRIMARY has cssVar "--color-primary"`
+- [x] `COLOR_PRIMARY has type "color"`
+- [x] `COLOR_PRIMARY default is "#2563eb"`
+- [x] _(same for COLOR_SECONDARY, COLOR_DESTRUCTIVE, COLOR_MUTED, COLOR_SURFACE, COLOR_BACKGROUND,
       COLOR_FOREGROUND, COLOR_BORDER)_
 
 ### Spacing token entries
 
-- [ ] `there is at least one spacing token` — fails
-- [ ] `all spacing tokens have type "px"` — vacuously passes
-- [ ] `all spacing token defaults are numbers` — vacuously passes
-- [ ] `SPACING_1 entry: cssVar "--spacing-1", default 4` — fails
-- [ ] _(same for SPACING_2, SPACING_4, SPACING_8, SPACING_16)_
+- [x] `there is at least one spacing token` — 13 spacing tokens present
+- [x] `all spacing tokens have type "px"`
+- [x] `all spacing token defaults are numbers`
+- [x] `SPACING_1 entry: cssVar "--spacing-1", default 4`
+- [x] _(same for SPACING_2, SPACING_4, SPACING_8, SPACING_16)_
 
 ### Font-size token entries
 
-- [ ] `there is at least one font-size token` — fails
-- [ ] `FONT_SIZE_XS entry: cssVar "--font-size-xs", default 0.75` — fails
-- [ ] _(same for FONT_SIZE_SM, FONT_SIZE_BASE, FONT_SIZE_LG)_
+- [x] `there is at least one font-size token` — 9 font-size tokens present
+- [x] `FONT_SIZE_XS entry: cssVar "--font-size-xs", default 0.75`
+- [x] _(same for FONT_SIZE_SM, FONT_SIZE_BASE, FONT_SIZE_LG)_
 
 ### Font-weight token entries
 
-- [ ] `there is at least one font-weight token` — fails
-- [ ] `FONT_WEIGHT_LIGHT default is 300` — fails
-- [ ] `FONT_WEIGHT_NORMAL default is 400` — fails
-- [ ] `FONT_WEIGHT_BOLD default is 700` — fails
+- [x] `there is at least one font-weight token` — 5 font-weight tokens present
+- [x] `FONT_WEIGHT_LIGHT default is 300`
+- [x] `FONT_WEIGHT_NORMAL default is 400`
+- [x] `FONT_WEIGHT_BOLD default is 700`
 
 ### Font-family token entries
 
-- [ ] `there is at least one font-family token` — fails
-- [ ] `FONT_SANS entry: cssVar "--font-sans", type "font-family"` — fails
-- [ ] `FONT_SERIF and FONT_MONO entries` — fails
+- [x] `there is at least one font-family token` — 3 font-family tokens present
+- [x] `FONT_SANS entry: cssVar "--font-sans", type "font-family"`
+- [x] `FONT_SERIF and FONT_MONO entries`
 
 ### Z-index token entries
 
-- [ ] `there is at least one z-index token` — fails
-- [ ] `Z_BASE default is 0` — fails
-- [ ] `Z_MODAL default is 1300` — fails
-- [ ] `Z_TOOLTIP default is 1500` — fails
+- [x] `there is at least one z-index token` — 7 z-index tokens present
+- [x] `Z_BASE default is 0`
+- [x] `Z_MODAL default is 1300`
+- [x] `Z_TOOLTIP default is 1500`
 
 ### Transition token entries
 
-- [ ] `there is at least one duration token` — fails
-- [ ] `TRANSITION_DURATION_FAST default is 150` — fails
-- [ ] `TRANSITION_DURATION_BASE default is 200` — fails
-- [ ] `TRANSITION_DURATION_SLOW default is 300` — fails
-- [ ] `there is at least one easing token` — fails
-- [ ] `TRANSITION_EASING_DEFAULT default is cubic-bezier(0.4, 0, 0.2, 1)` — fails
+- [x] `there is at least one duration token` — 3 duration tokens present
+- [x] `TRANSITION_DURATION_FAST default is 150`
+- [x] `TRANSITION_DURATION_BASE default is 200`
+- [x] `TRANSITION_DURATION_SLOW default is 300`
+- [x] `there is at least one easing token` — 3 easing tokens present
+- [x] `TRANSITION_EASING_DEFAULT default is cubic-bezier(0.4, 0, 0.2, 1)`
 
 ### Category coverage
 
-- [ ] `contains at least one "colour" token` — fails
-- [ ] `contains at least one "spacing" token` — fails
-- [ ] `contains at least one "typography" token` — fails
-- [ ] `contains at least one "radius" token` — fails
-- [ ] `contains at least one "z-index" token` — fails
-- [ ] `contains at least one "transition" token` — fails
+- [x] `contains at least one "colour" token`
+- [x] `contains at least one "spacing" token`
+- [x] `contains at least one "typography" token`
+- [x] `contains at least one "radius" token`
+- [x] `contains at least one "z-index" token`
+- [x] `contains at least one "transition" token`
 
 ### TOKEN_MANIFEST immutability
 
-- [ ] `is frozen at runtime` — fails: `[]` is not frozen in stub
-- [ ] `returns the same reference on repeated imports` — passes (ESM module cache)
+- [x] `is frozen at runtime` — `Object.freeze()` applied at module level; each entry individually
+      frozen
+- [x] `returns the same reference on repeated imports` — ESM module cache
 
 ---
 
 ### TAILWIND_COLOURS structure
 
-- [ ] `is exported and is an object` — passes (stub exports `{}`)
-- [ ] `is non-empty` — fails: stub is empty
-- [ ] `has at least 242 entries` — fails
-- [ ] `all values are hex strings` — vacuously passes
+- [x] `is exported and is an object`
+- [x] `is non-empty` — 246 entries
+- [x] `has at least 242 entries` — 246 entries present (exceeds minimum)
+- [x] `all values are hex strings`
 
 ### TAILWIND_COLOURS family coverage (22 families × 11 scales)
 
-- [ ] `contains entries for "slate" family` — fails
-- [ ] `contains entries for "blue" family` — fails
-- [ ] _(all 22 family tests fail)_
+- [x] `contains entries for "slate" family`
+- [x] `contains entries for "blue" family`
+- [x] _(all 22 family tests pass)_
 
 ### TAILWIND_COLOURS scale coverage
 
-- [ ] `has "blue-600"` — fails
-- [ ] _(all 242 scale tests fail)_
+- [x] `has "blue-600"`
+- [x] _(all 242+ scale tests pass)_
 
 ### TAILWIND_COLOURS known values
 
-- [ ] `"blue-600" resolves to "#2563eb"` — fails
-- [ ] `"gray-500" resolves to "#6b7280"` — fails
-- [ ] _(all known value tests fail)_
+- [x] `"blue-600" resolves to "#2563eb"`
+- [x] `"gray-500" resolves to "#6b7280"`
+- [x] _(all known value tests pass)_
 
 ### resolveTailwindColour
 
-- [ ] `resolves "blue-600" to "#2563eb"` — fails (returns undefined)
-- [ ] `resolves "gray-500" to "#6b7280"` — fails
-- [ ] `returns undefined for unknown name` — passes (stub returns undefined)
-- [ ] `returns undefined for empty string` — passes
-- [ ] `returns undefined for bare CSS colour` — passes
-- [ ] `all family-scale combos return a hex string` — fails
+- [x] `resolves "blue-600" to "#2563eb"`
+- [x] `resolves "gray-500" to "#6b7280"`
+- [x] `returns undefined for unknown name`
+- [x] `returns undefined for empty string`
+- [x] `returns undefined for bare CSS colour`
+- [x] `all family-scale combos return a hex string`
 
 ---
 
 ### isValidCssColour — valid formats
 
-- [ ] `accepts #rrggbb` — fails (stub returns false)
-- [ ] `accepts #rgb` — fails
-- [ ] `accepts #rrggbbaa` — fails
-- [ ] `accepts rgb()` — fails
-- [ ] `accepts rgba()` — fails
-- [ ] `accepts hsl()` — fails
-- [ ] `accepts hsla()` — fails
-- [ ] `accepts hwb()` — fails
-- [ ] `accepts lab()` — fails
-- [ ] `accepts lch()` — fails
-- [ ] `accepts oklab()` — fails
-- [ ] `accepts oklch()` — fails
-- [ ] `accepts named colours (white, transparent, cornflowerblue …)` — fails
+- [x] `accepts #rrggbb`
+- [x] `accepts #rgb`
+- [x] `accepts #rrggbbaa`
+- [x] `accepts rgb()`
+- [x] `accepts rgba()`
+- [x] `accepts hsl()`
+- [x] `accepts hsla()`
+- [x] `accepts hwb()`
+- [x] `accepts lab()`
+- [x] `accepts lch()`
+- [x] `accepts oklab()`
+- [x] `accepts oklch()`
+- [x] `accepts named colours (white, transparent, cornflowerblue …)`
 
 ### isValidCssColour — invalid values
 
-- [ ] `rejects empty string` — passes (stub returns false)
-- [ ] `rejects "blue-600"` — passes
-- [ ] `rejects "#xyz"` — passes
-- [ ] `rejects "not-a-colour"` — passes
-- [ ] `rejects "42"` — passes
-- [ ] `rejects "var(--color-primary)"` — passes
-- [ ] `rejects malformed rgb` — passes
-- [ ] `rejects malformed hsl` — passes
+- [x] `rejects empty string`
+- [x] `rejects "blue-600"`
+- [x] `rejects "#xyz"`
+- [x] `rejects "not-a-colour"`
+- [x] `rejects "42"`
+- [x] `rejects "var(--color-primary)"`
+- [x] `rejects malformed rgb`
+- [x] `rejects malformed hsl`
 
 ---
 
@@ -188,14 +198,11 @@ dependencies on other services.
 
 ## Known Failures
 
-All failures below are **expected** in the red phase:
+None. All tests pass in the green phase.
 
-| Test group                     | Failure reason                    | Story |
-| ------------------------------ | --------------------------------- | ----- |
-| TOKEN_MANIFEST coverage        | Stub exports empty array          | US075 |
-| TAILWIND_COLOURS lookups       | Stub exports empty object         | US075 |
-| isValidCssColour valid formats | Stub always returns false         | US075 |
-| TOKEN_MANIFEST frozen          | Empty array literal is not frozen | US075 |
+| Test group | Failure reason | Story |
+| ---------- | -------------- | ----- |
+| —          | —              | —     |
 
 ---
 
@@ -217,9 +224,10 @@ pnpm --filter @syntek/tokens exec vitest run --coverage
 ## Notes
 
 - All pre-existing US003 tests (`token-exports.test.ts`, `token-values.test.ts`,
-  `token-types.test.ts`) must remain green throughout US075 work.
-- Green phase: implement `TOKEN_MANIFEST`, `TAILWIND_COLOURS`, `resolveTailwindColour`, and
-  `isValidCssColour` in the respective source files and ensure `Object.freeze` is applied to
-  `TOKEN_MANIFEST` at module level.
-- The `TAILWIND_COLOURS` palette data (all 22 families × 11 scales = 242 entries) should be sourced
-  from the official Tailwind CSS v4 palette definitions.
+  `token-types.test.ts`) passed without regression — confirmed in the Turbo test log.
+- `tsc --noEmit` exits 0 — no type errors across the package.
+- 100% line and statement coverage confirmed in `coverage/coverage-summary.json`.
+- `TOKEN_MANIFEST` is frozen at module level using `Object.freeze()` applied to both the outer array
+  and each individual `TokenDescriptor` entry.
+- `TAILWIND_COLOURS` has 246 entries (22 families × 11 scales = 242 required; 4 additional entries
+  account for extra scale variants).
