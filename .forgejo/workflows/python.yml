@@ -45,7 +45,7 @@ jobs:
         run: uv run basedpyright packages/backend/
 
       - name: Security audit (pip-audit)
-        run: uv run pip-audit
+        run: uvx run pip-audit
 
       - name: Detect changed packages
         id: changed
