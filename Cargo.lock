@@ -907,7 +907,7 @@ dependencies = [
 
 [[package]]
 name = "syntek-crypto"
-version = "0.8.0"
+version = "0.10.0"
 dependencies = [
  "aes-gcm",
  "argon2",
@@ -921,7 +921,7 @@ dependencies = [
 
 [[package]]
 name = "syntek-dev"
-version = "0.8.0"
+version = "0.10.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -934,7 +934,7 @@ dependencies = [
 
 [[package]]
 name = "syntek-graphql-crypto"
-version = "0.8.0"
+version = "0.10.0"
 dependencies = [
  "serde",
  "serde_json",
@@ -944,7 +944,7 @@ dependencies = [
 
 [[package]]
 name = "syntek-manifest"
-version = "0.8.0"
+version = "0.10.0"
 dependencies = [
  "serde",
  "tempfile",
@@ -955,7 +955,7 @@ dependencies = [
 
 [[package]]
 name = "syntek-pyo3"
-version = "0.8.0"
+version = "0.10.0"
 dependencies = [
  "pyo3",
  "syntek-crypto",
