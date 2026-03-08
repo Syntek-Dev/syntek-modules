@@ -1,5 +1,29 @@
 # Releases
 
+## v0.5.1 — 08/03/2026
+
+**Branch**: `us004/shared-graphql-operations-package`\
+**Type**: PATCH\
+**Story**: Fix `.gitignore` `lib/` pattern incorrectly excluding `src/lib/fetcher.ts` from CI
+
+### Highlights
+
+- `.gitignore` — bare `lib/` and `lib64/` entries removed; these were silently excluding TypeScript
+  `src/lib/` directories from the repository (Python virtualenv lib paths are already covered by
+  `.venv/`, `venv/`, `env/`, and `build/`)
+- `shared/graphql/src/lib/fetcher.ts` — file restored to the repository; was gitignored since US004
+  landed, causing CI TypeScript build failures (`TS2307: Cannot find module`)
+- No functional changes — `fetcher.ts` content is unchanged; all 29/29 graphql tests remain green
+
+### Verify
+
+```bash
+syntek-dev test --web --web-package @syntek/graphql
+pnpm type-check
+```
+
+---
+
 ## v0.5.0 — 07/03/2026
 
 **Branch**: `us004/shared-graphql-operations-package`\

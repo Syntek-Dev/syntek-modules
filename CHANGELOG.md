@@ -7,6 +7,19 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [0.5.1] — 08/03/2026
+
+### Fixed
+
+- **`.gitignore`** — removed bare `lib/` and `lib64/` entries that incorrectly gitignored TypeScript
+  `src/lib/` directories; Python virtualenv lib directories are already covered by `.venv/`, `venv/`,
+  `env/`, and `build/` entries
+- **`shared/graphql/src/lib/fetcher.ts`** — file was silently excluded from CI by the above pattern;
+  now tracked and present in the repository; resolves `TS2307: Cannot find module '../lib/fetcher'`
+  and `TS2307: Cannot find module './lib/fetcher.js'` errors in CI
+
+---
+
 ## [0.5.0] — 07/03/2026
 
 ### Added
