@@ -7,6 +7,7 @@
 
 ## Table of Contents
 
+- [Reference Guides](#reference-guides)
 - [Stack Overview](#stack-overview)
 - [Coding Principles](#coding-principles)
 - [Skill Targets](#skill-targets)
@@ -22,6 +23,21 @@
 
 ---
 
+> **IMPORTANT:** Always use `syntek-dev <command>` for development tasks. See
+> `.claude/CLI-TOOLING.md` for the full command reference.
+
+---
+
+## Reference Guides
+
+| Guide                         | Purpose                                                          |
+| ----------------------------- | ---------------------------------------------------------------- |
+| `.claude/CLI-TOOLING.md`      | `syntek-dev` CLI — all commands, flags, and usage                |
+| `.claude/GIT-GUIDE.md`        | Git workflow — lint before commit, CI before push                |
+| `.claude/VERSIONING-GUIDE.md` | Versioning rules — root files, per-module files, increment types |
+
+---
+
 ## Stack Overview
 
 | Component           | Technology                                         | Version             |
@@ -30,7 +46,7 @@
 | **Backend**         | Django + Python                                    | 6.0.4 / 3.14.3      |
 | **API Layer**       | Strawberry GraphQL                                 | 0.307.1             |
 | **Database**        | PostgreSQL                                         | 18.3                |
-| **Cache / Queue**   | Redis + Celery                                     | latest stable       |
+| **Cache / Queue**   | Valkey + Celery                                    | latest stable       |
 | **Web Frontend**    | Next.js + React + TypeScript                       | 16.1.6 / 19.2 / 5.9 |
 | **Styling**         | Tailwind CSS                                       | 4.2                 |
 | **Mobile**          | React Native (Expo) + NativeWind                   | 0.84.x / 4          |
