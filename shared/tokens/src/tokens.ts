@@ -117,6 +117,59 @@ export const FONT_SIZE_4XL = "var(--font-size-4xl)";
 export const FONT_SIZE_5XL = "var(--font-size-5xl)";
 
 // ---------------------------------------------------------------------------
+// Typography — line-height
+// ---------------------------------------------------------------------------
+
+/** References `--line-height-xs` — 1 rem. */
+export const LINE_HEIGHT_XS = "var(--line-height-xs)";
+
+/** References `--line-height-sm` — 1.25 rem. */
+export const LINE_HEIGHT_SM = "var(--line-height-sm)";
+
+/** References `--line-height-base` — 1.5 rem. */
+export const LINE_HEIGHT_BASE = "var(--line-height-base)";
+
+/** References `--line-height-lg` — 1.75 rem. */
+export const LINE_HEIGHT_LG = "var(--line-height-lg)";
+
+/** References `--line-height-xl` — 1.75 rem. */
+export const LINE_HEIGHT_XL = "var(--line-height-xl)";
+
+/** References `--line-height-2xl` — 2 rem. */
+export const LINE_HEIGHT_2XL = "var(--line-height-2xl)";
+
+/** References `--line-height-3xl` — 2.25 rem. */
+export const LINE_HEIGHT_3XL = "var(--line-height-3xl)";
+
+/** References `--line-height-4xl` — 2.5 rem. */
+export const LINE_HEIGHT_4XL = "var(--line-height-4xl)";
+
+/** References `--line-height-5xl` — 1 (unitless). */
+export const LINE_HEIGHT_5XL = "var(--line-height-5xl)";
+
+// ---------------------------------------------------------------------------
+// Typography — letter-spacing
+// ---------------------------------------------------------------------------
+
+/** References `--letter-spacing-tighter` — -0.05 em. */
+export const LETTER_SPACING_TIGHTER = "var(--letter-spacing-tighter)";
+
+/** References `--letter-spacing-tight` — -0.025 em. */
+export const LETTER_SPACING_TIGHT = "var(--letter-spacing-tight)";
+
+/** References `--letter-spacing-normal` — 0 em. */
+export const LETTER_SPACING_NORMAL = "var(--letter-spacing-normal)";
+
+/** References `--letter-spacing-wide` — 0.025 em. */
+export const LETTER_SPACING_WIDE = "var(--letter-spacing-wide)";
+
+/** References `--letter-spacing-wider` — 0.05 em. */
+export const LETTER_SPACING_WIDER = "var(--letter-spacing-wider)";
+
+/** References `--letter-spacing-widest` — 0.1 em. */
+export const LETTER_SPACING_WIDEST = "var(--letter-spacing-widest)";
+
+// ---------------------------------------------------------------------------
 // Typography — font-weight
 // ---------------------------------------------------------------------------
 
