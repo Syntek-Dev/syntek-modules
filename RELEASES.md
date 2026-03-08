@@ -1,5 +1,36 @@
 # Releases
 
+## v0.7.0 — 08/03/2026
+
+**Branch**: `us004/shared-graphql-operations-package`\
+**Type**: MINOR\
+**Story**: Security infrastructure — SAST scanning, dependency automation, vulnerability disclosure
+
+### Highlights
+
+- `SECURITY.md` — public vulnerability disclosure policy; GitHub private vulnerability reporting,
+  90-day response SLA, scope definitions, and dependency security notes
+- `renovate.json` — Renovate dependency automation for all four stacks (npm, pip, cargo,
+  github-actions); weekly Monday schedule; Europe/London timezone
+- `.github/dependabot.yml` — Dependabot fallback for GitHub; all four ecosystems, same schedule
+- `.github/workflows/codeql.yml` — CodeQL SAST scanning Python and TypeScript on push/PR and
+  weekly; catches security vulnerabilities before they reach production
+- `.forgejo/workflows/semgrep.yml` — Semgrep SAST for Forgejo CI; separate jobs for Python/Django
+  and TypeScript/React
+- `.forgejo/workflows/renovate.yml` — Renovate self-hosted workflow for Forgejo registry
+- `docs/GUIDES/BRANCH-PROTECTION.md` — branch protection reference guide for maintainers
+- `.github/setup-branch-protection.sh` removed — branch protection rules are now managed via
+  web UI only to prevent unreviewed scripted changes
+
+### Verify
+
+```bash
+# No executable verification — workflows run in CI on push/PR
+# Manually: review .github/workflows/codeql.yml and .forgejo/workflows/semgrep.yml
+```
+
+---
+
 ## v0.6.0 — 08/03/2026
 
 **Branch**: `us004/shared-graphql-operations-package`\

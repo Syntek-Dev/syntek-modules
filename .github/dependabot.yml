@@ -1,0 +1,60 @@
+version: 2
+updates:
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+      timezone: "Europe/London"
+    labels:
+      - "dependencies"
+      - "github-actions"
+
+  # JavaScript / TypeScript (pnpm workspaces — web, mobile, shared)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+      timezone: "Europe/London"
+    labels:
+      - "dependencies"
+      - "javascript"
+    groups:
+      # Group non-breaking minor and patch updates to reduce PR noise
+      typescript-ecosystem:
+        patterns:
+          - "typescript"
+          - "@typescript-eslint/*"
+          - "eslint*"
+          - "prettier*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Python (uv workspace — packages/backend)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+      timezone: "Europe/London"
+    labels:
+      - "dependencies"
+      - "python"
+
+  # Rust (cargo workspace — rust/)
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+      timezone: "Europe/London"
+    labels:
+      - "dependencies"
+      - "rust"
