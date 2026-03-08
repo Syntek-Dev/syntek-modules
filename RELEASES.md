@@ -1,5 +1,32 @@
 # Releases
 
+## v0.6.0 — 08/03/2026
+
+**Branch**: `us004/shared-graphql-operations-package`\
+**Type**: MINOR\
+**Story**: Extend `syntek-dev lint --fix` to cover Prettier and markdownlint auto-fix
+
+### Highlights
+
+- `syntek-dev lint --fix` now runs `pnpm format` (Prettier `--write`) and `pnpm lint:md:fix`
+  (markdownlint-cli2 `--fix`) in addition to ruff and ESLint; one command now cleans the entire
+  codebase across all linters
+- New `--prettier` flag added — run Prettier in isolation without triggering all other linters:
+  `syntek-dev lint --prettier` (check) or `syntek-dev lint --prettier --fix` (write)
+- `lint:md:fix` script added to root `package.json` to wire markdownlint auto-fix into the CLI
+- Sprint 01 (Repository Foundation) formally documented as complete — 114/114 tests passing
+  across US001, US002, and US004
+
+### Verify
+
+```bash
+syntek-dev lint --fix          # runs all linters with auto-fix
+syntek-dev lint --prettier     # Prettier check only
+syntek-dev lint --markdown --fix  # markdownlint auto-fix only
+```
+
+---
+
 ## v0.5.2 — 08/03/2026
 
 **Branch**: `us004/shared-graphql-operations-package`\

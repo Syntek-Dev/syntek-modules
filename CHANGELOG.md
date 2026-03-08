@@ -7,6 +7,38 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [0.6.0] — 08/03/2026
+
+### Added
+
+- **`rust/syntek-dev`** — `--prettier` flag added to `LintArgs`; allows running Prettier in
+  isolation via `syntek-dev lint --prettier` without triggering all other linters
+- **`rust/syntek-dev`** — `syntek-dev lint --fix` now runs `pnpm format` (Prettier `--write`)
+  in addition to ruff `--fix` and ESLint `--fix`; Prettier section inserted before the clippy
+  section in the lint command runner
+- **`rust/syntek-dev`** — `syntek-dev lint --fix` now runs `pnpm lint:md:fix`
+  (markdownlint-cli2 `--fix`) instead of `pnpm lint:md` when `--fix` is passed
+- **`package.json`** — `lint:md:fix` script added (`markdownlint-cli2 --fix`) to expose
+  auto-fix to the Rust CLI process runner
+
+### Changed
+
+- **`rust/syntek-dev`** — `run_all` guard updated to include `!args.prettier`, consistent
+  with all other single-linter flags; `--prettier` alone no longer triggers a full lint run
+
+### Documentation
+
+- **`docs/SPRINTS/SPRINT-01.md`** — completion date recorded (06/03/2026); story completion
+  status table and per-story verification checklists added
+- **`docs/SPRINTS/OVERVIEW.md`** — Sprint 01 annotated as ✅ Completed 06/03/2026; overall
+  status updated to "In Progress (Sprint 01 Completed)"
+- **`docs/STORIES/OVERVIEW.md`** — US001, US002, US004 status updated from "To Do" to
+  ✅ Completed
+- **`docs/SPRINTS/LOGS/COMPLETION-2026-03-08-SPRINT-01.md`** — new sprint completion log
+  created; records 114/114 tests passing across all three Sprint 01 stories
+
+---
+
 ## [0.5.2] — 08/03/2026
 
 ### Fixed

@@ -2,6 +2,7 @@
 
 | Version | Date       | Type  | Summary                                                                                         |
 | ------- | ---------- | ----- | ----------------------------------------------------------------------------------------------- |
+| 0.6.0   | 08/03/2026 | MINOR | `syntek-dev lint --fix` covers Prettier + markdownlint; `--prettier` flag added; Sprint 01 docs |
 | 0.5.2   | 08/03/2026 | PATCH | Fix pnpm version conflict in CI — remove hardcoded `version` from `pnpm/action-setup@v4`        |
 | 0.5.1   | 08/03/2026 | PATCH | Fix overly broad `.gitignore` `lib/` pattern; restore `shared/graphql/src/lib/fetcher.ts` to CI |
 | 0.5.0   | 07/03/2026 | MINOR | Add `syntek-dev ci` command, fix CI markdownlint (175 → 0), add coverage, upgrade lefthook      |
