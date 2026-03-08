@@ -5,6 +5,12 @@ import reactPlugin from "eslint-plugin-react";
 import reactHooksPlugin from "eslint-plugin-react-hooks";
 import importPlugin from "eslint-plugin-import";
 import globals from "globals";
+import { createRequire } from "module";
+
+// Load the local Syntek ESLint rules. createRequire is used because this
+// config is an ES module but the rule files use CommonJS exports.
+const require = createRequire(import.meta.url);
+const noHardcodedDesignValues = require("./eslint-rules/no-hardcoded-design-values.js");
 
 /** @type {import("eslint").Linter.Config[]} */
 export default [
@@ -80,6 +86,24 @@ export default [
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-non-null-assertion": "off",
+    },
+  },
+
+  // Syntek design token enforcement — rejects hardcoded colour, spacing,
+  // font-size, and font-family literals in web and mobile source files.
+  // Excludes the token definitions themselves and all test files.
+  {
+    files: ["packages/web/**/*.ts", "packages/web/**/*.tsx", "mobile/**/*.ts", "mobile/**/*.tsx"],
+    ignores: ["shared/tokens/**", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
+    plugins: {
+      syntek: {
+        rules: {
+          "no-hardcoded-design-values": noHardcodedDesignValues,
+        },
+      },
+    },
+    rules: {
+      "syntek/no-hardcoded-design-values": "error",
     },
   },
 ];
