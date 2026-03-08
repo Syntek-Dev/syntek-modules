@@ -1,6 +1,6 @@
 # Syntek Modules — Stories Overview
 
-**Last Updated**: 06/03/2026 **Version**: 0.1.0 **Maintained By**: Syntek Development Team
+**Last Updated**: 08/03/2026 **Version**: 0.1.0 **Maintained By**: Syntek Development Team
 **Language**: British English (en_GB) **Timezone**: Europe/London
 
 ---
@@ -66,14 +66,14 @@ A story is only complete when:
 
 ### Epic 1 — Foundation & Workspace
 
-| Story             | Title                                                           | Points | Status |
-| ----------------- | --------------------------------------------------------------- | ------ | ------ |
-| [US001](US001.md) | Monorepo Workspace Configuration                                | 5      | To Do  |
-| [US002](US002.md) | Shared TypeScript Types Package                                 | 3      | To Do  |
-| [US003](US003.md) | Design Token System                                             | 5      | To Do  |
-| [US004](US004.md) | Shared GraphQL Operations Package                               | 3      | To Do  |
-| [US005](US005.md) | CI/CD Pipeline (Forgejo Actions)                                | 5      | To Do  |
-| [US074](US074.md) | `syntek-manifest` — Module Manifest Spec & CLI Shared Framework | 5      | To Do  |
+| Story             | Title                                                           | Points | Status       |
+| ----------------- | --------------------------------------------------------------- | ------ | ------------ |
+| [US001](US001.md) | Monorepo Workspace Configuration                                | 5      | ✅ Completed |
+| [US002](US002.md) | Shared TypeScript Types Package                                 | 3      | ✅ Completed |
+| [US003](US003.md) | Design Token System                                             | 5      | To Do        |
+| [US004](US004.md) | Shared GraphQL Operations Package                               | 3      | ✅ Completed |
+| [US005](US005.md) | CI/CD Pipeline (Forgejo Actions)                                | 5      | To Do        |
+| [US074](US074.md) | `syntek-manifest` — Module Manifest Spec & CLI Shared Framework | 5      | To Do        |
 
 ### Epic 2 — Rust Encryption Layer
 
