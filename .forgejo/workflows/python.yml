@@ -96,6 +96,14 @@ jobs:
             done
           fi
 
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-coverage
+          path: coverage.xml
+          retention-days: 30
+
       - name: Coverage report (PR comment)
         if: github.event_name == 'pull_request'
         uses: MishaKav/pytest-coverage-comment@main
