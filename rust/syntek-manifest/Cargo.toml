@@ -1,0 +1,17 @@
+[package]
+name = "syntek-manifest"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Shared manifest parser, option prompter, settings writer, and post-install printer for all Syntek module CLI binaries"
+repository = "https://git.syntek-studio.com/syntek/syntek-modules"
+
+[dependencies]
+serde = { workspace = true, features = ["derive"] }
+thiserror.workspace = true
+toml.workspace = true
+unicode-width.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
