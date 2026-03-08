@@ -39,6 +39,16 @@ type Query {
   currentTenant: Tenant
 }
 
+type LogoutPayload {
+  success: Boolean!
+}
+
+type RefreshTokenPayload {
+  token: String!
+}
+
 type Mutation {
   login(email: String!, password: String!): LoginPayload
+  logout: LogoutPayload
+  refreshToken: RefreshTokenPayload
 }

@@ -22,9 +22,16 @@ export type LoginPayload = {
   user: User;
 };
 
+export type LogoutPayload = {
+  __typename?: 'LogoutPayload';
+  success: Scalars['Boolean']['output'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   login?: Maybe<LoginPayload>;
+  logout?: Maybe<LogoutPayload>;
+  refreshToken?: Maybe<RefreshTokenPayload>;
 };
 
 
@@ -50,6 +57,11 @@ export type Query = {
   __typename?: 'Query';
   currentTenant?: Maybe<Tenant>;
   me?: Maybe<User>;
+};
+
+export type RefreshTokenPayload = {
+  __typename?: 'RefreshTokenPayload';
+  token: Scalars['String']['output'];
 };
 
 export type Role = {
@@ -81,6 +93,16 @@ export type LoginMutationVariables = Exact<{
 
 
 export type LoginMutation = { __typename?: 'Mutation', login?: { __typename?: 'LoginPayload', token: string, user: { __typename?: 'User', id: string, email: string, createdAt: string, roles: Array<{ __typename?: 'Role', id: string, name: string, permissions: Array<{ __typename?: 'Permission', name: string, scope: string }> }> } } | null };
+
+export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LogoutMutation = { __typename?: 'Mutation', logout?: { __typename?: 'LogoutPayload', success: boolean } | null };
+
+export type RefreshTokenMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type RefreshTokenMutation = { __typename?: 'Mutation', refreshToken?: { __typename?: 'RefreshTokenPayload', token: string } | null };
 
 export type CurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -130,6 +152,54 @@ export const useLoginMutation = <
 
 
 useLoginMutation.fetcher = (variables: LoginMutationVariables, options?: RequestInit['headers']) => fetcher<LoginMutation, LoginMutationVariables>(LoginDocument, variables, options);
+
+export const LogoutDocument = `
+    mutation Logout {
+  logout {
+    success
+  }
+}
+    `;
+
+export const useLogoutMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<LogoutMutation, TError, LogoutMutationVariables, TContext>) => {
+    
+    return useMutation<LogoutMutation, TError, LogoutMutationVariables, TContext>(
+      {
+    mutationKey: ['Logout'],
+    mutationFn: (variables?: LogoutMutationVariables) => fetcher<LogoutMutation, LogoutMutationVariables>(LogoutDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useLogoutMutation.fetcher = (variables?: LogoutMutationVariables, options?: RequestInit['headers']) => fetcher<LogoutMutation, LogoutMutationVariables>(LogoutDocument, variables, options);
+
+export const RefreshTokenDocument = `
+    mutation RefreshToken {
+  refreshToken {
+    token
+  }
+}
+    `;
+
+export const useRefreshTokenMutation = <
+      TError = unknown,
+      TContext = unknown
+    >(options?: UseMutationOptions<RefreshTokenMutation, TError, RefreshTokenMutationVariables, TContext>) => {
+    
+    return useMutation<RefreshTokenMutation, TError, RefreshTokenMutationVariables, TContext>(
+      {
+    mutationKey: ['RefreshToken'],
+    mutationFn: (variables?: RefreshTokenMutationVariables) => fetcher<RefreshTokenMutation, RefreshTokenMutationVariables>(RefreshTokenDocument, variables)(),
+    ...options
+  }
+    )};
+
+
+useRefreshTokenMutation.fetcher = (variables?: RefreshTokenMutationVariables, options?: RequestInit['headers']) => fetcher<RefreshTokenMutation, RefreshTokenMutationVariables>(RefreshTokenDocument, variables, options);
 
 export const CurrentUserDocument = `
     query CurrentUser {
