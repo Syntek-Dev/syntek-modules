@@ -1,7 +1,7 @@
 # Manual Testing Guide — @syntek/graphql
 
 **Package**: `@syntek/graphql`\
-**Last Updated**: `2026-03-06`\
+**Last Updated**: `2026-03-08`\
 **Tested against**: Node.js `24.14.0` / TypeScript `5.9`
 
 ---
@@ -19,10 +19,10 @@ generated files.
 
 Before testing, ensure the following are in place:
 
-- [ ] pnpm dependencies installed at workspace root: `pnpm install`
-- [ ] Backend GraphQL schema is reachable at `http://localhost:8000/graphql` (or set
+- [x] pnpm dependencies installed at workspace root: `pnpm install`
+- [x] Backend GraphQL schema is reachable at `http://localhost:8000/graphql` (or set
       `GRAPHQL_SCHEMA_URL` environment variable to an SDL file path or remote URL)
-- [ ] Active terminal in the repo root
+- [x] Active terminal in the repo root
 
 ---
 
@@ -58,12 +58,15 @@ rm -f shared/graphql/src/generated/graphql.ts
 
 #### Expected Result
 
-- [ ] `src/generated/graphql.ts` is created
-- [ ] File exports `useLoginMutation`, `useCurrentUserQuery`, `useCurrentTenantQuery`
-- [ ] File exports `LoginMutationVariables`, `LoginMutation`, `CurrentUserQuery`,
+- [x] `src/generated/graphql.ts` is created
+- [x] File exports `useLoginMutation`, `useCurrentUserQuery`, `useCurrentTenantQuery`
+- [x] File exports `LoginMutationVariables`, `LoginMutation`, `CurrentUserQuery`,
       `CurrentTenantQuery`
-- [ ] `LoginMutationVariables` has `email: string` and `password: string` fields
-- [ ] No TypeScript errors when opening the file in an editor
+- [x] `LoginMutationVariables` has `email: string` and `password: string` fields
+- [x] No TypeScript errors when opening the file in an editor
+
+> **Tested**: 2026-03-08 — codegen ran against local `schema.graphql` (no live server required). All
+> exports confirmed via `grep`. Exit code 0.
 
 ---
 
@@ -124,8 +127,12 @@ pnpm --filter @syntek/graphql build
 
 #### Expected Result
 
-- [ ] Command exits with a non-zero code
-- [ ] Output explains that the generated file differs from expected
+- [x] Command exits with a non-zero code
+- [x] Output explains that the generated file differs from expected
+
+> **Tested**: 2026-03-08 — injected drift by renaming `email` → `email_DRIFTED` in the generated
+> file. `codegen:check` exited with code 1 and reported:
+> `The following stale files were detected: src/generated/graphql.ts`. Generated file restored.
 
 ---
 
@@ -151,9 +158,15 @@ codegen + type-checking reveals the breakage in consuming packages.
 
 #### Expected Result
 
-- [ ] `src/generated/graphql.ts` no longer has `token` in `LoginMutation`
-- [ ] Any consuming package accessing `data.login.token` gets a TypeScript error
-- [ ] Error message clearly identifies the field and file
+- [x] `src/generated/graphql.ts` no longer has `token` in `LoginMutation`
+- [x] Any consuming package accessing `data.login.token` gets a TypeScript error
+- [x] Error message clearly identifies the field and file
+
+> **Tested**: 2026-03-08 — removed `token: String!` from `LoginPayload` in `schema.graphql`. Codegen
+> failed immediately with:
+> `GraphQL Document Validation failed: Cannot query field "token" on type "LoginPayload"` at
+> `src/operations/auth.graphql:3:5`. Breakage surfaced before type-check was even needed. Schema and
+> generated file restored to clean state.
 
 ---
 
@@ -161,20 +174,20 @@ codegen + type-checking reveals the breakage in consuming packages.
 
 Run before marking a PR ready for review:
 
-- [ ] All automated tests pass: `pnpm --filter @syntek/graphql test`
-- [ ] Codegen runs clean against the current schema: `pnpm --filter @syntek/graphql codegen`
-- [ ] Type-check passes: `pnpm --filter @syntek/graphql type-check`
-- [ ] Build succeeds: `pnpm --filter @syntek/graphql build`
-- [ ] Drift check passes: `pnpm --filter @syntek/graphql codegen:check`
-- [ ] No TypeScript errors in consuming packages: `pnpm type-check`
+- [x] All automated tests pass: `pnpm --filter @syntek/graphql test`
+- [x] Codegen runs clean against the current schema: `pnpm --filter @syntek/graphql codegen`
+- [x] Type-check passes: `pnpm --filter @syntek/graphql type-check`
+- [x] Build succeeds: `pnpm --filter @syntek/graphql build`
+- [x] Drift check passes: `pnpm --filter @syntek/graphql codegen:check`
+- [x] No TypeScript errors in consuming packages: `pnpm type-check`
 
 ---
 
 ## Known Issues
 
-| Issue                                                    | Workaround                                                                       | Story / Issue |
-| -------------------------------------------------------- | -------------------------------------------------------------------------------- | ------------- |
-| Codegen requires a live backend to introspect the schema | Use a local SDL file as `schema` in `codegen.ts`, or start the Django dev server | US004         |
+| Issue                                                        | Workaround                                                                           | Story / Issue |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------ | ------------- |
+| ~~Codegen requires a live backend to introspect the schema~~ | Resolved — `codegen.ts` defaults to local `schema.graphql`; no running server needed | US004         |
 
 ---
 

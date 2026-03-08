@@ -1,5 +1,44 @@
 # Releases
 
+## v0.8.0 — 08/03/2026
+
+**Branch**: `us003/design-token-system`\
+**Type**: MINOR\
+**Story**: US003 — Design Token System
+
+### Highlights
+
+- `shared/tokens/` (`@syntek/tokens`) — the canonical design token package for the entire Syntek UI
+  ecosystem. Exports typed TypeScript constants covering colours, spacing, typography, font
+  families, border radii, shadows, breakpoints, z-index, and opacity. Also ships a `tokens.css` file
+  with CSS custom properties for web packages and a `nativewind.ts` export with a
+  NativeWind-compatible theme object for React Native.
+- `eslint-rules/no-hardcoded-design-values.js` — a custom ESLint rule enforcing that developers
+  import design values from `@syntek/tokens` rather than scattering raw hex codes, magic spacing
+  values, or hardcoded font sizes through component files. Applied globally to all `packages/web`
+  and `mobile` source via `eslint.config.mjs`.
+- `docs/GUIDES/TOKENS-INTEGRATION.md` — a practical integration guide covering how to consume
+  `@syntek/tokens` from web and mobile packages, including import patterns, CSS variable usage, and
+  NativeWind configuration.
+- Sprint 02 (Design Tokens, CI/CD & Manifest Framework) completed 08/03/2026. US003 is the sole
+  story in Sprint 02 and is now fully verified with Vitest unit tests and a Cucumber BDD feature
+  spec.
+
+### Verify
+
+```bash
+# Type-check the tokens package
+pnpm --filter @syntek/tokens type-check
+
+# Run the Vitest test suite
+pnpm --filter @syntek/tokens test
+
+# Confirm the ESLint rule loads without errors
+pnpm lint
+```
+
+---
+
 ## v0.7.0 — 08/03/2026
 
 **Branch**: `us004/shared-graphql-operations-package`\

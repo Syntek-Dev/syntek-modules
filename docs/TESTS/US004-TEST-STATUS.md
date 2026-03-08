@@ -23,39 +23,39 @@
 
 ### Type inference — LoginMutationVariables
 
-- [ ] `LoginMutationVariables.email is string` — email is a required string field
-- [ ] `LoginMutationVariables.password is string` — password is a required string field
-- [ ] `LoginMutationVariables is not Record<string, unknown>` — closed object, not an index
+- [x] `LoginMutationVariables.email is string` — email is a required string field
+- [x] `LoginMutationVariables.password is string` — password is a required string field
+- [x] `LoginMutationVariables is not Record<string, unknown>` — closed object, not an index
       signature
 
 ### Type inference — LoginMutation
 
-- [ ] `LoginMutation has login field` — result shape has login property
-- [ ] `login.token is string` — token returned from login is a string
-- [ ] `login.user.id is string` — returned user id is a string
-- [ ] `login.user.email is string` — returned user email is a string
+- [x] `LoginMutation has login field` — result shape has login property
+- [x] `login.token is string` — token returned from login is a string
+- [x] `login.user.id is string` — returned user id is a string
+- [x] `login.user.email is string` — returned user email is a string
 
 ### Type inference — CurrentUserQueryVariables
 
-- [ ] `CurrentUserQueryVariables is Record<string, never>` — no variables required
+- [x] `CurrentUserQueryVariables is Record<string, never>` — no variables required
 
 ### Type inference — CurrentUserQuery
 
-- [ ] `CurrentUserQuery has me field` — result shape has me property
-- [ ] `me.id is string` — user id is a string
-- [ ] `me.email is string` — user email is a string
-- [ ] `me.createdAt is string` — createdAt is an ISO timestamp string
+- [x] `CurrentUserQuery has me field` — result shape has me property
+- [x] `me.id is string` — user id is a string
+- [x] `me.email is string` — user email is a string
+- [x] `me.createdAt is string` — createdAt is an ISO timestamp string
 
 ### Type inference — CurrentTenantQueryVariables
 
-- [ ] `CurrentTenantQueryVariables is Record<string, never>` — no variables required
+- [x] `CurrentTenantQueryVariables is Record<string, never>` — no variables required
 
 ### Type inference — CurrentTenantQuery
 
-- [ ] `CurrentTenantQuery has currentTenant field` — result shape has currentTenant property
-- [ ] `currentTenant.id is string` — tenant id is a string
-- [ ] `currentTenant.slug is string` — tenant slug is a string
-- [ ] `currentTenant.name is string` — tenant name is a string
+- [x] `CurrentTenantQuery has currentTenant field` — result shape has currentTenant property
+- [x] `currentTenant.id is string` — tenant id is a string
+- [x] `currentTenant.slug is string` — tenant slug is a string
+- [x] `currentTenant.name is string` — tenant name is a string
 
 ---
 
@@ -63,27 +63,27 @@
 
 ### Codegen output — file existence
 
-- [ ] `src/generated/graphql.ts exists` — codegen has been run
+- [x] `src/generated/graphql.ts exists` — codegen has been run
 
 ### Codegen output — auth hooks
 
-- [ ] `exports useLoginMutation` — hook function present in generated file
-- [ ] `exports useCurrentUserQuery` — hook function present in generated file
-- [ ] `exports LoginMutationVariables type` — type alias present
-- [ ] `exports LoginMutation type` — type alias present
-- [ ] `exports CurrentUserQuery type` — type alias present
-- [ ] `LoginMutationVariables contains email field` — codegen picked up schema field
-- [ ] `LoginMutationVariables contains password field` — codegen picked up schema field
+- [x] `exports useLoginMutation` — hook function present in generated file
+- [x] `exports useCurrentUserQuery` — hook function present in generated file
+- [x] `exports LoginMutationVariables type` — type alias present
+- [x] `exports LoginMutation type` — type alias present
+- [x] `exports CurrentUserQuery type` — type alias present
+- [x] `LoginMutationVariables contains email field` — codegen picked up schema field
+- [x] `LoginMutationVariables contains password field` — codegen picked up schema field
 
 ### Codegen output — tenant hooks
 
-- [ ] `exports useCurrentTenantQuery` — hook function present in generated file
-- [ ] `exports CurrentTenantQuery type` — type alias present
+- [x] `exports useCurrentTenantQuery` — hook function present in generated file
+- [x] `exports CurrentTenantQuery type` — type alias present
 
 ### Codegen output — module structure
 
-- [ ] `generated file is a valid ES module` — contains export keyword
-- [ ] `generated file contains a GraphQL document` — DocumentNode or gql tag present
+- [x] `generated file is a valid ES module` — contains export keyword
+- [x] `generated file contains a GraphQL document` — DocumentNode or gql tag present
 
 ---
 
