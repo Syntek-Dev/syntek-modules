@@ -7,6 +7,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [0.5.2] — 08/03/2026
+
+### Fixed
+
+- **`.github/workflows/web.yml`** — removed hardcoded `version: "10.28.2"` from
+  `pnpm/action-setup@v4`; action now reads `packageManager` from `package.json` automatically,
+  preventing version conflict with `pnpm@10.31.0`
+- **`.github/workflows/graphql-drift.yml`** — same fix as above applied to the GraphQL drift
+  detection workflow; both CI workflows now stay in sync with `package.json` automatically
+
+---
+
 ## [0.5.1] — 08/03/2026
 
 ### Fixed

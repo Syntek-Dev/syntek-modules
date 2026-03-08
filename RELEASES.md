@@ -1,5 +1,28 @@
 # Releases
 
+## v0.5.2 — 08/03/2026
+
+**Branch**: `us004/shared-graphql-operations-package`\
+**Type**: PATCH\
+**Story**: Fix pnpm version conflict in GitHub Actions CI workflows
+
+### Highlights
+
+- `.github/workflows/web.yml` and `.github/workflows/graphql-drift.yml` — removed the hardcoded
+  `version: "10.28.2"` key from the `pnpm/action-setup@v4` step in both workflows
+- `pnpm/action-setup@v4` now reads the pnpm version directly from `packageManager: pnpm@10.31.0`
+  in `package.json`, eliminating the version mismatch that caused CI to fail
+- No functional, API, or schema changes — all tests remain green
+
+### Verify
+
+```bash
+# CI passes without pnpm version conflict errors
+# Check GitHub Actions run for web.yml and graphql-drift.yml
+```
+
+---
+
 ## v0.5.1 — 08/03/2026
 
 **Branch**: `us004/shared-graphql-operations-package`\
