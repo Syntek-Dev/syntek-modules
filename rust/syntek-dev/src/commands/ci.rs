@@ -66,7 +66,7 @@ pub async fn run() -> Result<()> {
         failed.push("test");
     }
 
-    // 7. TypeScript coverage (json-summary + text reporters, matches web.yml)
+    // 7. TypeScript coverage (json-summary + json + text reporters, matches web.yml)
     step += 1;
     ui::section(&format!("{step}/{total}  TypeScript — coverage"));
     if !proc::run(
@@ -79,6 +79,7 @@ pub async fn run() -> Result<()> {
             "--",
             "--coverage",
             "--coverage.reporter=json-summary",
+            "--coverage.reporter=json",
             "--coverage.reporter=text",
         ],
         &root,
@@ -92,7 +93,7 @@ pub async fn run() -> Result<()> {
     // graphql-drift.yml — schema drift check
     // ===================================================================
 
-    // 7. GraphQL schema drift
+    // 8. GraphQL schema drift
     step += 1;
     ui::section(&format!("{step}/{total}  GraphQL — schema drift check"));
     if !proc::run(
@@ -244,7 +245,7 @@ pub async fn run() -> Result<()> {
         ui::warn("cargo not found — skipping");
     }
 
-    // 18. cargo audit
+    // 17. cargo audit
     step += 1;
     ui::section(&format!("{step}/{total}  Rust — cargo audit"));
     if has_cargo {
