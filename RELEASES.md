@@ -14,8 +14,8 @@
 - New `--prettier` flag added — run Prettier in isolation without triggering all other linters:
   `syntek-dev lint --prettier` (check) or `syntek-dev lint --prettier --fix` (write)
 - `lint:md:fix` script added to root `package.json` to wire markdownlint auto-fix into the CLI
-- Sprint 01 (Repository Foundation) formally documented as complete — 114/114 tests passing
-  across US001, US002, and US004
+- Sprint 01 (Repository Foundation) formally documented as complete — 114/114 tests passing across
+  US001, US002, and US004
 
 ### Verify
 
