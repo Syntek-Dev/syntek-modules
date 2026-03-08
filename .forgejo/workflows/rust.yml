@@ -17,6 +17,8 @@ jobs:
   rust:
     name: Fmt, clippy, test
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 

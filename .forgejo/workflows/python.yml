@@ -17,6 +17,8 @@ jobs:
   python:
     name: Lint, type-check, test
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -41,7 +43,7 @@ jobs:
         run: uv run basedpyright packages/backend/
 
       - name: Security audit (pip-audit)
-        run: uvx pip-audit --fail-on HIGH,CRITICAL
+        run: uvx pip-audit
 
       - name: Detect changed packages
         id: changed

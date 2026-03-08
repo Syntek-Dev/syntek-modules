@@ -23,6 +23,8 @@ jobs:
   web:
     name: Lint, type-check, test
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
