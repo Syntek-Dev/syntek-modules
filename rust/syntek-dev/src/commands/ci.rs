@@ -11,12 +11,12 @@ use crate::ui;
 ///   web.yml         — Prettier, ESLint, markdownlint, type-check, pnpm audit, test, coverage
 ///   graphql-drift.yml — GraphQL schema drift check
 ///   python.yml      — ruff check, ruff format, basedpyright, pip-audit, pytest
-///   rust.yml        — cargo fmt, clippy, cargo test, cargo audit
+///   rust.yml        — cargo fmt, clippy, cargo test, cargo audit, cargo llvm-cov
 pub async fn run() -> Result<()> {
     let root = config::find_root()?;
     let mut failed: Vec<&str> = Vec::new();
     let mut step: u32 = 0;
-    let total: u32 = 17;
+    let total: u32 = 18;
 
     ui::header("syntek-modules — CI (local)");
 
@@ -66,10 +66,25 @@ pub async fn run() -> Result<()> {
         failed.push("test");
     }
 
-    // 6. TypeScript coverage
+    // 7. TypeScript coverage (json-summary + text reporters, matches web.yml)
     step += 1;
     ui::section(&format!("{step}/{total}  TypeScript — coverage"));
-    if !proc::run("pnpm", &["test", "--", "--coverage"], &root).await? {
+    if !proc::run(
+        "pnpm",
+        &[
+            "turbo",
+            "run",
+            "test",
+            "--affected",
+            "--",
+            "--coverage",
+            "--coverage.reporter=json-summary",
+            "--coverage.reporter=text",
+        ],
+        &root,
+    )
+    .await?
+    {
         failed.push("coverage");
     }
 
@@ -151,7 +166,16 @@ pub async fn run() -> Result<()> {
     ui::section(&format!("{step}/{total}  Python — pytest"));
     if has_uv {
         let status = tokio::process::Command::new("uv")
-            .args(["run", "pytest", "packages/backend/", "-x", "-q"])
+            .args([
+                "run",
+                "pytest",
+                "packages/backend/",
+                "-x",
+                "-q",
+                "--cov=packages/backend/",
+                "--cov-report=xml:coverage.xml",
+                "--cov-report=term-missing",
+            ])
             .current_dir(&root)
             .status()
             .await?;
@@ -220,7 +244,7 @@ pub async fn run() -> Result<()> {
         ui::warn("cargo not found — skipping");
     }
 
-    // 17. cargo audit
+    // 18. cargo audit
     step += 1;
     ui::section(&format!("{step}/{total}  Rust — cargo audit"));
     if has_cargo {
@@ -232,6 +256,23 @@ pub async fn run() -> Result<()> {
         .await?
         {
             failed.push("cargo-audit");
+        }
+    } else {
+        ui::warn("cargo not found — skipping");
+    }
+
+    // 18. cargo llvm-cov (matches rust.yml coverage step)
+    step += 1;
+    ui::section(&format!("{step}/{total}  Rust — coverage (cargo llvm-cov)"));
+    if has_cargo {
+        if !proc::run(
+            "cargo",
+            &["llvm-cov", "--all", "--lcov", "--output-path", "lcov.info"],
+            &root,
+        )
+        .await?
+        {
+            failed.push("cargo-llvm-cov");
         }
     } else {
         ui::warn("cargo not found — skipping");
