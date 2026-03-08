@@ -19,6 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -38,12 +40,65 @@ jobs:
       - name: Type-check (basedpyright)
         run: uv run basedpyright packages/backend/
 
-      - name: Test (pytest)
+      - name: Security audit (pip-audit)
+        run: uv run pip-audit --fail-on HIGH,CRITICAL
+
+      - name: Detect changed packages
+        id: changed
         run: |
-          EXIT_CODE=0
-          uv run pytest packages/backend/ -x -q || EXIT_CODE=$?
-          if [ "$EXIT_CODE" -eq 5 ]; then
-            echo "No tests collected — OK until backend packages have tests"
-            exit 0
+          if git rev-parse origin/main >/dev/null 2>&1; then
+            BASE=origin/main
+          else
+            BASE=$(git rev-parse HEAD~1 2>/dev/null || echo "HEAD")
           fi
-          exit "$EXIT_CODE"
+          CHANGED_PACKAGES=""
+          for pkg in packages/backend/*/; do
+            pkg_name=$(basename "$pkg")
+            if git diff --name-only "$BASE"...HEAD -- "$pkg" | grep -q .; then
+              CHANGED_PACKAGES="$CHANGED_PACKAGES $pkg_name"
+            fi
+          done
+          CHANGED_PACKAGES="${CHANGED_PACKAGES# }"
+          echo "packages=$CHANGED_PACKAGES" >> "$GITHUB_OUTPUT"
+          if [ -z "$CHANGED_PACKAGES" ]; then
+            echo "No affected backend packages detected — running full suite as fallback"
+            echo "run_all=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Affected packages: $CHANGED_PACKAGES"
+            echo "run_all=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Test (pytest — affected packages)
+        run: |
+          RUN_ALL="${{ steps.changed.outputs.run_all }}"
+          CHANGED_PACKAGES="${{ steps.changed.outputs.packages }}"
+
+          run_pytest() {
+            local path="$1"
+            EXIT_CODE=0
+            uv run pytest "$path" -x -q \
+              --cov="$path" \
+              --cov-report=xml:coverage.xml \
+              --cov-report=term-missing \
+              || EXIT_CODE=$?
+            if [ "$EXIT_CODE" -eq 5 ]; then
+              echo "No tests collected in $path — OK until tests are added"
+              return 0
+            fi
+            return "$EXIT_CODE"
+          }
+
+          if [ "$RUN_ALL" = "true" ]; then
+            run_pytest packages/backend/
+          else
+            for PACKAGE in $CHANGED_PACKAGES; do
+              run_pytest "packages/backend/${PACKAGE}"
+            done
+          fi
+
+      - name: Coverage report (PR comment)
+        if: github.event_name == 'pull_request'
+        uses: MishaKav/pytest-coverage-comment@main
+        with:
+          pytest-xml-coverage-path: coverage.xml
+          title: Python coverage report
