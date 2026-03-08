@@ -1,7 +1,7 @@
 # Completion Update: Sprint 02 — Design Tokens, CI/CD & Manifest Framework
 
 **Date**: 08/03/2026 17:00
-**Action**: Sprint Complete — US003 (Design Token System)
+**Action**: Sprint Complete — US003 (Design Token System), US005 (CI/CD Pipeline)
 **Logged By**: Completion Agent
 
 ---
@@ -10,9 +10,10 @@
 
 ### Story Updates
 
-| Story | Title               | Previous    | New          | File Updated              |
-| ----- | ------------------- | ----------- | ------------ | ------------------------- |
-| US003 | Design Token System | In Progress | ✅ Completed  | docs/STORIES/US003.md     |
+| Story | Title                            | Previous    | New          | File Updated              |
+| ----- | -------------------------------- | ----------- | ------------ | ------------------------- |
+| US003 | Design Token System              | In Progress | ✅ Completed  | docs/STORIES/US003.md     |
+| US005 | CI/CD Pipeline (Forgejo Actions) | To Do       | ✅ Completed  | docs/STORIES/US005.md     |
 
 ### Sprint Updates
 
@@ -26,8 +27,10 @@
 | ---------------------------- | ------------------------------------------------------------------------------- |
 | docs/STORIES/OVERVIEW.md     | US003 status updated from `To Do` to `✅ Completed`                             |
 | docs/SPRINTS/OVERVIEW.md     | Sprint 02 marked ✅ Completed 08/03/2026; overall status updated to Sprint 02   |
-| docs/TESTS/US003-TEST-STATUS.md   | Story status header updated to ✅ Completed                                |
+| docs/TESTS/US003-TEST-STATUS.md    | Story status header updated to ✅ Completed                               |
 | docs/TESTS/US003-MANUAL-TESTING.md | Story status header updated to ✅ Completed                               |
+| docs/TESTS/US005-TEST-STATUS.md    | Updated to green phase — 43/43 tests passing, all checkboxes ticked       |
+| docs/TESTS/US005-MANUAL-TESTING.md | Regression checklist marked complete, status header updated               |
 
 ---
 
@@ -56,6 +59,8 @@ Rust CLI installer library that every subsequent module ships with.
 | US075 | Design Token Manifest                       | 5      | 08/03/2026 | —                        |
 
 **US003 tests**: 152/152 passing across token-exports, token-values, and token-types Vitest suites.
+
+**US005 tests**: 43/43 passing — `uv run pytest tests/ci/ -v` (green phase complete).
 
 ---
 
@@ -103,10 +108,45 @@ Rust CLI installer library that every subsequent module ships with.
 
 - Sprint 02 ran in parallel across four independent stories targeting separate team members
 - US003 was delivered on branch `us003/design-token-system`
-- All six acceptance criteria are satisfied; two minor items are deferred with tracked story
+- US005 was delivered on branch `us005/ci-cd-pipeline`
+- All six US003 acceptance criteria are satisfied; two minor items are deferred with tracked story
   references (US042) and do not affect the package's usability as a dependency
 - US075 (Design Token Manifest) depends on US003 — US003 completion unblocks US075 fully
 - Sprint 03 (Rust — Crypto Primitives, US006) can now begin
+
+---
+
+## US005 Completion Detail
+
+### What was built
+
+- `python.yml` — added `uv run pip-audit --fail-on HIGH,CRITICAL` security audit step,
+  changed-files detection for per-package pytest runs, `--cov`/`--cov-report=xml` flags, and
+  MishaKav/pytest-coverage-comment PR comment step
+- `web.yml` — added `pnpm audit --audit-level=high` security audit step,
+  `turbo run test --affected` for affected-only test runs, `--coverage.reporter=json-summary` flag,
+  and `davelosert/vitest-coverage-report-action` PR comment step
+- `rust.yml` — added `cargo audit --deny warnings` security audit step, `cargo llvm-cov --lcov`
+  coverage collection step, and lcov-based PR comment step
+- `.github/workflows/` — mirrors all three Forgejo workflow files identically
+- All coverage PR comment steps are guarded with `if: github.event_name == 'pull_request'`
+
+### All five acceptance criteria satisfied
+
+| Criterion | Status |
+| --------- | ------ |
+| CI executes lint, type-check, test, and security audit for all affected packages | ✅ |
+| Pipeline fails when any test fails | ✅ |
+| Pipeline fails with clear report when audit finds high/critical CVE | ✅ |
+| Only affected package tests run when a single package changes (Turborepo --affected) | ✅ |
+| Coverage and audit reports available as PR comments after successful run | ✅ |
+
+### Test summary
+
+| Suite | Tests | Passed | Failed | Skipped |
+| ----- | ----- | ------ | ------ | ------- |
+| Unit  | 43    | 43     | 0      | 0       |
+| **Total** | **43** | **43** | **0** | **0** |
 
 ---
 
