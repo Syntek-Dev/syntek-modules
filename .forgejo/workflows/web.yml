@@ -14,16 +14,6 @@ on:
       - "eslint.config.mjs"
       - ".prettierrc"
   pull_request:
-    paths:
-      - "shared/**"
-      - "packages/web/**"
-      - "mobile/**"
-      - "pnpm-workspace.yaml"
-      - "pnpm-lock.yaml"
-      - "turbo.json"
-      - "tsconfig*.json"
-      - "eslint.config.mjs"
-      - ".prettierrc"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

@@ -8,10 +8,6 @@ on:
       - "pyproject.toml"
       - "pyrightconfig.json"
   pull_request:
-    paths:
-      - "packages/backend/**"
-      - "pyproject.toml"
-      - "pyrightconfig.json"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
