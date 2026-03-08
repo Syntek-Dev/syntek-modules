@@ -138,7 +138,11 @@ pub struct LintArgs {
     #[arg(long)]
     pub markdown: bool,
 
-    /// Auto-fix where possible (ruff --fix, eslint --fix)
+    /// Run Prettier format check (or --write when combined with --fix)
+    #[arg(long)]
+    pub prettier: bool,
+
+    /// Auto-fix where possible (ruff --fix, eslint --fix, prettier --write, markdownlint --fix)
     #[arg(long)]
     pub fix: bool,
 

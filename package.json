@@ -16,6 +16,7 @@
     "test:e2e": "turbo run test:e2e",
     "lint": "turbo run lint",
     "lint:md": "markdownlint-cli2 \"**/*.md\" \"#**/node_modules\" \"#.venv\" \"#target\" \"#dist\" \"#.claude\"",
+    "lint:md:fix": "markdownlint-cli2 --fix \"**/*.md\" \"#**/node_modules\" \"#.venv\" \"#target\" \"#dist\" \"#.claude\"",
     "type-check": "turbo run type-check",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
