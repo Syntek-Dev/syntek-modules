@@ -1,5 +1,48 @@
 # Releases
 
+## v0.9.0 — 08/03/2026
+
+**Branch**: `us005/ci-cd-pipeline`\
+**Type**: MINOR\
+**Story**: US005 — CI/CD Pipeline (Forgejo Actions)
+
+### Highlights
+
+- Full CI/CD pipeline now active across all three stacks (Python, TypeScript/Web, Rust). Every PR
+  automatically runs lint, type-check, tests, and a dependency vulnerability audit before merge is
+  permitted.
+- **Dependency security scanning** — `pip-audit` (Python), `pnpm audit` (TypeScript/JS), and
+  `cargo audit` (Rust) execute on every PR and fail the pipeline when any HIGH or CRITICAL CVE is
+  detected, with a human-readable report visible in the Actions log.
+- **Affected-only test runs** — the web layer uses Turborepo's `--affected` flag so that only
+  packages touched by a commit are tested. The Python layer uses changed-files detection to scope
+  `pytest` to the specific backend packages that changed, rather than running the full
+  `packages/backend/` suite every time.
+- **Coverage PR comments** — after each successful run, coverage data is posted directly to the PR
+  as a bot comment (MishaKav/pytest-coverage-comment for Python,
+  davelosert/vitest-coverage-report-action for TypeScript, lcov-reporter-action for Rust). Comments
+  are guarded to only appear on PRs, not plain pushes.
+- **43/43 CI validation tests** pass on branch `us005/ci-cd-pipeline` (08/03/2026). Test suite in
+  `tests/ci/` validates YAML structure of all three workflow files against the US005 acceptance
+  criteria.
+- Sprint 02 (Design Tokens, CI/CD & Manifest Framework) is now fully complete — 20/20 points.
+
+### Verify
+
+```bash
+# Run CI workflow structure tests
+source .venv/bin/activate
+uv run pytest tests/ci/ -v
+
+# Full lint and type-check
+syntek-dev check
+
+# Full CI pipeline locally
+syntek-dev ci
+```
+
+---
+
 ## v0.8.0 — 08/03/2026
 
 **Branch**: `us003/design-token-system`\

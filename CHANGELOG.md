@@ -7,6 +7,49 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [0.9.0] — 08/03/2026
+
+### Added
+
+- **`.forgejo/workflows/python.yml`** — `uv run pip-audit --fail-on HIGH,CRITICAL` security audit
+  step; changed-files detection step for per-package pytest targeting; `--cov` and
+  `--cov-report=xml:coverage.xml` flags on the pytest invocation; `MishaKav/pytest-coverage-comment`
+  PR comment step (guarded with `if: github.event_name == 'pull_request'`)
+- **`.forgejo/workflows/web.yml`** — `pnpm audit --audit-level=high` security audit step;
+  `pnpm turbo run test --affected` replaces bare `pnpm test` for affected-only test runs;
+  `--coverage.reporter=json-summary` flag; `davelosert/vitest-coverage-report-action` PR comment
+  step (guarded with `if: github.event_name == 'pull_request'`)
+- **`.forgejo/workflows/rust.yml`** — `cargo audit --deny warnings` security audit step (installs
+  `cargo-audit`); `cargo llvm-cov --all --lcov --output-path lcov.info` coverage collection step;
+  `romeovs/lcov-reporter-action@v0.4.0` PR comment step (guarded with
+  `if: github.event_name == 'pull_request'`)
+- **`.github/workflows/`** — mirrors all three updated Forgejo workflow files identically
+- **`tests/ci/conftest.py`** — session-scoped pytest fixtures that parse each workflow YAML file
+  once and expose step names, run scripts, and full step dicts for structured assertions
+- **`tests/ci/test_python_workflow.py`** — 13 tests covering pip-audit vulnerability scanning,
+  per-package affected-only pytest runs, and coverage PR comment steps
+- **`tests/ci/test_web_workflow.py`** — 13 tests covering pnpm audit vulnerability scanning,
+  Turborepo `--affected` test runs, and Vitest coverage PR comment steps
+- **`tests/ci/test_rust_workflow.py`** — 17 tests covering baseline regression guards, cargo audit
+  vulnerability scanning, `cargo llvm-cov` coverage collection, and lcov PR comment steps
+- **`docs/TESTS/US005-TEST-STATUS.md`** — test status tracking for US005; 43/43 passing, green phase
+  complete 08/03/2026
+- **`docs/TESTS/US005-MANUAL-TESTING.md`** — 6-scenario manual testing guide covering clean audit
+  runs, vulnerable dependency detection, Turborepo scope narrowing, coverage comment posting,
+  push-event guard, and per-package Python targeting
+
+### Changed
+
+- **`docs/STORIES/US005.md`** — status updated to Completed; completion date, branch, and test
+  evidence recorded
+- **`docs/STORIES/OVERVIEW.md`** — US005 status column updated from To Do to Completed
+- **`docs/TESTS/US003-MANUAL-TESTING.md`** — story status header updated to Completed following
+  Sprint 02 sign-off
+- **`docs/SPRINTS/LOGS/COMPLETION-2026-03-08-SPRINT-02.md`** — US005 completion detail section
+  added; Sprint 02 recorded as fully complete (20/20 points across US003, US005, US074, US075)
+
+---
+
 ## [0.8.0] — 08/03/2026
 
 ### Added

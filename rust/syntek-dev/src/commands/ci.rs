@@ -8,15 +8,15 @@ use crate::ui;
 /// Run the full CI pipeline locally, mirroring all GitHub/Forgejo workflows.
 ///
 /// Workflows covered:
-///   web.yml         — Prettier, ESLint, markdownlint, type-check, test, coverage
+///   web.yml         — Prettier, ESLint, markdownlint, type-check, pnpm audit, test, coverage
 ///   graphql-drift.yml — GraphQL schema drift check
-///   python.yml      — ruff check, ruff format, basedpyright, pytest
-///   rust.yml        — cargo fmt, clippy, cargo test
+///   python.yml      — ruff check, ruff format, basedpyright, pip-audit, pytest
+///   rust.yml        — cargo fmt, clippy, cargo test, cargo audit, cargo llvm-cov
 pub async fn run() -> Result<()> {
     let root = config::find_root()?;
     let mut failed: Vec<&str> = Vec::new();
     let mut step: u32 = 0;
-    let total: u32 = 14;
+    let total: u32 = 18;
 
     ui::header("syntek-modules — CI (local)");
 
@@ -52,17 +52,40 @@ pub async fn run() -> Result<()> {
         failed.push("type-check");
     }
 
-    // 5. TypeScript test
+    // 5. pnpm security audit
+    step += 1;
+    ui::section(&format!("{step}/{total}  TypeScript — pnpm audit"));
+    if !proc::run("pnpm", &["audit", "--audit-level=high"], &root).await? {
+        failed.push("pnpm-audit");
+    }
+
+    // 6. TypeScript test
     step += 1;
     ui::section(&format!("{step}/{total}  TypeScript — test"));
     if !proc::run("pnpm", &["test"], &root).await? {
         failed.push("test");
     }
 
-    // 6. TypeScript coverage
+    // 7. TypeScript coverage (json-summary + json + text reporters, matches web.yml)
     step += 1;
     ui::section(&format!("{step}/{total}  TypeScript — coverage"));
-    if !proc::run("pnpm", &["test", "--", "--coverage"], &root).await? {
+    if !proc::run(
+        "pnpm",
+        &[
+            "turbo",
+            "run",
+            "test",
+            "--affected",
+            "--",
+            "--coverage",
+            "--coverage.reporter=json-summary",
+            "--coverage.reporter=json",
+            "--coverage.reporter=text",
+        ],
+        &root,
+    )
+    .await?
+    {
         failed.push("coverage");
     }
 
@@ -70,7 +93,7 @@ pub async fn run() -> Result<()> {
     // graphql-drift.yml — schema drift check
     // ===================================================================
 
-    // 7. GraphQL schema drift
+    // 8. GraphQL schema drift
     step += 1;
     ui::section(&format!("{step}/{total}  GraphQL — schema drift check"));
     if !proc::run(
@@ -128,12 +151,32 @@ pub async fn run() -> Result<()> {
         ui::warn("uv not found — skipping");
     }
 
-    // 11. pytest (exit code 5 = no tests collected, tolerated early on)
+    // 11. pip-audit
+    step += 1;
+    ui::section(&format!("{step}/{total}  Python — pip-audit"));
+    if has_uv {
+        if !proc::run("uvx", &["pip-audit"], &root).await? {
+            failed.push("pip-audit");
+        }
+    } else {
+        ui::warn("uv not found — skipping");
+    }
+
+    // 12. pytest (exit code 5 = no tests collected, tolerated early on)
     step += 1;
     ui::section(&format!("{step}/{total}  Python — pytest"));
     if has_uv {
         let status = tokio::process::Command::new("uv")
-            .args(["run", "pytest", "packages/backend/", "-x", "-q"])
+            .args([
+                "run",
+                "pytest",
+                "packages/backend/",
+                "-x",
+                "-q",
+                "--cov=packages/backend/",
+                "--cov-report=xml:coverage.xml",
+                "--cov-report=term-missing",
+            ])
             .current_dir(&root)
             .status()
             .await?;
@@ -151,12 +194,12 @@ pub async fn run() -> Result<()> {
     }
 
     // ===================================================================
-    // rust.yml — fmt, clippy, test
+    // rust.yml — fmt, clippy, test, cargo audit
     // ===================================================================
 
     let has_cargo = proc::exists("cargo");
 
-    // 12. cargo fmt
+    // 15. cargo fmt
     step += 1;
     ui::section(&format!("{step}/{total}  Rust — cargo fmt check"));
     if has_cargo {
@@ -167,7 +210,7 @@ pub async fn run() -> Result<()> {
         ui::warn("cargo not found — skipping Rust checks");
     }
 
-    // 13. clippy
+    // 16. clippy
     step += 1;
     ui::section(&format!("{step}/{total}  Rust — clippy"));
     if has_cargo {
@@ -191,12 +234,46 @@ pub async fn run() -> Result<()> {
         ui::warn("cargo not found — skipping");
     }
 
-    // 14. cargo test
+    // 17. cargo test
     step += 1;
     ui::section(&format!("{step}/{total}  Rust — cargo test"));
     if has_cargo {
         if !proc::run("cargo", &["test", "--all"], &root).await? {
             failed.push("cargo-test");
+        }
+    } else {
+        ui::warn("cargo not found — skipping");
+    }
+
+    // 17. cargo audit
+    step += 1;
+    ui::section(&format!("{step}/{total}  Rust — cargo audit"));
+    if has_cargo {
+        if !proc::run(
+            "cargo",
+            &["audit", "--deny", "unsound", "--deny", "yanked"],
+            &root,
+        )
+        .await?
+        {
+            failed.push("cargo-audit");
+        }
+    } else {
+        ui::warn("cargo not found — skipping");
+    }
+
+    // 18. cargo llvm-cov (matches rust.yml coverage step)
+    step += 1;
+    ui::section(&format!("{step}/{total}  Rust — coverage (cargo llvm-cov)"));
+    if has_cargo {
+        if !proc::run(
+            "cargo",
+            &["llvm-cov", "--all", "--lcov", "--output-path", "lcov.info"],
+            &root,
+        )
+        .await?
+        {
+            failed.push("cargo-llvm-cov");
         }
     } else {
         ui::warn("cargo not found — skipping");

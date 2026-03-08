@@ -17,12 +17,14 @@ jobs:
   rust:
     name: Fmt, clippy, test
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
       - uses: dtolnay/rust-toolchain@stable
         with:
-          components: rustfmt, clippy
+          components: rustfmt, clippy, llvm-tools-preview
 
       - uses: Swatinem/rust-cache@v2
 
@@ -34,3 +36,28 @@ jobs:
 
       - name: Test
         run: cargo test --all
+
+      - name: Security audit (cargo audit)
+        run: |
+          cargo install cargo-audit
+          cargo audit --deny unsound --deny yanked
+
+      - name: Coverage (cargo llvm-cov)
+        run: |
+          cargo install cargo-llvm-cov
+          cargo llvm-cov --all --lcov --output-path lcov.info
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rust-coverage
+          path: lcov.info
+          retention-days: 30
+
+      - name: Coverage report (PR comment)
+        if: github.event_name == 'pull_request'
+        uses: romeovs/lcov-reporter-action@v0.4.0
+        with:
+          lcov-file: lcov.info
+          title: Rust coverage report

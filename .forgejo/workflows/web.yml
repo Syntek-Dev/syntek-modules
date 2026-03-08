@@ -23,12 +23,14 @@ jobs:
   web:
     name: Lint, type-check, test
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@v4
-        with:
-          version: "10.28.2"
 
       - name: Generate lockfile
         run: pnpm install --lockfile-only
@@ -53,8 +55,43 @@ jobs:
       - name: Type-check
         run: pnpm type-check
 
-      - name: Test
-        run: pnpm test
+      - name: Security audit (pnpm audit)
+        run: pnpm audit --audit-level=high
 
-      - name: Coverage report
-        run: pnpm test -- --coverage
+      - name: Test (affected packages)
+        run: pnpm turbo run test --affected -- --coverage --coverage.reporter=json-summary --coverage.reporter=json --coverage.reporter=text
+
+      - name: Merge coverage reports
+        if: always()
+        run: |
+          SUMMARY_FILES=$(find . -path "*/coverage/coverage-summary.json" -not -path "*/node_modules/*" 2>/dev/null | tr '\n' ' ')
+          FINAL_FILES=$(find . -path "*/coverage/coverage-final.json" -not -path "*/node_modules/*" 2>/dev/null | tr '\n' ' ')
+          if [ -z "$SUMMARY_FILES" ]; then
+            echo "COVERAGE_EXISTS=false" >> "$GITHUB_ENV"
+          else
+            echo "COVERAGE_EXISTS=true" >> "$GITHUB_ENV"
+            mkdir -p coverage
+            # shellcheck disable=SC2086
+            jq -s 'reduce .[] as $item ({}; . * $item)' $SUMMARY_FILES > coverage/coverage-summary.json
+            if [ -n "$FINAL_FILES" ]; then
+              # shellcheck disable=SC2086
+              jq -s 'reduce .[] as $item ({}; . * $item)' $FINAL_FILES > coverage/coverage-final.json
+            fi
+          fi
+
+      - name: Upload coverage artifact
+        if: always() && env.COVERAGE_EXISTS == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-coverage
+          path: coverage/
+          retention-days: 30
+
+      - name: Coverage report (PR comment)
+        if: github.event_name == 'pull_request' && env.COVERAGE_EXISTS == 'true'
+        uses: davelosert/vitest-coverage-report-action@v2
+        with:
+          name: Web coverage report
+          json-summary-compare-path: coverage/coverage-summary.json
+          json-summary-path: coverage/coverage-summary.json
+          json-final-path: coverage/coverage-final.json

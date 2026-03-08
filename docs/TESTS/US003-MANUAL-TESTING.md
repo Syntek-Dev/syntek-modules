@@ -21,10 +21,14 @@ apply without any hardcoded font names in component code.
 
 ## Prerequisites
 
-- [ ] `pnpm install` has been run from the repo root
+- [x] `pnpm install` has been run from the repo root
 - [ ] The sandbox or a consuming Next.js project is running
-- [ ] Node.js 24.14.0 is active
-- [ ] `@syntek/tokens` is listed as a dependency in the consuming project
+- [x] Node.js 24.14.0 is active
+- [x] `@syntek/tokens` is listed as a dependency in the consuming project
+
+> **2026-03-08 repo-runnable check:** Vitest (152/152 pass), `tsc --noEmit` (0 errors), `pnpm lint`
+> (clean). Scenarios 1, 2, 6, 7 require a browser/simulator and were skipped. Scenarios 3 & 4 cannot
+> be verified — the no-hardcoded-values ESLint rule is not yet implemented (see AC Notes).
 
 ---
 
@@ -204,15 +208,15 @@ from `tokens.css` without any hardcoded font name in component code.
 
 Run before marking the US003 PR ready for review:
 
-- [ ] All automated Vitest tests pass: `pnpm --filter @syntek/tokens test`
-- [ ] TypeScript compiles without errors: `pnpm --filter @syntek/tokens type-check`
-- [ ] Scenario 1 (CSS variable resolution) passes
-- [ ] Scenario 2 (override at :root) passes
-- [ ] Scenario 3 (hardcoded colour lint error) passes
-- [ ] Scenario 4 (hardcoded spacing/font-size lint error) passes
-- [ ] Scenario 5 (TypeScript constants typed correctly) passes
-- [ ] Scenario 6 (NativeWind iOS + Android) passes
-- [ ] Scenario 7 (font family tokens applied) passes
+- [x] All automated Vitest tests pass: `pnpm --filter @syntek/tokens test` ✅ 152/152 (2026-03-08)
+- [x] TypeScript compiles without errors: `pnpm --filter @syntek/tokens type-check` ✅ (2026-03-08)
+- [ ] Scenario 1 (CSS variable resolution) passes — requires browser
+- [ ] Scenario 2 (override at :root) passes — requires browser
+- [ ] Scenario 3 (hardcoded colour lint error) passes — rule not yet implemented
+- [ ] Scenario 4 (hardcoded spacing/font-size lint error) passes — rule not yet implemented
+- [x] Scenario 5 (TypeScript constants typed correctly) passes ✅ covered by type-check (2026-03-08)
+- [ ] Scenario 6 (NativeWind iOS + Android) passes — requires simulator
+- [ ] Scenario 7 (font family tokens applied) passes — requires browser
 - [ ] No console errors in the browser
 - [ ] No hardcoded colour, spacing, or font values found in any `packages/web/` or `mobile/` source
       file
