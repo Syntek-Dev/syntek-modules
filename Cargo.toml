@@ -5,10 +5,11 @@ members = [
     "rust/syntek-pyo3",
     "rust/syntek-graphql-crypto",
     "rust/syntek-dev",
+    "rust/syntek-manifest",
 ]
 
 [workspace.package]
-version = "0.8.0"
+version = "0.9.0"
 edition = "2024"
 authors = ["Syntek Development Team"]
 license = "AGPL-3.0"
@@ -26,6 +27,13 @@ zeroize = { version = "1.8", features = ["derive"] }
 # Serialisation
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+toml = "0.8"
+
+# Test utilities
+tempfile = "3.14"
+
+# Unicode display width
+unicode-width = "0.2"
 
 # Error handling
 thiserror = "2.0"
