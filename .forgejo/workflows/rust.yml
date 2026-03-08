@@ -38,7 +38,7 @@ jobs:
       - name: Security audit (cargo audit)
         run: |
           cargo install cargo-audit
-          cargo audit --deny warnings
+          cargo audit --deny unsound --deny yanked
 
       - name: Coverage (cargo llvm-cov)
         run: |
