@@ -8,18 +8,18 @@
 
 ### Highlights
 
-- `shared/tokens/` (`@syntek/tokens`) — the canonical design token package for the entire Syntek
-  UI ecosystem. Exports typed TypeScript constants covering colours, spacing, typography, font
-  families, border radii, shadows, breakpoints, z-index, and opacity. Also ships a `tokens.css`
-  file with CSS custom properties for web packages and a `nativewind.ts` export with a
+- `shared/tokens/` (`@syntek/tokens`) — the canonical design token package for the entire Syntek UI
+  ecosystem. Exports typed TypeScript constants covering colours, spacing, typography, font
+  families, border radii, shadows, breakpoints, z-index, and opacity. Also ships a `tokens.css` file
+  with CSS custom properties for web packages and a `nativewind.ts` export with a
   NativeWind-compatible theme object for React Native.
 - `eslint-rules/no-hardcoded-design-values.js` — a custom ESLint rule enforcing that developers
   import design values from `@syntek/tokens` rather than scattering raw hex codes, magic spacing
-  values, or hardcoded font sizes through component files. Applied globally to all
-  `packages/web` and `mobile` source via `eslint.config.mjs`.
+  values, or hardcoded font sizes through component files. Applied globally to all `packages/web`
+  and `mobile` source via `eslint.config.mjs`.
 - `docs/GUIDES/TOKENS-INTEGRATION.md` — a practical integration guide covering how to consume
-  `@syntek/tokens` from web and mobile packages, including import patterns, CSS variable usage,
-  and NativeWind configuration.
+  `@syntek/tokens` from web and mobile packages, including import patterns, CSS variable usage, and
+  NativeWind configuration.
 - Sprint 02 (Design Tokens, CI/CD & Manifest Framework) completed 08/03/2026. US003 is the sole
   story in Sprint 02 and is now fully verified with Vitest unit tests and a Cucumber BDD feature
   spec.

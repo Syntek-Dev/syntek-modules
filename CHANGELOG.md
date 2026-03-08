@@ -13,10 +13,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 - **`shared/tokens/`** (`@syntek/tokens`) — new shared design token package; exports typed
   TypeScript constants for colours, spacing, typography, font families, border radii, shadows,
-  breakpoints, z-index, and opacity; also exports a CSS custom properties file (`tokens.css`) and
-  a NativeWind-compatible theme object (`nativewind.ts`)
-- **`shared/tokens/src/__tests__/`** — Vitest test suite (token-exports, token-types,
-  token-values) verifying structure, uniqueness, and completeness of all token sets
+  breakpoints, z-index, and opacity; also exports a CSS custom properties file (`tokens.css`) and a
+  NativeWind-compatible theme object (`nativewind.ts`)
+- **`shared/tokens/src/__tests__/`** — Vitest test suite (token-exports, token-types, token-values)
+  verifying structure, uniqueness, and completeness of all token sets
 - **`shared/tokens/features/design_tokens.feature`** — Cucumber BDD feature spec describing the
   token contract in plain language
 - **`eslint-rules/no-hardcoded-design-values.js`** — custom ESLint rule that flags raw hex colour
@@ -24,9 +24,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
   import from `@syntek/tokens` instead
 - **`eslint-rules/__tests__/no-hardcoded-design-values.test.js`** — Jest-compatible test suite
   covering valid uses, invalid hardcoded values, and false-positive avoidance
-- **`docs/GUIDES/TOKENS-INTEGRATION.md`** — integration guide for consuming `@syntek/tokens` in
-  web and mobile packages; covers installation, import patterns, CSS variable usage, and
-  NativeWind configuration
+- **`docs/GUIDES/TOKENS-INTEGRATION.md`** — integration guide for consuming `@syntek/tokens` in web
+  and mobile packages; covers installation, import patterns, CSS variable usage, and NativeWind
+  configuration
 - **`docs/STORIES/US075.md`** — new story document for future planning
 - **`docs/TESTS/US003-TEST-STATUS.md`** — test status tracking for US003; records story completed
   08/03/2026

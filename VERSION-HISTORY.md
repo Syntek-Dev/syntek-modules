@@ -1,16 +1,16 @@
 # Version History
 
-| Version | Date       | Type  | Summary                                                                                         |
-| ------- | ---------- | ----- | ----------------------------------------------------------------------------------------------- |
+| Version | Date       | Type  | Summary                                                                                          |
+| ------- | ---------- | ----- | ------------------------------------------------------------------------------------------------ |
 | 0.8.0   | 08/03/2026 | MINOR | `@syntek/tokens` design token system, no-hardcoded-design-values ESLint rule, Sprint 02 complete |
-| 0.7.0   | 08/03/2026 | MINOR | Security policy, CodeQL/Semgrep SAST, Dependabot/Renovate dependency automation, branch docs    |
-| 0.6.0   | 08/03/2026 | MINOR | `syntek-dev lint --fix` covers Prettier + markdownlint; `--prettier` flag added; Sprint 01 docs |
-| 0.5.2   | 08/03/2026 | PATCH | Fix pnpm version conflict in CI — remove hardcoded `version` from `pnpm/action-setup@v4`        |
-| 0.5.1   | 08/03/2026 | PATCH | Fix overly broad `.gitignore` `lib/` pattern; restore `shared/graphql/src/lib/fetcher.ts` to CI |
-| 0.5.0   | 07/03/2026 | MINOR | Add `syntek-dev ci` command, fix CI markdownlint (175 → 0), add coverage, upgrade lefthook      |
-| 0.4.2   | 07/03/2026 | PATCH | Fix CI markdownlint failures (175), add vitest coverage, upgrade lefthook to 2.1.0              |
-| 0.4.1   | 07/03/2026 | PATCH | Tooling fixes, Rust Clippy warnings, CI normalisation, docs reformatting                        |
-| 0.4.0   | 06/03/2026 | MINOR | `@syntek/graphql` shared GraphQL operations package, 29/29 tests green, Sprint 01 complete      |
-| 0.3.0   | 06/03/2026 | MINOR | `@syntek/types` shared TypeScript types package, 46/46 tests green, US002 complete              |
-| 0.2.0   | 06/03/2026 | MINOR | Test infrastructure, uv lockfile, PyO3 0.28.2, US001 complete                                   |
-| 0.1.0   | 06/03/2026 | MINOR | Initial monorepo scaffold, Rust CLI, 74 stories, 45 sprints                                     |
+| 0.7.0   | 08/03/2026 | MINOR | Security policy, CodeQL/Semgrep SAST, Dependabot/Renovate dependency automation, branch docs     |
+| 0.6.0   | 08/03/2026 | MINOR | `syntek-dev lint --fix` covers Prettier + markdownlint; `--prettier` flag added; Sprint 01 docs  |
+| 0.5.2   | 08/03/2026 | PATCH | Fix pnpm version conflict in CI — remove hardcoded `version` from `pnpm/action-setup@v4`         |
+| 0.5.1   | 08/03/2026 | PATCH | Fix overly broad `.gitignore` `lib/` pattern; restore `shared/graphql/src/lib/fetcher.ts` to CI  |
+| 0.5.0   | 07/03/2026 | MINOR | Add `syntek-dev ci` command, fix CI markdownlint (175 → 0), add coverage, upgrade lefthook       |
+| 0.4.2   | 07/03/2026 | PATCH | Fix CI markdownlint failures (175), add vitest coverage, upgrade lefthook to 2.1.0               |
+| 0.4.1   | 07/03/2026 | PATCH | Tooling fixes, Rust Clippy warnings, CI normalisation, docs reformatting                         |
+| 0.4.0   | 06/03/2026 | MINOR | `@syntek/graphql` shared GraphQL operations package, 29/29 tests green, Sprint 01 complete       |
+| 0.3.0   | 06/03/2026 | MINOR | `@syntek/types` shared TypeScript types package, 46/46 tests green, US002 complete               |
+| 0.2.0   | 06/03/2026 | MINOR | Test infrastructure, uv lockfile, PyO3 0.28.2, US001 complete                                    |
+| 0.1.0   | 06/03/2026 | MINOR | Initial monorepo scaffold, Rust CLI, 74 stories, 45 sprints                                      |
