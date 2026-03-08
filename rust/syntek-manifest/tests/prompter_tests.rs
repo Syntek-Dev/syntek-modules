@@ -8,8 +8,14 @@
 //!
 //! RED phase — tests will fail until the stub is replaced with real logic.
 
+use std::sync::Mutex;
+
 use syntek_manifest::manifest::ManifestOption;
 use syntek_manifest::prompter::{OptionPrompter, is_ci_environment};
+
+/// Serialises all tests that mutate process-wide environment variables.
+/// `std::env::set/remove_var` is not thread-safe across concurrent tests.
+static ENV_MUTEX: Mutex<()> = Mutex::new(());
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -181,24 +187,15 @@ fn prompt_labels_preserves_declaration_order() {
 
 #[test]
 fn is_ci_environment_returns_true_when_ci_env_set() {
-    // Temporarily set the CI environment variable and verify detection.
-    // We use a test-local scope to avoid interfering with other tests.
-    // Note: env::set_var is unsafe in multi-threaded tests — this test should
-    // run in isolation. Rust test threads share the process environment.
-    //
-    // Safety: we restore the variable state before returning.
+    let _guard = ENV_MUTEX.lock().unwrap();
     let original = std::env::var("CI").ok();
 
-    // SAFETY: Setting env vars in tests is inherently racy in a multi-threaded
-    // test runner. This test is marked to run single-threaded via the serial
-    // pattern if available. For now we accept the risk for a CI detection check.
     unsafe {
         std::env::set_var("CI", "true");
     }
 
     let result = is_ci_environment();
 
-    // Restore.
     unsafe {
         match original {
             Some(val) => std::env::set_var("CI", val),
@@ -214,6 +211,7 @@ fn is_ci_environment_returns_true_when_ci_env_set() {
 
 #[test]
 fn is_ci_environment_returns_true_when_github_actions_set() {
+    let _guard = ENV_MUTEX.lock().unwrap();
     let original = std::env::var("GITHUB_ACTIONS").ok();
 
     unsafe {
@@ -237,7 +235,7 @@ fn is_ci_environment_returns_true_when_github_actions_set() {
 
 #[test]
 fn is_ci_environment_returns_false_when_no_env_set() {
-    // Remove all known CI variables and verify the function returns false.
+    let _guard = ENV_MUTEX.lock().unwrap();
     let ci = std::env::var("CI").ok();
     let ga = std::env::var("GITHUB_ACTIONS").ok();
     let nc = std::env::var("NO_COLOR").ok();
@@ -250,7 +248,6 @@ fn is_ci_environment_returns_false_when_no_env_set() {
 
     let result = is_ci_environment();
 
-    // Restore all variables.
     unsafe {
         if let Some(v) = ci {
             std::env::set_var("CI", v);
@@ -263,8 +260,6 @@ fn is_ci_environment_returns_false_when_no_env_set() {
         }
     }
 
-    // This assertion may fail if the test runner itself sets these vars.
-    // In that case the test is still valuable documentation.
     assert!(
         !result,
         "is_ci_environment should return false when no CI env vars are set"
