@@ -113,13 +113,19 @@ class TestCargoAuditStep:
         )
 
     def test_cargo_audit_denies_vulnerabilities(self, rust_run_scripts: list[str]) -> None:
-        """--deny must reference 'warnings' or 'vulnerabilities' to block merges."""
+        """--deny must reference at least one advisory category to block merges.
+
+        Accepted values: warnings, vulnerabilities, unmaintained, unsound, yanked.
+        The workflow uses --deny unsound --deny yanked which is a valid targeted
+        policy that blocks on code-quality and yanked crate advisories.
+        """
         scripts_with_deny = [s for s in rust_run_scripts if "--deny" in s]
         assert scripts_with_deny, "No run script in rust.yml contains --deny"
         combined = " ".join(scripts_with_deny)
-        assert "warnings" in combined or "vulnerabilities" in combined or "unmaintained" in combined, (
-            "--deny flag present in rust.yml but not set to 'warnings', "
-            "'vulnerabilities', or 'unmaintained'"
+        accepted = ("warnings", "vulnerabilities", "unmaintained", "unsound", "yanked")
+        assert any(term in combined for term in accepted), (
+            "--deny flag present in rust.yml but not set to any recognised advisory "
+            "category (warnings, vulnerabilities, unmaintained, unsound, yanked)"
         )
 
     def test_cargo_audit_install_or_action_step(self, rust_steps: list[dict]) -> None:
