@@ -225,6 +225,57 @@ function getViolationMessage(value) {
   return null;
 }
 
+/**
+ * Matches Tailwind arbitrary value syntax containing hardcoded design values.
+ *
+ * Catches patterns like:
+ *   className="text-[#3B82F6]"
+ *   className="bg-[rgb(59,130,246)]"
+ *   className="p-[16px]"
+ *   className="text-[1.5rem]"
+ */
+const TAILWIND_ARBITRARY_HEX = /#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})/;
+const TAILWIND_ARBITRARY_RGB = /rgba?\s*\(/i;
+const TAILWIND_ARBITRARY_HSL = /hsla?\s*\(/i;
+const TAILWIND_ARBITRARY_PX = /\[\d+(\.\d+)?px\]/;
+const TAILWIND_ARBITRARY_REM = /\[\d+(\.\d+)?rem\]/;
+
+/**
+ * Checks a string for Tailwind arbitrary value syntax containing hardcoded
+ * design values. Returns an error message if found, null otherwise.
+ *
+ * @param {string} value - The className string to check.
+ * @returns {string | null} An error message, or null if no violation found.
+ */
+function getTailwindArbitraryViolation(value) {
+  // Only check strings that contain the arbitrary value bracket syntax
+  if (!value.includes("[")) {
+    return null;
+  }
+
+  if (TAILWIND_ARBITRARY_HEX.test(value)) {
+    return `Hardcoded hex colour in Tailwind arbitrary value "${value}". Use a Tailwind token class (e.g. text-primary, bg-destructive) instead of arbitrary values.`;
+  }
+
+  if (TAILWIND_ARBITRARY_RGB.test(value)) {
+    return `Hardcoded rgb/rgba colour in Tailwind arbitrary value "${value}". Use a Tailwind token class instead of arbitrary values.`;
+  }
+
+  if (TAILWIND_ARBITRARY_HSL.test(value)) {
+    return `Hardcoded hsl/hsla colour in Tailwind arbitrary value "${value}". Use a Tailwind token class instead of arbitrary values.`;
+  }
+
+  if (TAILWIND_ARBITRARY_PX.test(value)) {
+    return `Hardcoded px value in Tailwind arbitrary value "${value}". Use a spacing token class (e.g. p-4, m-8) instead of arbitrary values.`;
+  }
+
+  if (TAILWIND_ARBITRARY_REM.test(value)) {
+    return `Hardcoded rem value in Tailwind arbitrary value "${value}". Use a font-size token class (e.g. text-sm, text-lg) instead of arbitrary values.`;
+  }
+
+  return null;
+}
+
 // ---------------------------------------------------------------------------
 // AST visitor helpers
 // ---------------------------------------------------------------------------
@@ -326,8 +377,40 @@ const rule = {
        *   style={someVar}               — allowed (identifier reference, not a literal)
        */
       JSXAttribute(node) {
-        // Only inspect the `style` attribute.
-        if (node.name.type !== "JSXIdentifier" || node.name.name !== "style") {
+        if (node.name.type !== "JSXIdentifier") {
+          return;
+        }
+
+        const attrName = node.name.name;
+
+        // Check className/class for Tailwind arbitrary value syntax
+        if (attrName === "className" || attrName === "class") {
+          const value = node.value;
+          if (value && value.type === "Literal" && typeof value.value === "string") {
+            const message = getTailwindArbitraryViolation(value.value);
+            if (message) {
+              context.report({ node: value, message });
+            }
+          }
+          if (value && value.type === "JSXExpressionContainer") {
+            const expr = value.expression;
+            if (
+              expr.type === "TemplateLiteral" &&
+              expr.expressions.length === 0 &&
+              expr.quasis.length === 1
+            ) {
+              const raw = expr.quasis[0].value.cooked ?? "";
+              const message = getTailwindArbitraryViolation(raw);
+              if (message) {
+                context.report({ node: expr, message });
+              }
+            }
+          }
+          return;
+        }
+
+        // Only inspect the `style` attribute for inline style checks.
+        if (attrName !== "style") {
           return;
         }
 
