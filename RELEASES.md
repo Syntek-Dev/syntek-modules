@@ -13,8 +13,8 @@
   behaviour: manifest parsing, interactive option prompts, Django `settings.py` writing, duplicate
   detection, provider wrapping, and post-install output formatting.
 - **Manifest parser** — reads a `syntek.manifest.toml` file and deserialises it into a fully
-  validated `SyntekManifest` struct. Descriptive errors report exactly which field is missing or
-  has the wrong type so module authors get actionable feedback during development.
+  validated `SyntekManifest` struct. Descriptive errors report exactly which field is missing or has
+  the wrong type so module authors get actionable feedback during development.
 - **Interactive prompter** — renders each `options[]` entry from the manifest as a checkbox or
   select prompt in the developer's terminal, allowing per-install customisation without requiring
   manual flag passing.
@@ -22,9 +22,8 @@
   `settings[]` table and writes it into the consuming project's Django `settings.py`. If a block
   already exists the developer is prompted before any overwrite; declining leaves the file
   unchanged.
-- **Duplicate detector** — scans `settings.py` for existing `INSTALLED_APPS` entries and
-  `SYNTEK_*` blocks before writing, preventing accidental double-registration when a module is
-  re-installed.
+- **Duplicate detector** — scans `settings.py` for existing `INSTALLED_APPS` entries and `SYNTEK_*`
+  blocks before writing, preventing accidental double-registration when a module is re-installed.
 - **Provider wrapper** — reads `providers[]` from the manifest and wraps the declared `entry_point`
   file with the required provider boilerplate, ensuring consistent module entry-point structure
   across all packages.

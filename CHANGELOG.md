@@ -11,21 +11,20 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ### Added
 
-- **`rust/syntek-manifest/`** — new Rust library crate implementing the US074 Module Manifest Spec
-  & CLI Shared Framework. All Syntek module CLI binaries link against this crate.
+- **`rust/syntek-manifest/`** — new Rust library crate implementing the US074 Module Manifest Spec &
+  CLI Shared Framework. All Syntek module CLI binaries link against this crate.
 - **`rust/syntek-manifest/src/manifest.rs`** — `SyntekManifest` struct matching the
-  `syntek.manifest.toml` schema: `id`, `version`, `kind` (rust-crate | backend | frontend |
-  mobile), `options[]`, `settings[]`, `installed_apps`, `providers[]`, `entry_point`,
-  `post_install_steps[]`
-- **`rust/syntek-manifest/src/parser.rs`** — TOML → validated struct parser with descriptive
-  errors on missing required fields and wrong-type fields
-- **`rust/syntek-manifest/src/prompter.rs`** — interactive option prompter; renders each
-  `options[]` entry as a checkbox or select prompt in the terminal
-- **`rust/syntek-manifest/src/settings_writer.rs`** — reads `settings[]` from manifest, writes
-  typed Django `SYNTEK_*` config blocks to `settings.py`; respects existing blocks with a
-  confirmation prompt and skips overwriting on refusal
-- **`rust/syntek-manifest/src/duplicate_detector.rs`** — detects existing `INSTALLED_APPS`
-  entries and `SYNTEK_*` settings blocks; warns the developer without overwriting
+  `syntek.manifest.toml` schema: `id`, `version`, `kind` (rust-crate | backend | frontend | mobile),
+  `options[]`, `settings[]`, `installed_apps`, `providers[]`, `entry_point`, `post_install_steps[]`
+- **`rust/syntek-manifest/src/parser.rs`** — TOML → validated struct parser with descriptive errors
+  on missing required fields and wrong-type fields
+- **`rust/syntek-manifest/src/prompter.rs`** — interactive option prompter; renders each `options[]`
+  entry as a checkbox or select prompt in the terminal
+- **`rust/syntek-manifest/src/settings_writer.rs`** — reads `settings[]` from manifest, writes typed
+  Django `SYNTEK_*` config blocks to `settings.py`; respects existing blocks with a confirmation
+  prompt and skips overwriting on refusal
+- **`rust/syntek-manifest/src/duplicate_detector.rs`** — detects existing `INSTALLED_APPS` entries
+  and `SYNTEK_*` settings blocks; warns the developer without overwriting
 - **`rust/syntek-manifest/src/provider_wrapper.rs`** — reads `providers[]`, wraps the declared
   `entry_point` file with provider boilerplate
 - **`rust/syntek-manifest/src/post_install.rs`** — renders `post_install_steps[]` as formatted
@@ -33,10 +32,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - **`rust/syntek-manifest/src/error.rs`** — typed `ManifestError` enum via `thiserror`
 - **`rust/syntek-manifest/tests/`** — 127 integration tests across six test files covering all
   modules; all tests pass (green phase complete 08/03/2026)
-- **`docs/QA/QA-US074-SYNTEK-MANIFEST-08-03-2026.md`** — full QA report: 26 findings across all
-  six modules
-- **`docs/BUGS/BUG-US074-SYNTEK-MANIFEST-08-03-2026.md`** — bug fix report: all 26 findings
-  resolved with root cause analysis and prevention notes
+- **`docs/QA/QA-US074-SYNTEK-MANIFEST-08-03-2026.md`** — full QA report: 26 findings across all six
+  modules
+- **`docs/BUGS/BUG-US074-SYNTEK-MANIFEST-08-03-2026.md`** — bug fix report: all 26 findings resolved
+  with root cause analysis and prevention notes
 - **`docs/TESTS/US074-TEST-STATUS.md`** — test status tracking for US074; 127/127 passing
 - **`docs/TESTS/US074-MANUAL-TESTING.md`** — 8-scenario manual testing guide; all scenarios passed
 - **`Cargo.toml`** (workspace) — `rust/syntek-manifest` added to workspace members; `toml`,
