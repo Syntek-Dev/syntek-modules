@@ -22,8 +22,8 @@
   concrete hex before persisting to `syntek-settings`.
 - **CSS colour validation** — `isValidCssColour(value)` validates any CSS colour string: hex (3-,
   6-, and 8-digit), rgb(), rgba(), hsl(), hsla(), hwb(), lab(), lch(), oklab(), oklch(), and all CSS
-  named colours. The function is the gating check the platform uses before writing an override to the
-  DB.
+  named colours. The function is the gating check the platform uses before writing an override to
+  the DB.
 - **Theme CSS generation** — `buildThemeStyle(overrides)` is the single integration surface between
   `@syntek/tokens` and `syntek-platform`. It converts a `{ [cssVar]: value }` override map into a
   `:root { ... }` CSS block. The platform calls this on save, minifies the output, hashes it, writes
@@ -31,8 +31,8 @@
   `/api/theme/{tenantId}.css?v={hash}`.
 - **GraphQL codegen drift guard** — a new Forgejo workflow (`graphql-drift.yml`) now runs on every
   PR touching schema or operation files, blocking merge if the generated `graphql.ts` is stale.
-- **Retrospective QA** — QA reports and bug fix reports produced for US001–US005, with test
-  coverage gaps and assertion mismatches resolved in the test suite.
+- **Retrospective QA** — QA reports and bug fix reports produced for US001–US005, with test coverage
+  gaps and assertion mismatches resolved in the test suite.
 
 ### Verify
 
