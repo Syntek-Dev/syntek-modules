@@ -116,8 +116,8 @@ class TestCargoAuditStep:
         """--deny must reference at least one advisory category to block merges.
 
         Accepted values: warnings, vulnerabilities, unmaintained, unsound, yanked.
-        The workflow uses --deny unsound --deny yanked which is a valid targeted
-        policy that blocks on code-quality and yanked crate advisories.
+        The workflow uses --deny warnings which blocks on all advisory categories
+        including CVEs, unmaintained crates, unsound code, and yanked crates.
         """
         scripts_with_deny = [s for s in rust_run_scripts if "--deny" in s]
         assert scripts_with_deny, "No run script in rust.yml contains --deny"
