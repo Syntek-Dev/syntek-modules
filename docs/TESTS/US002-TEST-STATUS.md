@@ -10,12 +10,12 @@
 
 ## Summary
 
-| Suite | Tests | Passed | Failed | Skipped |
-| ----- | ----- | ------ | ------ | ------- |
-| Type-check (`tsc --noEmit`) | 0 errors | 0 | 0 | 0 |
-| Unit / type assertions (Vitest) | 37 | 37 | 0 | 0 |
-| Build output (Vitest) | 9 | 9 | 0 | 0 |
-| **Total** | **46** | **46** | **0** | **0** |
+| Suite                           | Tests    | Passed | Failed | Skipped |
+| ------------------------------- | -------- | ------ | ------ | ------- |
+| Type-check (`tsc --noEmit`)     | 0 errors | 0      | 0      | 0       |
+| Unit / type assertions (Vitest) | 37       | 37     | 0      | 0       |
+| Build output (Vitest)           | 9        | 9      | 0      | 0       |
+| **Total**                       | **46**   | **46** | **0**  | **0**   |
 
 ---
 

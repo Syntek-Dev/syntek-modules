@@ -33,10 +33,7 @@ pub async fn run_env(
 /// Spawn a background process, returning the child handle.
 /// The caller is responsible for calling `child.kill().await`.
 pub fn spawn(program: &str, args: &[&str], cwd: &Path) -> Result<tokio::process::Child> {
-    Ok(Command::new(program)
-        .args(args)
-        .current_dir(cwd)
-        .spawn()?)
+    Ok(Command::new(program).args(args).current_dir(cwd).spawn()?)
 }
 
 /// Return true if the given executable exists on PATH.

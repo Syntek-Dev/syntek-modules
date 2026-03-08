@@ -10,12 +10,12 @@
 
 ## Summary
 
-| Suite | Tests | Passed | Failed | Skipped |
-| ----- | ----- | ------ | ------ | ------- |
-| Unit | 34 | 34 | 0 | 0 |
-| Integration (BDD) | 5 | 5 | 0 | 0 |
-| E2E | 0 | 0 | 0 | 0 |
-| **Total** | **39** | **39** | **0** | **0** |
+| Suite             | Tests  | Passed | Failed | Skipped |
+| ----------------- | ------ | ------ | ------ | ------- |
+| Unit              | 34     | 34     | 0      | 0       |
+| Integration (BDD) | 5      | 5      | 0      | 0       |
+| E2E               | 0      | 0      | 0      | 0       |
+| **Total**         | **39** | **39** | **0**  | **0**   |
 
 ---
 
@@ -23,14 +23,14 @@
 
 ### pnpm Workspace
 
-- [x] `test_web_packages_declared` — packages/web/* is declared in pnpm-workspace.yaml
-- [x] `test_mobile_packages_declared` — mobile/* is declared in pnpm-workspace.yaml
-- [x] `test_shared_packages_declared` — shared/* is declared in pnpm-workspace.yaml
+- [x] `test_web_packages_declared` — packages/web/\* is declared in pnpm-workspace.yaml
+- [x] `test_mobile_packages_declared` — mobile/\* is declared in pnpm-workspace.yaml
+- [x] `test_shared_packages_declared` — shared/\* is declared in pnpm-workspace.yaml
 
 ### uv Workspace
 
 - [x] `test_uv_workspace_section_exists` — [tool.uv.workspace] section present
-- [x] `test_backend_members_glob` — packages/backend/* in uv workspace members
+- [x] `test_backend_members_glob` — packages/backend/\* in uv workspace members
 - [x] `test_python_version_constraint` — ruff target-version is py314
 
 ### Cargo Workspace

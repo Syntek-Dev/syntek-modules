@@ -1,0 +1,31 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "timezone": "Europe/London",
+  "schedule": ["every monday"],
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "matchManagers": ["github-actions"],
+      "labels": ["dependencies", "github-actions"]
+    },
+    {
+      "matchManagers": ["npm"],
+      "labels": ["dependencies", "javascript"]
+    },
+    {
+      "matchManagers": ["pip_requirements", "pip_setup_cfg", "pep621"],
+      "labels": ["dependencies", "python"]
+    },
+    {
+      "matchManagers": ["cargo"],
+      "labels": ["dependencies", "rust"]
+    },
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchManagers": ["npm"],
+      "groupName": "npm minor and patch updates",
+      "automerge": false
+    }
+  ]
+}

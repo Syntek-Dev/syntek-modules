@@ -1,0 +1,65 @@
+name: Semgrep
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Weekly scan every Monday at 08:00 UTC
+    - cron: "0 8 * * 1"
+
+jobs:
+  semgrep-python:
+    name: Analyse (python)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install Semgrep
+        run: pip install semgrep
+
+      - name: Scan (Python / Django)
+        run: |
+          semgrep scan \
+            --config p/python \
+            --config p/django \
+            --config p/owasp-top-ten \
+            --config p/security-audit \
+            --error \
+            packages/backend/
+        env:
+          # Optional: add SEMGREP_APP_TOKEN secret for access to additional rulesets
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+
+  semgrep-typescript:
+    name: Analyse (javascript-typescript)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install Semgrep
+        run: pip install semgrep
+
+      - name: Scan (TypeScript / React)
+        run: |
+          semgrep scan \
+            --config p/typescript \
+            --config p/react \
+            --config p/nodejs \
+            --config p/owasp-top-ten \
+            --config p/security-audit \
+            --error \
+            packages/web/ mobile/ shared/
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}

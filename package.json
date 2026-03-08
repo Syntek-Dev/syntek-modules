@@ -1,18 +1,22 @@
 {
   "name": "syntek-modules",
-  "version": "0.3.0",
+  "version": "0.7.0",
   "private": true,
   "description": "Syntek reusable module library — backend, web, and mobile packages",
+  "packageManager": "pnpm@10.31.0",
   "engines": {
     "node": ">=24.0.0",
     "pnpm": ">=10.0.0"
   },
   "scripts": {
+    "prepare": "lefthook install",
+    "codegen": "pnpm --filter @syntek/graphql codegen",
     "build": "turbo run build",
     "test": "turbo run test",
     "test:e2e": "turbo run test:e2e",
     "lint": "turbo run lint",
-    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#node_modules\" \"#.venv\" \"#target\" \"#dist\"",
+    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#**/node_modules\" \"#.venv\" \"#target\" \"#dist\" \"#.claude\"",
+    "lint:md:fix": "markdownlint-cli2 --fix \"**/*.md\" \"#**/node_modules\" \"#.venv\" \"#target\" \"#dist\" \"#.claude\"",
     "type-check": "turbo run type-check",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -26,6 +30,7 @@
     "eslint-plugin-react": "^7.37.0",
     "eslint-plugin-react-hooks": "^5.0.0",
     "globals": "^15.0.0",
+    "lefthook": "^2.1.0",
     "markdownlint-cli2": "^0.17.0",
     "prettier": "^3.5.0",
     "prettier-plugin-tailwindcss": "^0.6.0",

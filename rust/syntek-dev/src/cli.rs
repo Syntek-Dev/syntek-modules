@@ -35,6 +35,9 @@ pub enum Commands {
     /// Quick quality check — lint + type-check only, no tests
     Check(LintArgs),
 
+    /// Run the full CI pipeline locally (format check, lint, type-check, test)
+    Ci,
+
     /// Open a local service in the browser
     Open(OpenArgs),
 }
@@ -135,7 +138,11 @@ pub struct LintArgs {
     #[arg(long)]
     pub markdown: bool,
 
-    /// Auto-fix where possible (ruff --fix, eslint --fix)
+    /// Run Prettier format check (or --write when combined with --fix)
+    #[arg(long)]
+    pub prettier: bool,
+
+    /// Auto-fix where possible (ruff --fix, eslint --fix, prettier --write, markdownlint --fix)
     #[arg(long)]
     pub fix: bool,
 

@@ -1,9 +1,8 @@
 # Manual Testing Guide — {PACKAGE_NAME}
 
 > **Template**: Copy to `packages/backend/syntek-{name}/docs/MANUAL-TESTING.md` (backend),
-> `packages/web/{name}/docs/MANUAL-TESTING.md` (web), or
-> `mobile/{name}/docs/MANUAL-TESTING.md` (mobile).
-> Replace all `{PLACEHOLDER}` values.
+> `packages/web/{name}/docs/MANUAL-TESTING.md` (web), or `mobile/{name}/docs/MANUAL-TESTING.md`
+> (mobile). Replace all `{PLACEHOLDER}` values.
 
 ---
 
@@ -15,8 +14,8 @@
 
 ## Overview
 
-_A one-paragraph description of what this package does and what a tester should
-be looking to verify._
+_A one-paragraph description of what this package does and what a tester should be looking to
+verify._
 
 ---
 
@@ -97,9 +96,8 @@ _{Any specific setup required}_
 
 ## API / GraphQL Testing
 
-If this package exposes a GraphQL API, test the following mutations and queries
-using the GraphQL playground at `http://localhost:8000/graphql` (open with
-`syntek-dev open api`).
+If this package exposes a GraphQL API, test the following mutations and queries using the GraphQL
+playground at `http://localhost:8000/graphql` (open with `syntek-dev open api`).
 
 ### Mutations
 
@@ -176,9 +174,9 @@ Run before marking a PR ready for review:
 
 _List any known issues or limitations that testers should be aware of._
 
-| Issue | Workaround | Story / Issue |
-| ----- | ---------- | ------------- |
-| _{description}_ | _{workaround}_ | US-000 |
+| Issue           | Workaround     | Story / Issue |
+| --------------- | -------------- | ------------- |
+| _{description}_ | _{workaround}_ | US-000        |
 
 ---
 

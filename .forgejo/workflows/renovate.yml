@@ -1,0 +1,28 @@
+name: Renovate
+
+on:
+  schedule:
+    # Weekly every Monday at 08:00 Europe/London
+    - cron: "0 8 * * 1"
+  workflow_dispatch:
+
+jobs:
+  renovate:
+    name: Dependency updates
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Run Renovate
+        run: npx renovate
+        env:
+          RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
+          RENOVATE_PLATFORM: gitea
+          RENOVATE_ENDPOINT: https://git.syntek-studio.com/
+          RENOVATE_REPOSITORIES: syntek/syntek-modules
+          LOG_LEVEL: info

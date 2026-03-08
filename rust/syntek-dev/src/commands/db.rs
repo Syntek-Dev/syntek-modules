@@ -1,4 +1,4 @@
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 
 use crate::cli::DbCommand;
 use crate::config;
@@ -6,7 +6,7 @@ use crate::process as proc;
 use crate::ui;
 
 /// Resolve `manage.py` path, printing a helpful error if the sandbox is missing.
-fn require_manage(root: &std::path::PathBuf) -> Result<String> {
+fn require_manage(root: &std::path::Path) -> Result<String> {
     match config::sandbox_manage(root) {
         Some(p) => Ok(p.to_string_lossy().to_string()),
         None => bail!(
@@ -22,7 +22,7 @@ fn require_manage(root: &std::path::PathBuf) -> Result<String> {
 }
 
 /// Build the Python binary path and manage.py path as a run-ready pair.
-fn manage_cmd(root: &std::path::PathBuf, manage: &str) -> (String, String) {
+fn manage_cmd(root: &std::path::Path, manage: &str) -> (String, String) {
     (config::venv_bin(root, "python"), manage.to_string())
 }
 
@@ -44,7 +44,10 @@ pub async fn run(cmd: DbCommand) -> Result<()> {
                 args.push(app_label);
             }
 
-            ui::step(&format!("Running: python {} migrate {}", manage_path, app_label));
+            ui::step(&format!(
+                "Running: python {} migrate {}",
+                manage_path, app_label
+            ));
             if !proc::run(&python, &args, &root).await? {
                 bail!("Migration failed");
             }
@@ -65,7 +68,14 @@ pub async fn run(cmd: DbCommand) -> Result<()> {
                 args.push(app_label);
             }
 
-            ui::step(&format!("Generating migrations for: {}", if app_label.is_empty() { "all apps" } else { app_label }));
+            ui::step(&format!(
+                "Generating migrations for: {}",
+                if app_label.is_empty() {
+                    "all apps"
+                } else {
+                    app_label
+                }
+            ));
             if !proc::run(&python, &args, &root).await? {
                 bail!("makemigrations failed");
             }

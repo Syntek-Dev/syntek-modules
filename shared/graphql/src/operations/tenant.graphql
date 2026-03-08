@@ -1,0 +1,7 @@
+query CurrentTenant {
+  currentTenant {
+    id
+    slug
+    name
+  }
+}

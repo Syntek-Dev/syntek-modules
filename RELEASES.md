@@ -1,5 +1,217 @@
 # Releases
 
+## v0.7.0 — 08/03/2026
+
+**Branch**: `us004/shared-graphql-operations-package`\
+**Type**: MINOR\
+**Story**: Security infrastructure — SAST scanning, dependency automation, vulnerability disclosure
+
+### Highlights
+
+- `SECURITY.md` — public vulnerability disclosure policy; GitHub private vulnerability reporting,
+  90-day response SLA, scope definitions, and dependency security notes
+- `renovate.json` — Renovate dependency automation for all four stacks (npm, pip, cargo,
+  github-actions); weekly Monday schedule; Europe/London timezone
+- `.github/dependabot.yml` — Dependabot fallback for GitHub; all four ecosystems, same schedule
+- `.github/workflows/codeql.yml` — CodeQL SAST scanning Python and TypeScript on push/PR and weekly;
+  catches security vulnerabilities before they reach production
+- `.forgejo/workflows/semgrep.yml` — Semgrep SAST for Forgejo CI; separate jobs for Python/Django
+  and TypeScript/React
+- `.forgejo/workflows/renovate.yml` — Renovate self-hosted workflow for Forgejo registry
+- `docs/GUIDES/BRANCH-PROTECTION.md` — branch protection reference guide for maintainers
+- `.github/setup-branch-protection.sh` removed — branch protection rules are now managed via web UI
+  only to prevent unreviewed scripted changes
+
+### Verify
+
+```bash
+# No executable verification — workflows run in CI on push/PR
+# Manually: review .github/workflows/codeql.yml and .forgejo/workflows/semgrep.yml
+```
+
+---
+
+## v0.6.0 — 08/03/2026
+
+**Branch**: `us004/shared-graphql-operations-package`\
+**Type**: MINOR\
+**Story**: Extend `syntek-dev lint --fix` to cover Prettier and markdownlint auto-fix
+
+### Highlights
+
+- `syntek-dev lint --fix` now runs `pnpm format` (Prettier `--write`) and `pnpm lint:md:fix`
+  (markdownlint-cli2 `--fix`) in addition to ruff and ESLint; one command now cleans the entire
+  codebase across all linters
+- New `--prettier` flag added — run Prettier in isolation without triggering all other linters:
+  `syntek-dev lint --prettier` (check) or `syntek-dev lint --prettier --fix` (write)
+- `lint:md:fix` script added to root `package.json` to wire markdownlint auto-fix into the CLI
+- Sprint 01 (Repository Foundation) formally documented as complete — 114/114 tests passing across
+  US001, US002, and US004
+
+### Verify
+
+```bash
+syntek-dev lint --fix          # runs all linters with auto-fix
+syntek-dev lint --prettier     # Prettier check only
+syntek-dev lint --markdown --fix  # markdownlint auto-fix only
+```
+
+---
+
+## v0.5.2 — 08/03/2026
+
+**Branch**: `us004/shared-graphql-operations-package`\
+**Type**: PATCH\
+**Story**: Fix pnpm version conflict in GitHub Actions CI workflows
+
+### Highlights
+
+- `.github/workflows/web.yml` and `.github/workflows/graphql-drift.yml` — removed the hardcoded
+  `version: "10.28.2"` key from the `pnpm/action-setup@v4` step in both workflows
+- `pnpm/action-setup@v4` now reads the pnpm version directly from `packageManager: pnpm@10.31.0` in
+  `package.json`, eliminating the version mismatch that caused CI to fail
+- No functional, API, or schema changes — all tests remain green
+
+### Verify
+
+```bash
+# CI passes without pnpm version conflict errors
+# Check GitHub Actions run for web.yml and graphql-drift.yml
+```
+
+---
+
+## v0.5.1 — 08/03/2026
+
+**Branch**: `us004/shared-graphql-operations-package`\
+**Type**: PATCH\
+**Story**: Fix `.gitignore` `lib/` pattern incorrectly excluding `src/lib/fetcher.ts` from CI
+
+### Highlights
+
+- `.gitignore` — bare `lib/` and `lib64/` entries removed; these were silently excluding TypeScript
+  `src/lib/` directories from the repository (Python virtualenv lib paths are already covered by
+  `.venv/`, `venv/`, `env/`, and `build/`)
+- `shared/graphql/src/lib/fetcher.ts` — file restored to the repository; was gitignored since US004
+  landed, causing CI TypeScript build failures (`TS2307: Cannot find module`)
+- No functional changes — `fetcher.ts` content is unchanged; all 29/29 graphql tests remain green
+
+### Verify
+
+```bash
+syntek-dev test --web --web-package @syntek/graphql
+pnpm type-check
+```
+
+---
+
+## v0.5.0 — 07/03/2026
+
+**Branch**: `us004/shared-graphql-operations-package`\
+**Type**: MINOR\
+**Story**: Add `syntek-dev ci` command, fix CI lint, add coverage, upgrade lefthook
+
+### Highlights
+
+- `syntek-dev ci` — run the full CI pipeline locally with a single command: Prettier, ESLint,
+  markdownlint, type-check, Vitest (all packages), Rust fmt/clippy/test in sequence
+- 175 markdownlint CI failures resolved — MD036 disabled for intentional user story bold convention;
+  MD040/MD031/MD034 violations corrected across documentation and workflow files
+- `@vitest/coverage-v8` added to `@syntek/graphql` for TypeScript test coverage reporting; coverage
+  step added to `web.yml` in both GitHub Actions and Forgejo pipelines
+- lefthook upgraded from `^1.0.0` to `^2.1.0` (installed 2.1.3)
+- No API or schema changes — all 29/29 graphql tests and 46/46 types tests remain green
+
+### Verify
+
+```bash
+syntek-dev ci
+pnpm lint:md
+syntek-dev test --web
+```
+
+---
+
+## v0.4.2 — 07/03/2026
+
+**Branch**: `us004/shared-graphql-operations-package`\
+**Type**: PATCH\
+**Story**: CI fixes, coverage tooling, lefthook upgrade
+
+### Highlights
+
+- 175 markdownlint CI failures resolved — MD036 disabled, MD040/MD031/MD034 violations corrected
+  across documentation and CI configuration files
+- `@vitest/coverage-v8` added to `@syntek/graphql` for TypeScript test coverage reporting
+- Coverage report step added to `web.yml` in both GitHub Actions and Forgejo pipelines
+- lefthook upgraded from `^1.0.0` to `^2.1.0` (installed 2.1.3)
+- No functional or API changes — all existing tests remain green
+
+### Verify
+
+```bash
+pnpm lint:md
+syntek-dev test --web
+```
+
+---
+
+## v0.4.1 — 07/03/2026
+
+**Branch**: `us004/shared-graphql-operations-package`\
+**Type**: PATCH\
+**Story**: Post-US004 tooling and housekeeping
+
+### Highlights
+
+- Markdownlint and ESLint configuration corrected — lint runs no longer flag generated files or
+  `.claude/` internals
+- Rust `syntek-dev` crate: Clippy warnings resolved (cleaner API signatures, flattened conditionals)
+- TypeScript shared packages (`@syntek/graphql`, `@syntek/types`) normalised to consistent code
+  style
+- CI workflows (GitHub Actions + Forgejo) formatted consistently across all four pipeline files
+- `pyrightconfig.json` simplified by removing settings that were redundant with pyproject.toml
+- 144 documentation files reformatted for consistent Prettier output
+- No functional or API changes — all existing tests remain green
+
+### Verify
+
+```bash
+syntek-dev test --web
+syntek-dev lint
+cargo clippy -- -D warnings
+```
+
+---
+
+## v0.4.0 — 06/03/2026
+
+**Branch**: `us004/shared-graphql-operations-package`\
+**Type**: MINOR\
+**Story**: US004 — Shared GraphQL Operations Package
+
+### Highlights
+
+- `@syntek/graphql` — typed React Query hooks generated from the Syntek GraphQL schema
+- `useLoginMutation`, `useCurrentUserQuery`, `useCurrentTenantQuery` with full TypeScript inference
+- `pnpm codegen` regenerates types from `schema.graphql` SDL or a live schema URL
+- `pnpm codegen:check` (CI + pre-commit) fails if generated files are out of date
+- 29/29 Vitest tests green: codegen output verification + type-level assertions
+- lefthook pre-commit hooks covering all four stack layers in parallel
+- Per-layer CI workflows for GitHub and Forgejo (web, python, rust, graphql-drift)
+- **Sprint 01 — Repository Foundation: 11/11 points complete** ✅
+
+### Verify
+
+```bash
+syntek-dev test --web --web-package @syntek/graphql
+# → Test Files  2 passed (2)
+# → Tests  29 passed (29)
+# → Type Errors  no errors
+```
+
+---
+
 ## v0.3.0 — 06/03/2026
 
 **Branch**: `us002/shared-typescripts-package`\
@@ -35,7 +247,8 @@ syntek-dev test --web --web-package @syntek/types
 - Full workspace test suite (39/39 passing via `syntek-dev test --python`)
 - Python dependency lockfile (`uv.lock`) — `install.sh` now uses `uv sync` for reproducible installs
 - PyO3 upgraded to 0.28.2 — all 4 Rust crates compile cleanly against Python 3.14.3
-- `syntek-dev test --python` now discovers both `tests/` (workspace tests) and `packages/backend/` (module tests) automatically
+- `syntek-dev test --python` now discovers both `tests/` (workspace tests) and `packages/backend/`
+  (module tests) automatically
 
 ### Install
 

@@ -11,7 +11,12 @@ pub async fn run(args: LintArgs) -> Result<()> {
     let mut failed: u32 = 0;
 
     // Run all linters when no specific flag is set.
-    let run_all = !args.ruff && !args.pyright && !args.eslint && !args.clippy && !args.markdown;
+    let run_all = !args.ruff
+        && !args.pyright
+        && !args.eslint
+        && !args.clippy
+        && !args.markdown
+        && !args.prettier;
 
     ui::header("syntek-modules — Lint");
 
@@ -89,12 +94,28 @@ pub async fn run(args: LintArgs) -> Result<()> {
     }
 
     // -----------------------------------------------------------------------
+    // Prettier (TypeScript / JS / JSON / YAML / Markdown)
+    // -----------------------------------------------------------------------
+    if run_all || args.prettier {
+        ui::section("prettier — format check");
+
+        let script = if args.fix { "format" } else { "format:check" };
+        if !proc::run("pnpm", &[script], &root).await? {
+            failed += 1;
+        }
+    }
+
+    // -----------------------------------------------------------------------
     // clippy (Rust)
     // -----------------------------------------------------------------------
     if run_all || args.clippy {
         ui::section("clippy — Rust");
 
-        let extra = if args.fix { &["--fix"][..] } else { &["--", "-D", "warnings"][..] };
+        let extra = if args.fix {
+            &["--fix", "--allow-dirty"][..]
+        } else {
+            &["--", "-D", "warnings"][..]
+        };
 
         let mut a = vec!["clippy", "--all-targets", "--all-features"];
         a.extend_from_slice(extra);
@@ -110,13 +131,8 @@ pub async fn run(args: LintArgs) -> Result<()> {
     if run_all || args.markdown {
         ui::section("markdownlint — Markdown");
 
-        if !proc::run(
-            "pnpm",
-            &["lint:md"],
-            &root,
-        )
-        .await?
-        {
+        let script = if args.fix { "lint:md:fix" } else { "lint:md" };
+        if !proc::run("pnpm", &[script], &root).await? {
             failed += 1;
         }
     }
