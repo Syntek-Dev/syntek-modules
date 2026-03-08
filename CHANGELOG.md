@@ -7,6 +7,46 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [0.8.0] — 08/03/2026
+
+### Added
+
+- **`shared/tokens/`** (`@syntek/tokens`) — new shared design token package; exports typed
+  TypeScript constants for colours, spacing, typography, font families, border radii, shadows,
+  breakpoints, z-index, and opacity; also exports a CSS custom properties file (`tokens.css`) and
+  a NativeWind-compatible theme object (`nativewind.ts`)
+- **`shared/tokens/src/__tests__/`** — Vitest test suite (token-exports, token-types,
+  token-values) verifying structure, uniqueness, and completeness of all token sets
+- **`shared/tokens/features/design_tokens.feature`** — Cucumber BDD feature spec describing the
+  token contract in plain language
+- **`eslint-rules/no-hardcoded-design-values.js`** — custom ESLint rule that flags raw hex colour
+  literals, magic spacing values, and hardcoded font-size px/rem values; directs developers to
+  import from `@syntek/tokens` instead
+- **`eslint-rules/__tests__/no-hardcoded-design-values.test.js`** — Jest-compatible test suite
+  covering valid uses, invalid hardcoded values, and false-positive avoidance
+- **`docs/GUIDES/TOKENS-INTEGRATION.md`** — integration guide for consuming `@syntek/tokens` in
+  web and mobile packages; covers installation, import patterns, CSS variable usage, and
+  NativeWind configuration
+- **`docs/STORIES/US075.md`** — new story document for future planning
+- **`docs/TESTS/US003-TEST-STATUS.md`** — test status tracking for US003; records story completed
+  08/03/2026
+- **`docs/TESTS/US003-MANUAL-TESTING.md`** — manual testing checklist for US003
+- **`docs/SPRINTS/LOGS/COMPLETION-2026-03-08-SPRINT-02.md`** — Sprint 02 completion log
+
+### Changed
+
+- **`eslint.config.mjs`** — updated to load and apply the local `no-hardcoded-design-values` rule
+  across all `packages/web` and `mobile` source files
+- **`docs/STORIES/US003.md`** — status updated to completed; acceptance criteria and test results
+  recorded
+- **`docs/STORIES/OVERVIEW.md`** — US003 status updated from To Do to completed
+- **`docs/SPRINTS/SPRINT-02.md`** — Sprint 02 marked complete 08/03/2026
+- **`docs/SPRINTS/OVERVIEW.md`** — Sprint 02 annotated as completed; overall status updated
+- **`docs/TESTS/US004-TEST-STATUS.md`** — corrected tracking omission; story marked completed
+- **`docs/TESTS/US004-MANUAL-TESTING.md`** — corrected tracking omission; story marked completed
+
+---
+
 ## [0.7.0] — 08/03/2026
 
 ### Added
