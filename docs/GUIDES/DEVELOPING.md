@@ -47,7 +47,7 @@
 
 > These versions are declared in each package's `package.json` and managed via pnpm workspaces. You
 > do not install them manually — `./install.sh` handles everything.
-
+>
 > This repository does **not** use Docker or DDEV. All services run natively.
 
 ---

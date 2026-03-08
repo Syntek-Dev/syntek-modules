@@ -124,7 +124,7 @@ If both commands succeed, you're ready to develop.
 
 Create a new branch for each user story or feature. Follow the naming convention:
 
-```
+```text
 us###/<short-description>
 ```
 
@@ -207,7 +207,7 @@ Only commit once `syntek-dev lint` passes (exit code 0).
 
 Use the commit message format defined in `.claude/GIT-GUIDE.md`:
 
-```
+```text
 <type>(<scope>): <Description> - <Summarise>
 
 <Body>
@@ -223,7 +223,7 @@ Version: <old> → <new>
 
 **Example:**
 
-```
+```text
 feat(syntek-auth): add passkey registration - implements WebAuthn Level 3
 
 Adds a new GraphQL mutation `registerPasskey` backed by the py_webauthn library.
@@ -322,7 +322,7 @@ Test documentation goes in `docs/TESTS/` with the format `US###-TEST-STATUS.md` 
 
 ### PR Flow
 
-```
+```text
 us###/feature  →  testing  →  dev  →  staging  →  main
 ```
 

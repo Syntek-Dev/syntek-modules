@@ -32,7 +32,7 @@ assignees: ""
 
 ### Logs / Error Output
 
-```
+```text
 Paste the full error or stack trace here
 ```
 
