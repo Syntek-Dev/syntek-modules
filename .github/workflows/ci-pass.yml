@@ -1,0 +1,46 @@
+name: CI Pass (no code changes)
+
+# Runs only when a PR touches none of the paths covered by the web, python,
+# or rust workflows. Reports the three required check names as passed so that
+# branch protection is satisfied for docs-only or config-only PRs.
+
+on:
+  pull_request:
+    paths-ignore:
+      # web workflow paths
+      - "shared/**"
+      - "packages/web/**"
+      - "mobile/**"
+      - "pnpm-workspace.yaml"
+      - "pnpm-lock.yaml"
+      - "turbo.json"
+      - "tsconfig*.json"
+      - "eslint.config.mjs"
+      - ".prettierrc"
+      # python workflow paths
+      - "packages/backend/**"
+      - "pyproject.toml"
+      - "pyrightconfig.json"
+      # rust workflow paths
+      - "rust/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+
+jobs:
+  web:
+    name: Web (no changes)
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "No web changes — check skipped"
+
+  python:
+    name: Python (no changes)
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "No Python changes — check skipped"
+
+  rust:
+    name: Rust (no changes)
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "No Rust changes — check skipped"
