@@ -39,7 +39,7 @@ jobs:
 
       - name: Security audit (cargo audit)
         run: |
-          cargo install cargo-audit@0.21.1
+          cargo install cargo-audit@0.21.2
           cargo audit --deny warnings
 
       - name: Coverage (cargo llvm-cov)
