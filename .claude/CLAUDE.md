@@ -442,6 +442,12 @@ SYNTEK_DOCUMENTS = {
 **Zero-plaintext guarantee:** Sensitive fields are encrypted by the Rust layer before any database
 write. The frontend never handles raw cryptographic operations.
 
+**The Rust layer is installed via `syntek add` like all other layers but is not configurable.** All
+cryptographic algorithms, parameters, and key lengths are fixed by Syntek security policy. The CLI
+simply pins the crate version — no prompts, no options. The configurable layers are
+Django/PostgreSQL (via `SYNTEK_*` settings), GraphQL (via `@encrypted` directives and
+`SYNTEK_FIELD_KEY_*` env vars), Next.js, and React Native.
+
 | Algorithm    | Use                                 | Standard                    |
 | ------------ | ----------------------------------- | --------------------------- |
 | AES-256-GCM  | Field-level encryption at rest      | NIST SP 800-38D             |
