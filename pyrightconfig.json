@@ -3,6 +3,7 @@
   "pythonPlatform": "Linux",
   "venvPath": ".",
   "venv": ".venv",
+  "stubPath": "stubs",
   "typeCheckingMode": "standard",
   "useLibraryCodeForTypes": true,
   "reportMissingImports": true,
