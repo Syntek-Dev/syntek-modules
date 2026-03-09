@@ -14,11 +14,11 @@
   `verify_password`, `encrypt_fields_batch`, and `decrypt_fields_batch` to Python with no
   cryptographic logic duplicated outside the `syntek-crypto` crate.
 
-- **`EncryptedField` and `EncryptedFieldDescriptor`** — Django model fields are now protected by
-  the `EncryptedField` type which prevents plaintext from ever reaching the database. The
-  encryption boundary is the GraphQL middleware layer, not the ORM. `EncryptedField` stores and
-  validates ciphertext only; `EncryptedFieldDescriptor` records model and field names for automatic
-  AAD resolution by the middleware.
+- **`EncryptedField` and `EncryptedFieldDescriptor`** — Django model fields are now protected by the
+  `EncryptedField` type which prevents plaintext from ever reaching the database. The encryption
+  boundary is the GraphQL middleware layer, not the ORM. `EncryptedField` stores and validates
+  ciphertext only; `EncryptedFieldDescriptor` records model and field names for automatic AAD
+  resolution by the middleware.
 
 - **65 tests, all green** — 12 Rust integration tests (`cargo test -p syntek-pyo3`) and 53 Python
   unit tests (`pytest tests/pyo3/ packages/backend/syntek-pyo3/tests/ -v`) covering all acceptance

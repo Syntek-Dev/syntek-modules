@@ -24,17 +24,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
   so the GraphQL middleware can resolve the correct AAD without manual annotation.
 - **`is_valid_ciphertext_format`** — public Rust helper (base64ct, decoded ≥ 28 bytes) used
   internally by `EncryptedField.validate` and directly exercised by Rust integration tests.
-- **`DecryptionError`** and **`BatchDecryptionError`** — exported `thiserror` error types mapped
-  to Python `ValueError` at the PyO3 boundary.
+- **`DecryptionError`** and **`BatchDecryptionError`** — exported `thiserror` error types mapped to
+  Python `ValueError` at the PyO3 boundary.
 - **`rust/syntek-pyo3/tests/pyo3_module_tests.rs`** — 12 Rust integration tests: 10 for
   `is_valid_ciphertext_format` (boundary values, plaintext rejection, invalid base64) and 2
   compile-time tests confirming the error types implement `std::error::Error`.
 - **`rust/syntek-pyo3/pyproject.toml`** — maturin build config: `module-name = "syntek_pyo3"`,
   `pyo3/extension-module` feature, `requires-python = ">=3.14"`.
 - **`tests/pyo3/test_pyo3_bindings.py`** — 53 Python binding tests across 7 classes: module import
-  (7), `encrypt_field` (3), `decrypt_field` (8), `encrypt_fields_batch` (4),
-  `decrypt_fields_batch` (3), `hash_password` (3), `verify_password` (3). All pass after
-  `maturin develop`.
+  (7), `encrypt_field` (3), `decrypt_field` (8), `encrypt_fields_batch` (4), `decrypt_fields_batch`
+  (3), `hash_password` (3), `verify_password` (3). All pass after `maturin develop`.
 - **`packages/backend/syntek-pyo3/`** — Django module package with `pyproject.toml` and
   `tests/test_encrypted_field.py` (38 tests across 5 classes: import, ciphertext acceptance,
   plaintext rejection ×12 parametrised, `from_db_value` passthrough, descriptor).
@@ -47,9 +46,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ### Changed
 
-- **`rust/syntek-pyo3/Cargo.toml`** — `crate-type` updated from `["cdylib"]` to
-  `["cdylib", "lib"]` to enable Rust integration tests to link against the library. The
-  `syntek-crypto` path dependency carries `version = "0.12.0"` (cargo-deny wildcard policy).
+- **`rust/syntek-pyo3/Cargo.toml`** — `crate-type` updated from `["cdylib"]` to `["cdylib", "lib"]`
+  to enable Rust integration tests to link against the library. The `syntek-crypto` path dependency
+  carries `version = "0.12.0"` (cargo-deny wildcard policy).
 
 ### Documentation
 
@@ -59,8 +58,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - `CLAUDE.md` directory tree corrected to remove deleted shell scripts and add `install.sh`.
 - `docs/TESTS/US007-TEST-STATUS.md` and `docs/TESTS/US007-MANUAL-TESTING.md` added — full
   green-phase test record and eight manual test scenarios, all PASS.
-- `docs/STORIES/US007.md` updated with architecture boundary table, Gherkin acceptance criteria,
-  and red/green phase task checkboxes.
+- `docs/STORIES/US007.md` updated with architecture boundary table, Gherkin acceptance criteria, and
+  red/green phase task checkboxes.
 
 ---
 
