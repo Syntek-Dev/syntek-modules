@@ -1,0 +1,15 @@
+[build-system]
+requires = ["maturin>=1.7,<2"]
+build-backend = "maturin"
+
+[project]
+name = "syntek-pyo3"
+version = "0.12.1"
+description = "PyO3 Django bindings exposing syntek-crypto field encryption"
+requires-python = ">=3.14"
+license = { text = "AGPL-3.0-only" }
+authors = [{ name = "Syntek Development Team" }]
+
+[tool.maturin]
+module-name = "syntek_pyo3"
+features = ["pyo3/extension-module"]
