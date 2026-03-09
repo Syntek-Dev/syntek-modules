@@ -35,7 +35,7 @@ jobs:
         run: cargo clippy -- -D warnings
 
       - name: Test
-        run: cargo test --all
+        run: cargo test --all --release
 
       - name: Security audit (cargo audit)
         run: |

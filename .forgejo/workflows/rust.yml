@@ -35,12 +35,20 @@ jobs:
         run: cargo clippy -- -D warnings
 
       - name: Test
-        run: cargo test --all
+        run: cargo test --all --release
 
       - name: Security audit (cargo audit)
         run: |
-          cargo install cargo-audit@0.21.1
-          cargo audit --deny warnings
+          cargo install cargo-audit@0.21.2
+          # Fetch the advisory DB and strip CVSS 4.0 entries that cargo-audit's
+          # cvss v2.x parser cannot handle yet (no released version supports CVSS 4.0).
+          git clone --depth=1 https://github.com/RustSec/advisory-db.git /tmp/advisory-db
+          find /tmp/advisory-db -name "*.md" -print0 \
+            | xargs -0 grep -l 'CVSS:4\.' \
+            | xargs --no-run-if-empty rm -f
+          # --no-fetch prevents cargo-audit from re-fetching the DB from the
+          # remote, which would overwrite our patched local copy.
+          cargo audit --db /tmp/advisory-db --no-fetch --deny warnings
 
       - name: Coverage (cargo llvm-cov)
         run: |

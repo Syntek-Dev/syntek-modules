@@ -1,5 +1,107 @@
 # Releases
 
+## v0.12.1 — 09/03/2026
+
+**Branch**: `us006/syntek-crypto`\
+**Type**: PATCH\
+**Story**: US006 — `syntek-crypto` Core Cryptographic Primitives (supply-chain tooling fix)
+
+### Highlights
+
+- **`cargo deny check` now passes** — `deny.toml` was rewritten for cargo-deny 0.16+ which
+  introduced breaking configuration changes. The deprecated lint-level fields (`vulnerability`,
+  `notice`, `unlicensed`, `copyleft`) were removed; `unmaintained = "warn"` was corrected to
+  `unmaintained = "all"` (the field now accepts a scope string); `MPL-2.0` was added to the licence
+  allow list (required by the `colored` crate in `syntek-dev`); and `AGPL-3.0` was corrected to the
+  canonical SPDX identifier `AGPL-3.0-only`.
+
+- **SPDX licence identifier corrected** — The root `Cargo.toml` workspace `license` field was
+  corrected from the deprecated `"AGPL-3.0"` to `"AGPL-3.0-only"`, eliminating parse-error warnings
+  produced by cargo-deny and `cargo metadata`.
+
+- **`syntek-dev` marked as licensed** — `rust/syntek-dev/Cargo.toml` was missing
+  `license.workspace = true`, causing cargo-deny to treat the crate as unlicensed. Now inherits the
+  workspace licence.
+
+- **Wildcard path dependency version pinning** — `rust/syntek-graphql-crypto/Cargo.toml` and
+  `rust/syntek-pyo3/Cargo.toml` had `syntek-crypto` path dependencies without a `version` field.
+  cargo-deny 0.16+ treats these as wildcard version constraints and rejects them when
+  `wildcards = "deny"` is set. Both now specify `version = "0.12.0"`.
+
+### Breaking Changes
+
+None.
+
+### Verify
+
+```bash
+# Confirm cargo deny passes
+cargo deny check
+
+# Full workspace still compiles
+cargo build
+```
+
+---
+
+## v0.12.0 — 09/03/2026
+
+**Branch**: `us006/syntek-crypto`\
+**Type**: MINOR\
+**Story**: US006 — `syntek-crypto` Core Cryptographic Primitives\
+**Sprint**: Sprint 03 — Completed 09/03/2026
+
+### Highlights
+
+- **`syntek-crypto` crate — complete** — The cryptographic foundation for all Syntek backend modules
+  is now fully implemented. All sensitive fields are encrypted before any database write. No
+  plaintext is ever stored or transmitted by the backend layer.
+
+- **AES-256-GCM field encryption** — `encrypt_field` and `decrypt_field` use per-field Additional
+  Authenticated Data (`model:field`) to bind ciphertexts to their origin. A ciphertext produced for
+  `User:email` cannot be accepted by `User:phone` or any other field — the GCM authentication tag
+  fails, preventing ciphertext transplantation attacks.
+
+- **Argon2id password hashing** — `hash_password` and `verify_password` use the Syntek standard
+  parameters: m=65536 KiB, t=3 iterations, p=4 lanes. These parameters are fixed by security policy
+  and not configurable by consumers.
+
+- **HMAC-SHA256 integrity** — `hmac_sign` and `hmac_verify` provide webhook signature and integrity
+  verification. `hmac_verify` uses HMAC's constant-time comparison (via `subtle`) to prevent timing
+  attacks.
+
+- **Batch APIs** — `encrypt_fields_batch` and `decrypt_fields_batch` encrypt or decrypt multiple
+  fields in a single call. If any field fails, the entire batch fails atomically — no partial
+  results are returned.
+
+- **Memory zeroisation** — All sensitive buffers are zeroised after use via the `zeroize` crate,
+  meeting the OWASP Cryptographic Storage requirements.
+
+- **Supply-chain policy** — `deny.toml` enforces cargo-deny rules: vulnerabilities denied, yanked
+  crates denied, wildcard dependencies denied, only approved licences permitted.
+
+- **CI fixes** — `cargo-audit` CVSS 4.0 crash resolved; `pip-audit` invocation corrected; coverage
+  comment step guarded against missing XML output.
+
+### Verify
+
+```bash
+# Run all syntek-crypto tests (unit + property-based + doctests)
+cargo test -p syntek-crypto
+
+# Clippy (zero warnings)
+cargo clippy -p syntek-crypto -- -D warnings
+
+# Format check
+cargo fmt -p syntek-crypto -- --check
+```
+
+### Breaking Changes
+
+None.
+
+---
+
 ## v0.11.0 — 08/03/2026
 
 **Branch**: `us075/design-token-manifest`\

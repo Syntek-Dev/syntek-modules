@@ -13,5 +13,5 @@ crate-type = ["cdylib"]
 
 [dependencies]
 pyo3.workspace = true
-syntek-crypto = { path = "../syntek-crypto" }
+syntek-crypto = { path = "../syntek-crypto", version = "0.12.0" }
 thiserror.workspace = true

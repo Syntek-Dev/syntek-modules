@@ -3,6 +3,7 @@ name = "syntek-dev"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
+license.workspace = true
 description = "Syntek development CLI — manage services, tests, linting, and the database"
 repository = "https://git.syntek-studio.com/syntek/syntek-modules"
 
