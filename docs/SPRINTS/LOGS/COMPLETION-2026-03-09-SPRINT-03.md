@@ -76,7 +76,7 @@ foundation that all backend modules depend on.
 
 | AC  | Description                                                        | Status    |
 | --- | ------------------------------------------------------------------ | --------- |
-| AC1 | `encrypt_field` returns base64-encoded `nonce || ciphertext || tag` | Satisfied |
+| AC1 | `encrypt_field` returns base64-encoded `nonce \|\| ciphertext \|\| tag` | Satisfied |
 | AC2 | `decrypt_field` recovers original plaintext                         | Satisfied |
 | AC3 | Tampered ciphertext returns `DecryptionError`                       | Satisfied |
 | AC4 | `hash_password` returns valid Argon2id PHC with m=65536, t=3, p=4  | Satisfied |

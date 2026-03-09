@@ -1,5 +1,63 @@
 # Releases
 
+## v0.12.0 — 09/03/2026
+
+**Branch**: `us006/syntek-crypto`\
+**Type**: MINOR\
+**Story**: US006 — `syntek-crypto` Core Cryptographic Primitives\
+**Sprint**: Sprint 03 — Completed 09/03/2026
+
+### Highlights
+
+- **`syntek-crypto` crate — complete** — The cryptographic foundation for all Syntek backend modules
+  is now fully implemented. All sensitive fields are encrypted before any database write. No
+  plaintext is ever stored or transmitted by the backend layer.
+
+- **AES-256-GCM field encryption** — `encrypt_field` and `decrypt_field` use per-field Additional
+  Authenticated Data (`model:field`) to bind ciphertexts to their origin. A ciphertext produced for
+  `User:email` cannot be accepted by `User:phone` or any other field — the GCM authentication tag
+  fails, preventing ciphertext transplantation attacks.
+
+- **Argon2id password hashing** — `hash_password` and `verify_password` use the Syntek standard
+  parameters: m=65536 KiB, t=3 iterations, p=4 lanes. These parameters are fixed by security policy
+  and not configurable by consumers.
+
+- **HMAC-SHA256 integrity** — `hmac_sign` and `hmac_verify` provide webhook signature and integrity
+  verification. `hmac_verify` uses HMAC's constant-time comparison (via `subtle`) to prevent timing
+  attacks.
+
+- **Batch APIs** — `encrypt_fields_batch` and `decrypt_fields_batch` encrypt or decrypt multiple
+  fields in a single call. If any field fails, the entire batch fails atomically — no partial
+  results are returned.
+
+- **Memory zeroisation** — All sensitive buffers are zeroised after use via the `zeroize` crate,
+  meeting the OWASP Cryptographic Storage requirements.
+
+- **Supply-chain policy** — `deny.toml` enforces cargo-deny rules: vulnerabilities denied, yanked
+  crates denied, wildcard dependencies denied, only approved licences permitted.
+
+- **CI fixes** — `cargo-audit` CVSS 4.0 crash resolved; `pip-audit` invocation corrected; coverage
+  comment step guarded against missing XML output.
+
+### Verify
+
+```bash
+# Run all syntek-crypto tests (unit + property-based + doctests)
+cargo test -p syntek-crypto
+
+# Clippy (zero warnings)
+cargo clippy -p syntek-crypto -- -D warnings
+
+# Format check
+cargo fmt -p syntek-crypto -- --check
+```
+
+### Breaking Changes
+
+None.
+
+---
+
 ## v0.11.0 — 08/03/2026
 
 **Branch**: `us075/design-token-manifest`\

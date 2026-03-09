@@ -1,6 +1,6 @@
 {
   "name": "syntek-modules",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "private": true,
   "description": "Syntek reusable module library — backend, web, and mobile packages",
   "packageManager": "pnpm@10.31.0",

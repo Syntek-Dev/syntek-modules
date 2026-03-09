@@ -7,6 +7,47 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [0.12.0] — 09/03/2026
+
+### Added
+
+- **`rust/syntek-crypto/src/lib.rs`** — full implementation of the `syntek-crypto` crate:
+  `encrypt_field`, `decrypt_field`, `hash_password`, `verify_password`, `hmac_sign`, `hmac_verify`,
+  `encrypt_fields_batch`, `decrypt_fields_batch`. AES-256-GCM with per-field AAD, Argon2id (m=65536,
+  t=3, p=4), HMAC-SHA256 with constant-time comparison, memory zeroisation via the `zeroize` crate.
+  All functions fully documented with doctests.
+- **`rust/syntek-crypto/tests/crypto_tests.rs`** — 49 tests: 36 unit tests, 4 property-based tests
+  (proptest), 9 doctests. All passing. Covers round-trip correctness, wrong-key rejection, AAD
+  mismatch rejection, batch atomicity, and HMAC timing safety.
+- **`deny.toml`** — cargo-deny supply-chain policy: vulnerability = deny, yanked = deny,
+  unmaintained = warn, wildcard dependencies = deny. Allowed licences: MIT, Apache-2.0,
+  BSD-2/3-Clause, ISC, Unicode-3.0, Zlib, AGPL-3.0.
+- **`base64ct`** workspace dependency (version 1, `std` feature) for constant-time base64 encoding
+  in the encryption output format.
+- **`proptest`** and **`hex`** dev-dependencies for property-based testing of cryptographic
+  invariants.
+
+### Changed
+
+- **`Cargo.toml`** — `aes-gcm` now includes `zeroize` feature; `argon2` now includes `password-hash`
+  and `std` features. `serde` removed from `syntek-crypto` direct dependencies (not needed in the
+  crypto crate).
+- **`.forgejo/workflows/rust.yml`** and **`.github/workflows/rust.yml`** — `cargo test` changed to
+  `cargo test --all --release`; `cargo-audit` updated to 0.21.2 with a CVSS 4.0 workaround that
+  strips unparseable advisory entries before auditing.
+- **`.forgejo/workflows/python.yml`** — `uvx run pip-audit` corrected to `uvx pip-audit`; coverage
+  comment step guarded with `hashFiles('coverage.xml') != ''`.
+
+### Fixed
+
+- CI `cargo-audit` crash on CVSS 4.0 formatted advisories (parser does not support CVSS 4.0 in
+  current release — workaround strips those entries from the local DB copy before audit).
+- CI `uvx run pip-audit` invocation syntax — `uvx` does not accept `run` as a subcommand.
+- CI coverage comment step now skipped when no `coverage.xml` is produced, preventing hard failures
+  on PRs with no Python coverage output.
+
+---
+
 ## [0.11.0] — 08/03/2026
 
 ### Added

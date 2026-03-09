@@ -2,6 +2,7 @@
 
 | Version | Date       | Type  | Summary                                                                                             |
 | ------- | ---------- | ----- | --------------------------------------------------------------------------------------------------- |
+| 0.12.0  | 09/03/2026 | MINOR | `syntek-crypto` complete — AES-256-GCM, Argon2id, HMAC-SHA256, batch APIs, 49 tests, US006 done     |
 | 0.11.0  | 08/03/2026 | MINOR | `TOKEN_MANIFEST`, `TAILWIND_COLOURS`, colour utils, theme utils in `@syntek/tokens`, US075 done     |
 | 0.10.0  | 08/03/2026 | MINOR | `syntek-manifest` Rust crate — module manifest spec & CLI shared framework, 127 tests, US074 done   |
 | 0.9.0   | 08/03/2026 | MINOR | CI/CD pipeline complete — security audit, affected-only tests, coverage PR comments, Sprint 02 done |
