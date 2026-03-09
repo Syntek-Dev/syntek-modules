@@ -45,7 +45,7 @@ Rules:
 
 ## TDD/BDD Workflow
 
-Every story follows **Red → Green → Refactor** as defined in `.claude/TESTING.md`:
+Every story follows **Red → Green → Refactor** as defined in [Testing Guide](.claude/TESTING.md):
 
 1. **Red** — write all failing tests (unit, integration, security negatives) before any
    implementation
