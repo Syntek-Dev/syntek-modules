@@ -80,7 +80,7 @@ A story is only complete when:
 | Story             | Title                                                   | Points | Status    |
 | ----------------- | ------------------------------------------------------- | ------ | --------- |
 | [US006](US006.md) | `syntek-crypto` — Core Cryptographic Primitives         | 8      | Completed |
-| [US007](US007.md) | `syntek-pyo3` — PyO3 Django Bindings                    | 8      | To Do     |
+| [US007](US007.md) | `syntek-pyo3` — PyO3 Django Bindings                    | 8      | Completed |
 | [US008](US008.md) | `syntek-graphql-crypto` — GraphQL Encryption Middleware | 8      | To Do     |
 
 ### Epic 3 — Core Backend Modules
