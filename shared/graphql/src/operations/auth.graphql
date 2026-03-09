@@ -17,6 +17,18 @@ mutation Login($email: String!, $password: String!) {
   }
 }
 
+mutation Logout {
+  logout {
+    success
+  }
+}
+
+mutation RefreshToken {
+  refreshToken {
+    token
+  }
+}
+
 query CurrentUser {
   me {
     id

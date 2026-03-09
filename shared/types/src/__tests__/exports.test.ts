@@ -3,9 +3,6 @@
  *
  * Uses Vitest's expectTypeOf API so failures are caught at both compile-time
  * (tsc / vitest typecheck) and runtime.
- *
- * Red phase: stubs define incomplete/permissive types so most assertions below
- * will fail until the real type definitions are written.
  */
 
 import { describe, it, expectTypeOf } from "vitest";
@@ -30,24 +27,33 @@ import type {
 // ---------------------------------------------------------------------------
 
 describe("ID", () => {
-  it("is a string type", () => {
-    expectTypeOf<ID>().toEqualTypeOf<string>();
+  it("extends string", () => {
+    expectTypeOf<ID>().toMatchTypeOf<string>();
   });
 
-  it("accepts a UUID string", () => {
-    const id: ID = "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
-    expectTypeOf(id).toEqualTypeOf<ID>();
+  it("is branded — not assignable from plain string without cast", () => {
+    // A branded type should not equal plain string
+    expectTypeOf<ID>().not.toEqualTypeOf<string>();
+  });
+
+  it("accepts a UUID string via cast", () => {
+    const id = "a1b2c3d4-e5f6-7890-abcd-ef1234567890" as ID;
+    expectTypeOf(id).toMatchTypeOf<ID>();
   });
 });
 
 describe("Timestamp", () => {
-  it("is a string type", () => {
-    expectTypeOf<Timestamp>().toEqualTypeOf<string>();
+  it("extends string", () => {
+    expectTypeOf<Timestamp>().toMatchTypeOf<string>();
   });
 
-  it("accepts an ISO 8601 date string", () => {
-    const ts: Timestamp = "2026-03-06T16:00:00.000Z";
-    expectTypeOf(ts).toEqualTypeOf<Timestamp>();
+  it("is branded — not assignable from plain string without cast", () => {
+    expectTypeOf<Timestamp>().not.toEqualTypeOf<string>();
+  });
+
+  it("accepts an ISO 8601 date string via cast", () => {
+    const ts = "2026-03-06T16:00:00.000Z" as Timestamp;
+    expectTypeOf(ts).toMatchTypeOf<Timestamp>();
   });
 });
 
@@ -124,12 +130,24 @@ describe("User", () => {
     expectTypeOf<User["email"]>().toEqualTypeOf<string>();
   });
 
+  it("displayName is string", () => {
+    expectTypeOf<User["displayName"]>().toEqualTypeOf<string>();
+  });
+
+  it("isActive is boolean", () => {
+    expectTypeOf<User["isActive"]>().toEqualTypeOf<boolean>();
+  });
+
   it("roles is Role[]", () => {
     expectTypeOf<User["roles"]>().toEqualTypeOf<Role[]>();
   });
 
   it("createdAt is Timestamp", () => {
     expectTypeOf<User["createdAt"]>().toEqualTypeOf<Timestamp>();
+  });
+
+  it("updatedAt is Timestamp", () => {
+    expectTypeOf<User["updatedAt"]>().toEqualTypeOf<Timestamp>();
   });
 });
 
@@ -140,6 +158,14 @@ describe("Session", () => {
 
   it("userId is ID", () => {
     expectTypeOf<Session["userId"]>().toEqualTypeOf<ID>();
+  });
+
+  it("tenantId is ID", () => {
+    expectTypeOf<Session["tenantId"]>().toEqualTypeOf<ID>();
+  });
+
+  it("createdAt is Timestamp", () => {
+    expectTypeOf<Session["createdAt"]>().toEqualTypeOf<Timestamp>();
   });
 
   it("expiresAt is Timestamp", () => {
@@ -196,6 +222,10 @@ describe("Notification", () => {
     expectTypeOf<Notification["id"]>().toEqualTypeOf<ID>();
   });
 
+  it("userId is ID", () => {
+    expectTypeOf<Notification["userId"]>().toEqualTypeOf<ID>();
+  });
+
   it("type is string", () => {
     expectTypeOf<Notification["type"]>().toEqualTypeOf<string>();
   });
@@ -210,6 +240,10 @@ describe("Notification", () => {
 
   it("channel is NotificationChannel", () => {
     expectTypeOf<Notification["channel"]>().toEqualTypeOf<NotificationChannel>();
+  });
+
+  it("createdAt is Timestamp", () => {
+    expectTypeOf<Notification["createdAt"]>().toEqualTypeOf<Timestamp>();
   });
 
   it("readAt is optional Timestamp", () => {

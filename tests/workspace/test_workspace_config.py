@@ -49,7 +49,12 @@ class TestUvWorkspace:
         assert "packages/backend/*" in members
 
     def test_python_version_constraint(self, root_pyproject: dict) -> None:
-        # Checked via ruff target-version since [tool.uv] python-version is not a valid field
+        requires_python = root_pyproject.get("project", {}).get("requires-python", "")
+        assert "3.14" in requires_python, (
+            f"requires-python must enforce >=3.14, got: '{requires_python}'"
+        )
+
+    def test_ruff_target_version_matches(self, root_pyproject: dict) -> None:
         target = root_pyproject["tool"]["ruff"].get("target-version", "")
         assert "py314" in target
 
@@ -64,6 +69,7 @@ EXPECTED_RUST_CRATES = [
     "rust/syntek-pyo3",
     "rust/syntek-graphql-crypto",
     "rust/syntek-dev",
+    "rust/syntek-manifest",
 ]
 
 
@@ -141,15 +147,7 @@ class TestDirectoryStructure:
     def test_directory_exists(self, repo_root, rel_path: str) -> None:
         assert (repo_root / rel_path).is_dir(), f"Missing directory: {rel_path}"
 
-    @pytest.mark.parametrize(
-        "crate_dir",
-        [
-            "rust/syntek-crypto",
-            "rust/syntek-pyo3",
-            "rust/syntek-graphql-crypto",
-            "rust/syntek-dev",
-        ],
-    )
+    @pytest.mark.parametrize("crate_dir", EXPECTED_RUST_CRATES)
     def test_rust_crate_directory_exists(self, repo_root, crate_dir: str) -> None:
         assert (repo_root / crate_dir).is_dir(), f"Missing Rust crate dir: {crate_dir}"
 

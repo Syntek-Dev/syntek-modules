@@ -83,6 +83,10 @@ def activate_uv_venv(context: dict) -> None:
 @when("I install syntek-auth with dev dependencies")
 def install_syntek_auth(context: dict) -> None:
     package_path = context["root"] / "packages" / "backend" / "syntek-auth"
+    assert package_path.is_dir(), (
+        f"Package directory does not exist: {package_path} — "
+        "scaffold syntek-auth before running this test"
+    )
     result = subprocess.run(
         ["uv", "pip", "install", "-e", f"{package_path}[dev]"],
         cwd=context["root"],

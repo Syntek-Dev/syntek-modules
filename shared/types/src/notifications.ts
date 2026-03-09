@@ -4,9 +4,11 @@ export type NotificationChannel = "email" | "push" | "sms" | "in-app";
 
 export interface Notification {
   id: ID;
+  userId: ID;
   type: string;
   title: string;
   body: string;
   channel: NotificationChannel;
+  createdAt: Timestamp;
   readAt?: Timestamp;
 }

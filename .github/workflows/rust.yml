@@ -28,11 +28,6 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
-      - name: Install cargo tools
-        uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-audit,cargo-llvm-cov
-
       - name: Format check
         run: cargo fmt --check
 
@@ -43,10 +38,22 @@ jobs:
         run: cargo test --all
 
       - name: Security audit (cargo audit)
-        run: cargo audit --deny unsound --deny yanked
+        run: |
+          cargo install cargo-audit@0.21.2
+          # Fetch the advisory DB and strip CVSS 4.0 entries that cargo-audit's
+          # cvss v2.x parser cannot handle yet (no released version supports CVSS 4.0).
+          git clone --depth=1 https://github.com/RustSec/advisory-db.git /tmp/advisory-db
+          find /tmp/advisory-db -name "*.md" -print0 \
+            | xargs -0 grep -l 'CVSS:4\.' \
+            | xargs --no-run-if-empty rm -f
+          # --no-fetch prevents cargo-audit from re-fetching the DB from the
+          # remote, which would overwrite our patched local copy.
+          cargo audit --db /tmp/advisory-db --no-fetch --deny warnings
 
       - name: Coverage (cargo llvm-cov)
-        run: cargo llvm-cov --all --lcov --output-path lcov.info
+        run: |
+          cargo install cargo-llvm-cov@0.6.16
+          cargo llvm-cov --all --lcov --output-path lcov.info
 
       - name: Upload coverage artifact
         if: always()

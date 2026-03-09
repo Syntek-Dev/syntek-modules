@@ -7,6 +7,89 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [0.11.0] — 08/03/2026
+
+### Added
+
+- **`shared/tokens/src/manifest.ts`** — exports `TOKEN_MANIFEST`, a frozen readonly array of
+  `TokenDescriptor` objects covering all token categories: colour (semantic aliases), spacing,
+  font-size, font-weight, font-family, border radius, shadow, z-index, transition duration, and
+  transition easing. Colour `default` values are resolved hex strings (not `var()` references) so
+  colour pickers can initialise with a concrete value.
+- **`shared/tokens/src/types/token-manifest.ts`** — exports `TokenDescriptor`, `TokenCategory`, and
+  `TokenWidgetType` TypeScript types. `TokenWidgetType` drives widget selection in the
+  `syntek-platform` branding form: `"color"`, `"px"`, `"rem"`, `"font-family"`, `"font-weight"`,
+  `"number"`, `"duration"`, `"easing"`.
+- **`shared/tokens/src/tailwind-colours.ts`** — exports `TAILWIND_COLOURS`, a flat readonly record
+  mapping every Tailwind CSS v4 palette entry (e.g. `"blue-600"`) to its resolved hex value (e.g.
+  `"#2563eb"`); covers all 22 families (`slate`, `gray`, `zinc`, … `rose`) at scales 50–950.
+- **`shared/tokens/src/colour-utils.ts`** — exports:
+  - `isValidCssColour(value: string): boolean` — validates any CSS colour format: hex (#rgb,
+    #rrggbb, #rrggbbaa), rgb(), rgba(), hsl(), hsla(), hwb(), lab(), lch(), oklab(), oklch(), and
+    all CSS named colours. Used by `syntek-platform` before saving an override to the DB.
+  - `resolveTailwindColour(name: string): string | undefined` — looks up a Tailwind palette name in
+    `TAILWIND_COLOURS` and returns the hex value, or `undefined` if not found.
+- **`shared/tokens/src/theme-utils.ts`** — exports
+  `buildThemeStyle(overrides: Record<string, string>): string`; the only Next.js integration surface
+  exposed by `@syntek/tokens`. Converts an override map into a `:root { ... }` CSS block for SSR
+  injection. No escaping or validation — the platform is responsible for key and value validation
+  before calling this function.
+- **`shared/tokens/src/index.ts`** — all new exports re-exported from the package index.
+- **`shared/tokens/features/design_token_manifest.feature`** — Gherkin BDD feature file mirroring
+  all US075 acceptance criteria scenarios for living documentation.
+- **`shared/tokens/src/__tests__/token-manifest.test.ts`** — full test suite: manifest shape,
+  required fields, widget type correctness, resolved hex defaults for colour tokens, `Object.freeze`
+  immutability, and consistent re-import reference equality.
+- **`shared/tokens/src/__tests__/css-colour-validator.test.ts`** — `isValidCssColour` validated
+  against all supported CSS colour formats and confirmed to reject non-colour strings.
+- **`shared/tokens/src/__tests__/tailwind-colours.test.ts`** — `TAILWIND_COLOURS` coverage across
+  all 22 families at scales 50–950; `resolveTailwindColour` resolution and unknown-name handling.
+- **`shared/tokens/src/__tests__/theme-utils.test.ts`** — `buildThemeStyle` output: empty overrides,
+  single/multiple overrides, correct `:root` wrapper, key/value pass-through.
+- **`shared/graphql/src/__tests__/fetcher.test.ts`** — new fetcher test file covering error handling
+  and response parsing per QA-US004 findings.
+- **`tests/ci/test_workflow_mirror.py`** — new CI test verifying Forgejo and GitHub workflow files
+  remain in sync.
+- **`docs/QA/QA-US075-DESIGN-TOKEN-MANIFEST-08-03-2026.md`** — QA report: findings from US075 review
+  including CSS injection risk in `buildThemeStyle` (documented; mitigation is platform-side
+  validation) and shallow `Object.freeze` on `TOKEN_MANIFEST` entries.
+- **`docs/BUGS/BUG-US075-DESIGN-TOKEN-MANIFEST-08-03-2026.md`** — bug fix report covering all US075
+  QA findings with root-cause analysis and prevention recommendations.
+- **`docs/TESTS/US075-TEST-STATUS.md`** and **`docs/TESTS/US075-MANUAL-TESTING.md`** — test status
+  tracker and 8-scenario manual testing guide for US075; all scenarios passed.
+- **QA and bug reports for US001–US005** (retrospective): six QA reports and six bug fix reports
+  documenting findings and resolutions from a retrospective audit of the foundation sprints.
+
+### Changed
+
+- **`shared/tokens/src/tokens.ts`** and **`shared/tokens/tokens.css`** — token default values
+  aligned with `TOKEN_MANIFEST` colour entries (resolved hex strings throughout).
+- **`shared/graphql/schema.graphql`** and **`shared/graphql/src/operations/auth.graphql`** — updated
+  to align with US075-era type changes; `src/generated/graphql.ts` regenerated via `pnpm codegen`.
+- **`shared/graphql/src/lib/fetcher.ts`** — hardened per QA-US004 findings.
+- **`shared/types/src/auth.ts`**, **`shared/types/src/base.ts`**,
+  **`shared/types/src/notifications.ts`**, **`shared/types/tsconfig.json`** — type refinements and
+  compiler strictness alignment per retrospective QA.
+- **`eslint-rules/no-hardcoded-design-values.js`** — updated to recognise all new token categories
+  and CSS custom property prefixes from US075.
+- **`turbo.json`** — pipeline updated to declare new outputs and cache inputs for the expanded
+  `@syntek/tokens` package.
+- **`.forgejo/workflows/graphql-drift.yml`** — new workflow running codegen drift check on PRs that
+  touch schema or operation files.
+- **`.forgejo/workflows/python.yml`**, **`.forgejo/workflows/rust.yml`**,
+  **`.github/workflows/python.yml`**, **`.github/workflows/rust.yml`** — CI assertion alignment per
+  BUG-US005 findings (pip-audit invocation, cargo audit advisory categories).
+- **`tests/workspace/test_workspace_config.py`** — `EXPECTED_RUST_CRATES` now includes
+  `rust/syntek-manifest`; regression from QA-US001 finding now caught.
+- **`tests/workspace/test_workspace_bdd.py`** — BDD feature file list updated to include US075.
+- **`tests/ci/test_rust_workflow.py`** — assertion updated per BUG-US005.
+- **`docs/STORIES/US075.md`** — status updated to Completed; all tasks ticked, test evidence
+  recorded.
+- **`docs/PLANS/SYNTEK-ARCHITECTURE.md`** — optimised CSS serving pattern documented (tenant_themes
+  table, immutable caching, hash-based CDN cache busting).
+
+---
+
 ## [0.10.0] — 08/03/2026
 
 ### Added
