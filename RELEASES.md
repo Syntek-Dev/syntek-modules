@@ -1,5 +1,51 @@
 # Releases
 
+## v0.13.0 — 09/03/2026
+
+**Branch**: `us007/syntek-pyo3`\
+**Type**: MINOR\
+**Story**: US007 — `syntek-pyo3` PyO3 Django Bindings
+
+### Highlights
+
+- **`syntek-pyo3` native extension complete** — The PyO3 bridge between Django and `syntek-crypto`
+  is fully implemented. `syntek_pyo3.so` is built with `maturin develop` (dev) or `maturin build`
+  (production wheel). It exposes `encrypt_field`, `decrypt_field`, `hash_password`,
+  `verify_password`, `encrypt_fields_batch`, and `decrypt_fields_batch` to Python with no
+  cryptographic logic duplicated outside the `syntek-crypto` crate.
+
+- **`EncryptedField` and `EncryptedFieldDescriptor`** — Django model fields are now protected by
+  the `EncryptedField` type which prevents plaintext from ever reaching the database. The
+  encryption boundary is the GraphQL middleware layer, not the ORM. `EncryptedField` stores and
+  validates ciphertext only; `EncryptedFieldDescriptor` records model and field names for automatic
+  AAD resolution by the middleware.
+
+- **65 tests, all green** — 12 Rust integration tests (`cargo test -p syntek-pyo3`) and 53 Python
+  unit tests (`pytest tests/pyo3/ packages/backend/syntek-pyo3/tests/ -v`) covering all acceptance
+  criteria: import, round-trip, tamper rejection, AAD mismatch, batch ops, passthrough, and
+  descriptor metadata.
+
+- **Type stubs for basedpyright** — `stubs/syntek_pyo3.pyi` provides full type information for all
+  eight exported symbols so the type checker resolves types without a compiled `.so`.
+
+### Breaking Changes
+
+None.
+
+### Verify
+
+```bash
+# Rust tests
+cargo test -p syntek-pyo3
+
+# Python tests (requires maturin develop first)
+source .venv/bin/activate
+cd rust/syntek-pyo3 && maturin develop && cd ../..
+pytest tests/pyo3/ packages/backend/syntek-pyo3/tests/ -v
+```
+
+---
+
 ## v0.12.1 — 09/03/2026
 
 **Branch**: `us006/syntek-crypto`\

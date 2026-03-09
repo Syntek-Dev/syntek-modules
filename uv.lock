@@ -6,6 +6,7 @@ requires-python = ">=3.14"
 members = [
     "syntek-auth",
     "syntek-modules-workspace",
+    "syntek-pyo3",
 ]
 
 [[package]]
@@ -691,7 +692,7 @@ provides-extras = ["dev"]
 
 [[package]]
 name = "syntek-modules-workspace"
-version = "0.12.1"
+version = "0.13.0"
 source = { virtual = "." }
 
 [package.dev-dependencies]
@@ -727,6 +728,28 @@ dev = [
     { name = "ruff", specifier = ">=0.9" },
     { name = "testcontainers", specifier = ">=4.0" },
 ]
+
+[[package]]
+name = "syntek-pyo3"
+version = "0.12.1"
+source = { editable = "packages/backend/syntek-pyo3" }
+dependencies = [
+    { name = "django" },
+]
+
+[package.optional-dependencies]
+dev = [
+    { name = "pytest" },
+    { name = "pytest-django" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "django", specifier = ">=6.0" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
+    { name = "pytest-django", marker = "extra == 'dev'", specifier = ">=4.9" },
+]
+provides-extras = ["dev"]
 
 [[package]]
 name = "testcontainers"

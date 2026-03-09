@@ -2,6 +2,7 @@
 
 | Version | Date       | Type  | Summary                                                                                             |
 | ------- | ---------- | ----- | --------------------------------------------------------------------------------------------------- |
+| 0.13.0  | 09/03/2026 | MINOR | `syntek-pyo3` complete — PyO3 Django bindings, EncryptedField, 65 tests, US007 done                 |
 | 0.12.1  | 09/03/2026 | PATCH | Fix `cargo deny check` failures — cargo-deny 0.16+ config, SPDX identifiers, wildcard path deps     |
 | 0.12.0  | 09/03/2026 | MINOR | `syntek-crypto` complete — AES-256-GCM, Argon2id, HMAC-SHA256, batch APIs, 49 tests, US006 done     |
 | 0.11.0  | 08/03/2026 | MINOR | `TOKEN_MANIFEST`, `TAILWIND_COLOURS`, colour utils, theme utils in `@syntek/tokens`, US075 done     |
