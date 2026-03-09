@@ -7,6 +7,28 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [0.12.1] — 09/03/2026
+
+### Fixed
+
+- **`deny.toml`** — Rewrote for cargo-deny 0.16+ compatibility: removed deprecated fields
+  (`vulnerability`, `notice`, `unlicensed`, `copyleft`); `unmaintained = "warn"` changed to
+  `unmaintained = "all"` (field now takes a scope, not a lint level); added `MPL-2.0` to the licence
+  allow list (required by the `colored` crate used in `syntek-dev`); corrected `AGPL-3.0` →
+  `AGPL-3.0-only` (deprecated SPDX identifier). Result: `cargo deny check` passes with
+  `advisories ok, bans ok, licenses ok, sources ok`.
+- **`Cargo.toml`** — `license = "AGPL-3.0"` corrected to `license = "AGPL-3.0-only"` (deprecated
+  SPDX identifier was producing parse-error warnings in cargo-deny and `cargo metadata`).
+- **`rust/syntek-dev/Cargo.toml`** — Added `license.workspace = true`; the missing field was causing
+  cargo-deny to flag `syntek-dev` as unlicensed.
+- **`rust/syntek-graphql-crypto/Cargo.toml`** — Added `version = "0.12.0"` to the `syntek-crypto`
+  path dependency; cargo-deny 0.16+ treats versionless path dependencies as wildcard version
+  constraints, triggering `wildcards = "deny"`.
+- **`rust/syntek-pyo3/Cargo.toml`** — Same fix as above: `version = "0.12.0"` added to the
+  `syntek-crypto` path dependency.
+
+---
+
 ## [0.12.0] — 09/03/2026
 
 ### Added

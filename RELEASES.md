@@ -1,5 +1,49 @@
 # Releases
 
+## v0.12.1 — 09/03/2026
+
+**Branch**: `us006/syntek-crypto`\
+**Type**: PATCH\
+**Story**: US006 — `syntek-crypto` Core Cryptographic Primitives (supply-chain tooling fix)
+
+### Highlights
+
+- **`cargo deny check` now passes** — `deny.toml` was rewritten for cargo-deny 0.16+ which
+  introduced breaking configuration changes. The deprecated lint-level fields (`vulnerability`,
+  `notice`, `unlicensed`, `copyleft`) were removed; `unmaintained = "warn"` was corrected to
+  `unmaintained = "all"` (the field now accepts a scope string); `MPL-2.0` was added to the licence
+  allow list (required by the `colored` crate in `syntek-dev`); and `AGPL-3.0` was corrected to the
+  canonical SPDX identifier `AGPL-3.0-only`.
+
+- **SPDX licence identifier corrected** — The root `Cargo.toml` workspace `license` field was
+  corrected from the deprecated `"AGPL-3.0"` to `"AGPL-3.0-only"`, eliminating parse-error warnings
+  produced by cargo-deny and `cargo metadata`.
+
+- **`syntek-dev` marked as licensed** — `rust/syntek-dev/Cargo.toml` was missing
+  `license.workspace = true`, causing cargo-deny to treat the crate as unlicensed. Now inherits the
+  workspace licence.
+
+- **Wildcard path dependency version pinning** — `rust/syntek-graphql-crypto/Cargo.toml` and
+  `rust/syntek-pyo3/Cargo.toml` had `syntek-crypto` path dependencies without a `version` field.
+  cargo-deny 0.16+ treats these as wildcard version constraints and rejects them when
+  `wildcards = "deny"` is set. Both now specify `version = "0.12.0"`.
+
+### Breaking Changes
+
+None.
+
+### Verify
+
+```bash
+# Confirm cargo deny passes
+cargo deny check
+
+# Full workspace still compiles
+cargo build
+```
+
+---
+
 ## v0.12.0 — 09/03/2026
 
 **Branch**: `us006/syntek-crypto`\

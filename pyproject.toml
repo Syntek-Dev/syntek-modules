@@ -1,7 +1,7 @@
 # uv workspace root — not a deployable app; shared tooling config only
 [project]
 name = "syntek-modules-workspace"
-version = "0.12.0"
+version = "0.12.1"
 description = "Workspace root — development tooling only, not published"
 requires-python = ">=3.14"
 dependencies = []
