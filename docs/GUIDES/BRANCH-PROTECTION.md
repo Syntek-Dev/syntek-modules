@@ -152,8 +152,8 @@ the change.
 
 ## Related Guides
 
-| Guide                   | Purpose                                 |
-| ----------------------- | --------------------------------------- |
-| `.claude/GIT-GUIDE.md`  | Commit and push workflow                |
-| `CONTRIBUTING.md`       | Contribution guidelines and PR workflow |
-| `docs/GUIDES/ISSUES.md` | How to report bugs and request features |
+| Guide                                          | Purpose                                 |
+| ---------------------------------------------- | --------------------------------------- |
+| [`.claude/GIT-GUIDE.md`](.claude/GIT-GUIDE.md) | Commit and push workflow                |
+| `CONTRIBUTING.md`                              | Contribution guidelines and PR workflow |
+| `docs/GUIDES/ISSUES.md`                        | How to report bugs and request features |

@@ -21,7 +21,8 @@ Before opening an issue:
 1. **Search existing issues** — the issue may already be reported and have a fix in progress
 2. **Check the latest version** — confirm you are on the most recent release (`VERSION` at repo
    root)
-3. **Read the docs** — check `docs/GUIDES/GETTING-STARTED.md` and `.claude/CLI-TOOLING.md` first
+3. **Read the docs** — check `docs/GUIDES/GETTING-STARTED.md` and
+   [CLI Tooling](.claude/CLI-TOOLING.md) first
 4. **Reproduce it** — confirm the issue occurs consistently with a minimal test case
 
 ---

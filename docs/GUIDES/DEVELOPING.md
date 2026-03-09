@@ -129,8 +129,8 @@ git push origin us###/my-branch
 
 ## syntek-dev CLI Reference
 
-All development tasks use the `syntek-dev` CLI. See `.claude/CLI-TOOLING.md` for the full command
-reference.
+All development tasks use the `syntek-dev` CLI. See [CLI Tooling](.claude/CLI-TOOLING.md) for the
+full command reference.
 
 | Command                 | What it does                                                            |
 | ----------------------- | ----------------------------------------------------------------------- |
@@ -324,10 +324,10 @@ markdownlint also fails after Prettier, check that headings have blank lines abo
 
 ## Related Guides
 
-| Guide                         | Purpose                                 |
-| ----------------------------- | --------------------------------------- |
-| `CONTRIBUTING.md`             | Contribution guidelines and PR workflow |
-| `.claude/CLI-TOOLING.md`      | Full syntek-dev command reference       |
-| `.claude/GIT-GUIDE.md`        | Commit and push workflow                |
-| `.claude/VERSIONING-GUIDE.md` | Versioning rules and root files         |
-| `docs/GUIDES/ISSUES.md`       | How to report bugs and request features |
+| Guide                                                        | Purpose                                 |
+| ------------------------------------------------------------ | --------------------------------------- |
+| `CONTRIBUTING.md`                                            | Contribution guidelines and PR workflow |
+| [`.claude/CLI-TOOLING.md`](.claude/CLI-TOOLING.md)           | Full syntek-dev command reference       |
+| [`.claude/GIT-GUIDE.md`](.claude/GIT-GUIDE.md)               | Commit and push workflow                |
+| [`.claude/VERSIONING-GUIDE.md`](.claude/VERSIONING-GUIDE.md) | Versioning rules and root files         |
+| `docs/GUIDES/ISSUES.md`                                      | How to report bugs and request features |

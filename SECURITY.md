@@ -103,6 +103,6 @@ upstream. Moderate and low severity within **30 days**.
 
 ## Internal Security Guide
 
-For contributors, the internal coding security standards are documented in `.claude/SECURITY.md`.
-That guide covers OWASP mitigations, authentication rules, database security, and the Rust
-encryption layer.
+For contributors, the internal coding security standards are documented in
+[`.claude/SECURITY.md`](.claude/SECURITY.md). That guide covers OWASP mitigations, authentication
+rules, database security, and the Rust encryption layer.

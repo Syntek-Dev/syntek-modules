@@ -41,7 +41,7 @@ syntek-dev test --
 - [ ] Tests added or updated for new behaviour
 - [ ] Version files updated if applicable (`VERSION`, `CHANGELOG.md`, etc.)
 - [ ] Documentation updated if applicable
-- [ ] Commit messages follow the format in `.claude/GIT-GUIDE.md`
+- [ ] Commit messages follow the format in the [Git Guide](.claude/GIT-GUIDE.md)
 - [ ] `syntek-docs` PR raised and linked above (if public API changed)
 
 ## Branch Flow

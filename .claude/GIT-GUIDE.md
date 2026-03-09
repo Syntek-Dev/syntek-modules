@@ -72,7 +72,7 @@ syntek-dev ci
 ```
 
 This mirrors all four remote CI workflows (14 steps total). The output ends with `Safe to push.`
-when all steps pass. See `.claude/CLI-TOOLING.md` for the full step-by-step breakdown.
+when all steps pass. See [CLI Tooling](.claude/CLI-TOOLING.md) for the full step-by-step breakdown.
 
 Only push when `syntek-dev ci` passes.
 
