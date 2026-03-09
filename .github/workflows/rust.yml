@@ -43,8 +43,12 @@ jobs:
           # Fetch the advisory DB and strip CVSS 4.0 entries that cargo-audit's
           # cvss v2.x parser cannot handle yet (no released version supports CVSS 4.0).
           git clone --depth=1 https://github.com/RustSec/advisory-db.git /tmp/advisory-db
-          grep -rl 'CVSS:4\.0' /tmp/advisory-db/crates/ | xargs --no-run-if-empty rm -f
-          cargo audit --db /tmp/advisory-db --deny warnings
+          find /tmp/advisory-db -name "*.md" -print0 \
+            | xargs -0 grep -l 'CVSS:4\.' \
+            | xargs --no-run-if-empty rm -f
+          # --no-fetch prevents cargo-audit from re-fetching the DB from the
+          # remote, which would overwrite our patched local copy.
+          cargo audit --db /tmp/advisory-db --no-fetch --deny warnings
 
       - name: Coverage (cargo llvm-cov)
         run: |
