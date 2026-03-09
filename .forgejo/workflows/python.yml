@@ -32,8 +32,15 @@ jobs:
 
       - uses: astral-sh/setup-uv@v5
 
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
       - name: Install dependencies
         run: uv sync --all-extras
+
+      - name: Build PyO3 extension (syntek-pyo3)
+        run: uv run maturin develop --release --manifest-path rust/syntek-pyo3/Cargo.toml
 
       - name: Lint (ruff)
         run: uv run ruff check packages/backend/

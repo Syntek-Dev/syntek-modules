@@ -16,10 +16,29 @@ pub async fn run(args: TestArgs) -> Result<()> {
     ui::header("syntek-modules — Test Suite");
 
     // -----------------------------------------------------------------------
-    // Python / Django — pytest
+    // Python / Django — build PyO3 extension then run pytest
     // -----------------------------------------------------------------------
     if run_all || args.python {
         ui::section("Layer: Python — pytest");
+
+        // Build the PyO3 native extension so `import syntek_pyo3` works in tests.
+        let maturin = config::venv_bin(&root, "maturin");
+        let cargo_toml = root
+            .join("rust")
+            .join("syntek-pyo3")
+            .join("Cargo.toml")
+            .to_string_lossy()
+            .to_string();
+        ui::step("Building PyO3 extension (maturin develop)...");
+        if !proc::run(
+            &maturin,
+            &["develop", "--release", "--manifest-path", &cargo_toml],
+            &root,
+        )
+        .await?
+        {
+            failed += 1;
+        }
 
         let pytest = config::venv_bin(&root, "pytest");
 

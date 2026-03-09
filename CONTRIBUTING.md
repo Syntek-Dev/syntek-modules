@@ -169,7 +169,7 @@ syntek-dev test --mobile              # React Native
 syntek-dev test --e2e                 # End-to-end (Playwright)
 ```
 
-See `.claude/CLI-TOOLING.md` for full `syntek-dev` command reference.
+See [CLI Tooling](.claude/CLI-TOOLING.md) for full `syntek-dev` command reference.
 
 ---
 
@@ -205,7 +205,7 @@ If any linter fails, fix the issues manually before committing.
 
 Only commit once `syntek-dev lint` passes (exit code 0).
 
-Use the commit message format defined in `.claude/GIT-GUIDE.md`:
+Use the commit message format defined in the [Git Guide](.claude/GIT-GUIDE.md):
 
 ```text
 <type>(<scope>): <Description> - <Summarise>
@@ -272,7 +272,7 @@ handle it.
 | **Rust**       | rustfmt + clippy | Formatting, safety warnings, clippy hints          |
 | **Markdown**   | markdownlint     | Line length, code formatting, consistent structure |
 
-### Key Rules (from `.claude/CODING-PRINCIPLES.md`)
+### Key Rules (from [Coding Principles](.claude/CODING-PRINCIPLES.md))
 
 - Maximum 750 lines per file (grace of 50)
 - Simple algorithms over fancy ones
@@ -280,7 +280,7 @@ handle it.
 - Eliminate special cases rather than patching with `if` statements
 - Measure before optimising — no speed hacks without profiling
 
-See `.claude/CODING-PRINCIPLES.md` for the complete list.
+See [Coding Principles](.claude/CODING-PRINCIPLES.md) for the complete list.
 
 ---
 
@@ -346,7 +346,7 @@ Before opening a pull request:
 - [ ] All tests pass: `syntek-dev test`
 - [ ] Full CI passes: `syntek-dev ci`
 - [ ] Code is linted: `syntek-dev lint`
-- [ ] Commit messages follow the format in `.claude/GIT-GUIDE.md`
+- [ ] Commit messages follow the format in the [Git Guide](.claude/GIT-GUIDE.md)
 - [ ] Version files have been updated (if applicable)
 - [ ] Documentation has been updated (if applicable)
 - [ ] CHANGELOG.md has been updated (if applicable)
@@ -423,8 +423,8 @@ is also approved.
 - **Full docs:** [syntekstudio.com/dev/docs](https://syntekstudio.com/dev/docs)
 - **General questions:** Open a discussion on GitHub or Forgejo at `git.syntek-studio.com`
 - **Setup help:** See `docs/GUIDES/DEVELOPING.md`
-- **CLI reference:** See `.claude/CLI-TOOLING.md`
-- **Git workflow:** See `.claude/GIT-GUIDE.md`
+- **CLI reference:** See [CLI Tooling](.claude/CLI-TOOLING.md)
+- **Git workflow:** See [Git Guide](.claude/GIT-GUIDE.md)
 - **Security issues:** Email `security@syntek-studio.com` — do not open public issues
 - **Other issues:** See `docs/GUIDES/ISSUES.md`
 

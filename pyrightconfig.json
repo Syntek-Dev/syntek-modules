@@ -3,10 +3,12 @@
   "pythonPlatform": "Linux",
   "venvPath": ".",
   "venv": ".venv",
+  "stubPath": "stubs",
   "typeCheckingMode": "standard",
   "useLibraryCodeForTypes": true,
   "reportMissingImports": true,
   "reportMissingTypeStubs": false,
+  "reportMissingModuleSource": "none",
   "reportUnknownMemberType": false,
   "include": ["packages/backend"],
   "exclude": ["**/__pycache__", "**/migrations", "**/.venv", "**/node_modules", "**/target"]

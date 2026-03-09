@@ -24,17 +24,17 @@
 ---
 
 > **IMPORTANT:** Always use `syntek-dev <command>` for development tasks. See
-> `.claude/CLI-TOOLING.md` for the full command reference.
+> [Rust CLI](.claude/CLI-TOOLING.md) for the full command reference.
 
 ---
 
 ## Reference Guides
 
-| Guide                         | Purpose                                                          |
-| ----------------------------- | ---------------------------------------------------------------- |
-| `.claude/CLI-TOOLING.md`      | `syntek-dev` CLI — all commands, flags, and usage                |
-| `.claude/GIT-GUIDE.md`        | Git workflow — lint before commit, CI before push                |
-| `.claude/VERSIONING-GUIDE.md` | Versioning rules — root files, per-module files, increment types |
+| Guide                                                        | Purpose                                                          |
+| ------------------------------------------------------------ | ---------------------------------------------------------------- |
+| [`.claude/CLI-TOOLING.md`](.claude/CLI-TOOLING.md)           | `syntek-dev` CLI — all commands, flags, and usage                |
+| [`.claude/GIT-GUIDE.md`](.claude/GIT-GUIDE.md)               | Git workflow — lint before commit, CI before push                |
+| [`.claude/VERSIONING-GUIDE.md`](.claude/VERSIONING-GUIDE.md) | Versioning rules — root files, per-module files, increment types |
 
 ---
 
@@ -81,7 +81,7 @@ All code in this project follows Rob Pike's 5 Rules of Programming and Linus Tor
 - Favour stability and readability over cleverness
 - Maximum **750 lines** per file (grace of 50). Split into modules if exceeded.
 
-See `.claude/CODING-PRINCIPLES.md` for the full rules.
+See [Coding Principles](.claude/CODING-PRINCIPLES.md) for the full rules.
 
 ---
 
@@ -191,11 +191,8 @@ syntek-modules/
 ├── package.json                     # Root (tooling only)
 ├── Cargo.toml                       # Rust workspace
 ├── pyproject.toml                   # uv workspace root
-├── README.md
-├── dev.sh
-├── test.sh
-├── staging.sh
-└── production.sh
+├── install.sh                       # First-time setup (builds syntek-dev CLI)
+└── README.md
 ```
 
 ---
@@ -221,91 +218,124 @@ syntek-modules/
 
 ## Development Commands
 
-### Python (uv) — Backend Packages
+> **Always use `syntek-dev <command>`.** Do not invoke `pytest`, `ruff`, `cargo`, `pnpm`, or
+> `basedpyright` directly when an equivalent CLI command exists. See
+> [CLI Tooling](.claude/CLI-TOOLING.md) for the full reference.
+
+### First-Time Setup
 
 ```bash
-# Set up virtual environment (run once)
-uv venv && source .venv/bin/activate
+# Run once after cloning — sets up .venv, installs all deps, builds and symlinks the CLI
+chmod +x install.sh && ./install.sh
 
-# Install a specific backend package in editable mode for development
-uv pip install -e "packages/backend/syntek-auth[dev]"
-
-# Run tests for a backend package
-pytest packages/backend/syntek-auth/tests/
-
-# Type checking
-mypy packages/backend/syntek-auth/
-
-# Linting
-ruff check packages/backend/syntek-auth/
-ruff format packages/backend/syntek-auth/
+# Activate the Python venv before running any command
+source .venv/bin/activate
 ```
 
-### TypeScript (pnpm) — Web & Mobile Packages
+### Development
 
 ```bash
-# Install all dependencies (run from root)
-pnpm install
+# Start all layers in watch mode (frontend + Storybook + Rust watcher)
+syntek-dev up
 
-# Run dev mode for a specific package
-pnpm --filter @syntek/ui dev
+# Start only the frontend
+syntek-dev up --frontend
 
-# Build a specific package
-pnpm --filter @syntek/ui build
+# Start only Storybook
+syntek-dev up --storybook
 
-# Run tests for a specific package
-pnpm --filter @syntek/ui-auth test
-
-# Build all packages (via Turborepo)
-pnpm build
-
-# Test all packages
-pnpm test
-
-# Type check all
-pnpm type-check
-
-# Lint all
-pnpm lint
-
-# Storybook for UI components
-pnpm --filter @syntek/ui storybook
+# Start only the Rust watcher
+syntek-dev up --rust
 ```
 
-### Rust — Encryption Crates
+### Testing
 
 ```bash
-# Build all Rust crates
-cargo build
+# Run all layers (Python + Rust + web + mobile)
+syntek-dev test
 
-# Run all Rust tests
-cargo test
+# Python tests only
+syntek-dev test --python
 
-# Build PyO3 extension for Django (requires maturin)
-cd rust/syntek-pyo3
-maturin develop   # Installs into the active .venv
+# Python tests for a specific backend package
+syntek-dev test --python --python-package syntek-auth
 
-# Clippy lint
-cargo clippy -- -D warnings
+# Rust tests only
+syntek-dev test --rust
 
-# Format
-cargo fmt
+# Web tests for a specific package
+syntek-dev test --web --web-package @syntek/ui-auth
+
+# E2E tests (Playwright — never run by default, must be explicit)
+syntek-dev test --e2e
+
+# With coverage
+syntek-dev test --python --coverage
+syntek-dev test --web --coverage
 ```
 
-### Full Repo
+### Linting and Type Checking
 
 ```bash
-# Start development (starts watch modes for all layers)
-./dev.sh
+# Run all linters (ruff, basedpyright, ESLint, Prettier, clippy, markdownlint)
+syntek-dev lint
 
-# Run full test suite across all layers
-./test.sh
+# Auto-fix everything that can be fixed, then verify clean
+syntek-dev lint --fix
+syntek-dev lint
 
-# Build staging artefacts
-./staging.sh
+# Specific linters
+syntek-dev lint --ruff               # Python lint (ruff)
+syntek-dev lint --pyright            # Python type checking (basedpyright)
+syntek-dev lint --eslint             # TypeScript/JS (ESLint)
+syntek-dev lint --prettier           # TypeScript/JS/JSON/YAML/Markdown (Prettier)
+syntek-dev lint --clippy             # Rust (clippy)
+syntek-dev lint --markdown           # Markdown (markdownlint)
 
-# Build production artefacts
-./production.sh
+# Restrict ruff + basedpyright to a specific backend package
+syntek-dev lint --ruff syntek-auth
+```
+
+### Formatting
+
+```bash
+# Format all layers
+syntek-dev format
+
+# Format only Python (ruff format)
+syntek-dev format --python
+
+# Format only TypeScript/JS/JSON/YAML/Markdown (Prettier)
+syntek-dev format --ts
+
+# Format only Rust (cargo fmt)
+syntek-dev format --rust
+
+# Check only — no writes
+syntek-dev format --check
+```
+
+### Pre-Commit and Pre-Push
+
+```bash
+# Before every commit — auto-fix then verify (see .claude/GIT-GUIDE.md)
+syntek-dev lint --fix
+syntek-dev lint
+
+# Before every push — full local CI (14 steps, mirrors remote CI)
+syntek-dev ci
+```
+
+### Database (requires sandbox/manage.py — see docs/GUIDES/SANDBOX.md)
+
+```bash
+syntek-dev db migrate
+syntek-dev db makemigrations syntek_auth
+syntek-dev db rollback syntek_auth --to 0003
+syntek-dev db status
+syntek-dev db seed
+syntek-dev db reset
+syntek-dev db shell
 ```
 
 ---
@@ -473,6 +503,8 @@ Django/PostgreSQL (via `SYNTEK_*` settings), GraphQL (via `@encrypted` directive
 - Releases managed via Forgejo on the Syntek Hetzner server
 - Version files: `VERSION-HISTORY.md`, `CHANGELOG.md`, `RELEASES.md`
 - Use `/syntek-dev-suite:version` to manage versions
+
+Follow the guide and rules in [Versioning Guide](.claude/VERSIONING-GUIDE.md)
 
 ---
 

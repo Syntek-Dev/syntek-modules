@@ -269,7 +269,7 @@ syntek-dev open admin       # Django admin — http://localhost:8000/admin
 6. **Write implementation** to make the test pass
 7. **Quick check before commit**: `syntek-dev check`
 8. **Full suite before PR**: `syntek-dev test`
-9. **Commit**: follow Conventional Commits format (see `.claude/DEVELOPMENT.md`)
+9. **Commit**: follow Conventional Commits format (see [Development Guide](.claude/DEVELOPMENT.md))
 10. **Open PR** on Forgejo
 
 ---
