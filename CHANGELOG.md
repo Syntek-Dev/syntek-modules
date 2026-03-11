@@ -11,47 +11,47 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ### Added
 
-- **`rust/syntek-graphql-crypto/src/lib.rs`** — `EncryptedFieldSpec` struct describing
-  `@encrypted` / `@encrypted(batch: "group_name")` fields, and `MiddlewareError` enum with four
-  variants (`EncryptFailed`, `DecryptFailed`, `KeyResolutionFailed`, `UnauthenticatedAccess`) all
+- **`rust/syntek-graphql-crypto/src/lib.rs`** — `EncryptedFieldSpec` struct describing `@encrypted`
+  / `@encrypted(batch: "group_name")` fields, and `MiddlewareError` enum with four variants
+  (`EncryptFailed`, `DecryptFailed`, `KeyResolutionFailed`, `UnauthenticatedAccess`) all
   implementing `std::error::Error` via `thiserror`.
 - **`rust/syntek-graphql-crypto/tests/middleware_tests.rs`** — 13 Rust unit tests covering all
   `MiddlewareError` variants and full serde roundtrip for `EncryptedFieldSpec` (individual and
   batch).
-- **`rust/syntek-graphql-crypto/syntek.manifest.toml`** — crate ID and Forgejo registry
-  coordinates with post-install steps for the Python middleware.
+- **`rust/syntek-graphql-crypto/syntek.manifest.toml`** — crate ID and Forgejo registry coordinates
+  with post-install steps for the Python middleware.
 - **`packages/backend/syntek-graphql-crypto/syntek_graphql_crypto/middleware.py`** — full
-  `EncryptionMiddleware` Strawberry `SchemaExtension`. Write path: intercepts
-  `on_executing_start`, encrypts individual fields via `encrypt_field` and batch groups via
-  `encrypt_fields_batch`, rejects entire mutation on encrypt failure. Read path: intercepts
-  `on_executing_end`, decrypts individual fields and batch groups, nulls failed fields with
-  structured errors, sets all encrypted fields to null on unauthenticated access.
+  `EncryptionMiddleware` Strawberry `SchemaExtension`. Write path: intercepts `on_executing_start`,
+  encrypts individual fields via `encrypt_field` and batch groups via `encrypt_fields_batch`,
+  rejects entire mutation on encrypt failure. Read path: intercepts `on_executing_end`, decrypts
+  individual fields and batch groups, nulls failed fields with structured errors, sets all encrypted
+  fields to null on unauthenticated access.
 - **`packages/backend/syntek-graphql-crypto/syntek_graphql_crypto/directives.py`** — `@encrypted`
   and `@encrypted(batch: "group_name")` Strawberry schema directives.
 - **`packages/backend/syntek-graphql-crypto/README.md`** — setup guide, annotation guide, and key
   naming convention (`SYNTEK_FIELD_KEY_<MODEL>_<FIELD>`).
-- **`packages/backend/syntek-graphql-crypto/tests/`** — 42 Python unit tests across 5 test
-  modules: `test_directives.py` (7), `test_write_path.py` (10, AC1–AC3),
-  `test_read_path.py` (9, AC4–AC6), `test_error_handling.py` (11, AC7–AC9),
-  `test_auth_guard.py` (6, AC10–AC11). All mock `syntek_pyo3` — no native extension required.
-- **`tests/graphql_crypto/test_integration.py`** — 4 integration tests exercising the full
-  write → DB → read pipeline: individual field roundtrip (AC1+AC4), batch group roundtrip
-  (AC2+AC5), tampered DB value (AC7), and unauthenticated read (AC10).
-- **`rust/syntek-pyo3/syntek.manifest.toml`** — manifest for the `syntek-pyo3` crate (records
-  crate ID and Forgejo registry coordinates; post-install steps for maturin wheel build).
+- **`packages/backend/syntek-graphql-crypto/tests/`** — 42 Python unit tests across 5 test modules:
+  `test_directives.py` (7), `test_write_path.py` (10, AC1–AC3), `test_read_path.py` (9, AC4–AC6),
+  `test_error_handling.py` (11, AC7–AC9), `test_auth_guard.py` (6, AC10–AC11). All mock
+  `syntek_pyo3` — no native extension required.
+- **`tests/graphql_crypto/test_integration.py`** — 4 integration tests exercising the full write →
+  DB → read pipeline: individual field roundtrip (AC1+AC4), batch group roundtrip (AC2+AC5),
+  tampered DB value (AC7), and unauthenticated read (AC10).
+- **`rust/syntek-pyo3/syntek.manifest.toml`** — manifest for the `syntek-pyo3` crate (records crate
+  ID and Forgejo registry coordinates; post-install steps for maturin wheel build).
 - **`docs/TESTS/US008-TEST-STATUS.md`** and **`docs/TESTS/US008-MANUAL-TESTING.md`** — full test
   status and manual testing records for US008 (59/59 tests green).
-- **`docs/SPRINTS/SPRINT-46.md`** through **`docs/SPRINTS/SPRINT-70.md`** — 25 new sprint
-  planning documents extending the roadmap through marketplace, licensing, SaaS, and ecosystem
-  completion phases.
+- **`docs/SPRINTS/SPRINT-46.md`** through **`docs/SPRINTS/SPRINT-70.md`** — 25 new sprint planning
+  documents extending the roadmap through marketplace, licensing, SaaS, and ecosystem completion
+  phases.
 - **`docs/STORIES/US077.md`** through **`docs/STORIES/US129.md`** — 53 new user story documents
   covering the extended roadmap.
 
 ### Changed
 
-- **`rust/syntek-graphql-crypto/Cargo.toml`** — added `crate-type = ["cdylib", "lib"]` (required
-  for integration test linking), and declared `syntek-crypto`, `serde`, `serde_json`, and
-  `thiserror` dependencies.
+- **`rust/syntek-graphql-crypto/Cargo.toml`** — added `crate-type = ["cdylib", "lib"]` (required for
+  integration test linking), and declared `syntek-crypto`, `serde`, `serde_json`, and `thiserror`
+  dependencies.
 - **`docs/STORIES/US008.md`** — status updated from To Do to Completed; points corrected from 8
   to 13.
 - **`docs/SPRINTS/SPRINT-05.md`** — US008 marked Completed (10/03/2026); US076 noted as pending.

@@ -18,8 +18,8 @@
   `on_executing_start` (write path) and `on_executing_end` (read path). Individual fields use
   `encrypt_field` / `decrypt_field`; batch groups use `encrypt_fields_batch` /
   `decrypt_fields_batch` for a single call per group. On encrypt failure the mutation is rejected
-  entirely — no partial ciphertext is written. On decrypt failure, individual fields are nulled
-  with a structured error; batch group failures null all fields in the group with a single error.
+  entirely — no partial ciphertext is written. On decrypt failure, individual fields are nulled with
+  a structured error; batch group failures null all fields in the group with a single error.
   Unauthenticated requests receive null encrypted fields and a structured auth error; non-encrypted
   fields are never affected.
 
