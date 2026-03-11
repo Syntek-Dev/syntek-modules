@@ -1,6 +1,6 @@
 # Project: syntek-modules
 
-**Last Updated**: 04/03/2026 **Version**: 0.1.0 **Maintained By**: Syntek Development Team
+**Last Updated**: 11/03/2026 **Version**: 0.15.0 **Maintained By**: Syntek Development Team
 **Language**: British English (en_GB) **Timezone**: Europe/London
 
 ---
@@ -246,6 +246,31 @@ syntek-dev up --storybook
 
 # Start only the Rust watcher
 syntek-dev up --rust
+```
+
+### Building
+
+```bash
+# Build all layers (Rust release + Python dev-install + web + mobile)
+syntek-dev build
+
+# Build all Rust crates in release mode
+syntek-dev build --rust
+
+# Build a specific Rust crate — e.g. after a version bump
+syntek-dev build --rust --rust-crate syntek-pyo3
+
+# Dev-install all Python packages into venv
+syntek-dev build --python
+
+# Build a specific Python package wheel
+syntek-dev build --python --python-package syntek-auth
+
+# Build all web packages
+syntek-dev build --web
+
+# Build mobile packages
+syntek-dev build --mobile
 ```
 
 ### Testing
@@ -498,13 +523,24 @@ Django/PostgreSQL (via `SYNTEK_*` settings), GraphQL (via `@encrypted` directive
 
 ## Versioning
 
-- Each module has its own `MAJOR.MINOR.PATCH` version
-- Changelogs maintained per module in `CHANGELOG.md`
-- Releases managed via Forgejo on the Syntek Hetzner server
-- Version files: `VERSION-HISTORY.md`, `CHANGELOG.md`, `RELEASES.md`
-- Use `/syntek-dev-suite:version` to manage versions
+> **IMPORTANT:** Always follow [`.claude/VERSIONING-GUIDE.md`](.claude/VERSIONING-GUIDE.md) for any
+> versioning task. The guide defines the authoritative rules — do not infer versioning behaviour
+> from any other source.
 
-Follow the guide and rules in [Versioning Guide](.claude/VERSIONING-GUIDE.md)
+Two independent tracks:
+
+- **Root workspace version** — tracks the repository as a whole (dev tooling, Rust crates, milestone
+  snapshots). Files: `VERSION`, `VERSION-HISTORY.md`, `CHANGELOG.md`, `RELEASES.md`, root
+  `pyproject.toml`, root `package.json`, root `Cargo.toml`.
+- **Per-module version** — each published package (`packages/backend/`, `packages/web/`, `mobile/`)
+  has its own semver in its own version file. Rust crates are exempt — they inherit the root
+  workspace version via `version.workspace = true`.
+
+All changelog entries (both tracks) go into the **root** `CHANGELOG.md`. There are no per-module
+changelog files.
+
+Use `/syntek-dev-suite:version` to manage all version bumps. See the Versioning Guide for the full
+workflow, decision table, and per-module bump procedure.
 
 ---
 

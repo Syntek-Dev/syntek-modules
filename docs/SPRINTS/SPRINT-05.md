@@ -1,19 +1,23 @@
 # Sprint 05 — Rust: GraphQL Encryption Middleware + Security Policy
 
+**Last Updated**: 11/03/2026 **Version**: 0.15.0 **Maintained By**: Syntek Development Team
+**Language**: British English (en_GB) **Timezone**: Europe/London
+
+---
+
 **Sprint Goal**: Implement the Strawberry GraphQL middleware that encrypts mutation inputs and
 decrypts query responses — making the GraphQL layer the single encryption boundary for the entire
 system — and define the security policies (MFA-enforcing SSO, key rotation, network architecture)
 that all subsequent modules must comply with.
 
-**Total Points**: 13 / 13 **MoSCoW Balance**: Must 100% **Status**: In Progress (US008 Completed
-10/03/2026 — US076 pending)
+**Total Points**: 23 / 23 **MoSCoW Balance**: Must 100% **Status**: Completed 11/03/2026
 
 ## Stories
 
-| Story                        | Title                                                                  | Points | MoSCoW | Status      | Dependencies Met                |
-| ---------------------------- | ---------------------------------------------------------------------- | ------ | ------ | ----------- | ------------------------------- |
-| [US008](../STORIES/US008.md) | `syntek-graphql-crypto` — GraphQL Encryption Middleware                | 13     | Must   | Completed   | US007 ✓                         |
-| [US076](../STORIES/US076.md) | Security Policy: MFA-Enforcing SSO, Key Rotation, Network Architecture | 10     | Must   | Not Started | US006 ✓ (US009 depends on this) |
+| Story                        | Title                                                                  | Points | MoSCoW | Status    | Dependencies Met                |
+| ---------------------------- | ---------------------------------------------------------------------- | ------ | ------ | --------- | ------------------------------- |
+| [US008](../STORIES/US008.md) | `syntek-graphql-crypto` — GraphQL Encryption Middleware                | 13     | Must   | Completed | US007 ✓                         |
+| [US076](../STORIES/US076.md) | Security Policy: MFA-Enforcing SSO, Key Rotation, Network Architecture | 10     | Must   | Completed | US006 ✓ (US009 depends on this) |
 
 ## Notes
 
@@ -35,10 +39,10 @@ that all subsequent modules must comply with.
 
 ## Story Status
 
-| Story | Title                                                                  | Points | BE  | Rust | Overall     |
-| ----- | ---------------------------------------------------------------------- | ------ | --- | ---- | ----------- |
-| US008 | `syntek-graphql-crypto` — GraphQL Encryption Middleware                | 13     | ✅  | ✅   | Completed   |
-| US076 | Security Policy: MFA-Enforcing SSO, Key Rotation, Network Architecture | 10     | ⬜  | ➖   | Not Started |
+| Story | Title                                                                  | Points | BE  | Rust | Overall   |
+| ----- | ---------------------------------------------------------------------- | ------ | --- | ---- | --------- |
+| US008 | `syntek-graphql-crypto` — GraphQL Encryption Middleware                | 13     | ✅  | ✅   | Completed |
+| US076 | Security Policy: MFA-Enforcing SSO, Key Rotation, Network Architecture | 10     | ✅  | ✅   | Completed |
 
 ---
 
@@ -99,13 +103,41 @@ markdownlint, clippy — all clean
 
 ---
 
-## Sprint 05 Partial Completion Summary
+## Sprint 05 Completion Summary
 
-**US008 completed 10/03/2026. US076 (Security Policy) remains outstanding.**
+**Both stories completed. Sprint 05 is fully done.**
 
 | Category         | Total | Completed | Remaining |
 | ---------------- | ----- | --------- | --------- |
-| Must Have        | 2     | 1         | 1         |
+| Must Have        | 2     | 2         | 0         |
 | Should Have      | 0     | 0         | 0         |
 | Could Have       | 0     | 0         | 0         |
-| **Total Points** | 23    | 13        | 10        |
+| **Total Points** | 23    | 23        | 0         |
+
+---
+
+## US076 Completion Detail
+
+**Completed:** 11/03/2026 **Branch:** `us076/security-policy` **Tests:** 77/77 passing (27 Rust
+unit + 50 Python unit — green phase) **Linters:** ruff, basedpyright, clippy, markdownlint — all
+clean
+
+### What was built
+
+- `rust/syntek-crypto/src/key_versioning.rs` — `KeyVersion` (u16 big-endian), `KeyRing` struct,
+  `encrypt_versioned` / `decrypt_versioned` (2-byte version prefix), `reencrypt_to_active`
+- `rust/syntek-crypto/tests/key_versioning_tests.rs` — 27 unit tests
+- `packages/backend/syntek-auth/syntek_auth/sso_allowlist.py` — `validate_oauth_providers` enforcing
+  the MFA-enforcing provider allowlist in `AppConfig.ready()`
+- `packages/backend/syntek-auth/tests/test_sso_allowlist.py` — 35 unit tests
+- `packages/backend/syntek-security/` — new package; `apply_proxy_settings` injects
+  `SECURE_PROXY_SSL_HEADER`, `USE_X_FORWARDED_HOST`, `SECURE_SSL_REDIRECT` at startup
+- `packages/backend/syntek-security/tests/test_proxy_settings.py` — 15 unit tests
+
+### Test summary
+
+| Suite             | Tests  | Passed | Failed | Skipped |
+| ----------------- | ------ | ------ | ------ | ------- |
+| Rust unit         | 27     | 27     | 0      | 0       |
+| Python unit       | 50     | 50     | 0      | 0       |
+| **Total (green)** | **77** | **77** | **0**  | **0**   |

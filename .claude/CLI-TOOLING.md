@@ -113,6 +113,57 @@ syntek-dev up --rust
 
 ---
 
+### build
+
+Build packages across one or more layers. With no flags, builds all layers.
+
+```
+syntek-dev build [--rust] [--rust-crate <CRATE>]
+                 [--python] [--python-package <PACKAGE>]
+                 [--web] [--web-package <PACKAGE>]
+                 [--mobile]
+```
+
+| Flag                       | What it does                                                              |
+| -------------------------- | ------------------------------------------------------------------------- |
+| `--rust`                   | Build all Rust crates in release mode (`cargo build --release --all`)     |
+| `--rust-crate CRATE`       | Build a specific crate, e.g. `syntek-pyo3` (`cargo build --release -p`)   |
+| `--python`                 | Dev-install all Python packages into venv (`uv sync --group dev`)         |
+| `--python-package PACKAGE` | Build a specific package wheel, e.g. `syntek-auth` (`uv build --package`) |
+| `--web`                    | Build all web packages via Turborepo (`pnpm turbo run build`)             |
+| `--web-package PACKAGE`    | Build a specific web package, e.g. `@syntek/ui-auth`                      |
+| `--mobile`                 | Build all mobile packages (`pnpm --filter "@syntek/mobile-*" build`)      |
+
+**Examples:**
+
+```bash
+# Build all layers
+syntek-dev build
+
+# Rebuild all Rust crates (release)
+syntek-dev build --rust
+
+# Rebuild a specific Rust crate — e.g. after a version bump
+syntek-dev build --rust --rust-crate syntek-pyo3
+
+# Dev-install all Python packages
+syntek-dev build --python
+
+# Build a specific Python package wheel
+syntek-dev build --python --python-package syntek-auth
+
+# Build all web packages
+syntek-dev build --web
+
+# Build a specific web package
+syntek-dev build --web --web-package @syntek/ui-auth
+
+# Build mobile packages
+syntek-dev build --mobile
+```
+
+---
+
 ### test
 
 Run the test suite across one or more layers. With no flags, runs all layers.

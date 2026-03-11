@@ -28,13 +28,19 @@ jobs:
 
       - uses: pnpm/action-setup@v4
 
-      - name: Generate lockfile
-        run: pnpm install --lockfile-only
-
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
-          cache: "pnpm"
+
+      - name: Generate lockfile
+        run: pnpm install --lockfile-only
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pnpm-${{ runner.os }}-
 
       - name: Install dependencies
         run: pnpm install

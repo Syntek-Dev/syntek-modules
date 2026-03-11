@@ -1,6 +1,6 @@
 # Syntek Modules — Stories Overview
 
-**Last Updated**: 10/03/2026 **Version**: 0.13.0 **Maintained By**: Syntek Development Team
+**Last Updated**: 11/03/2026 **Version**: 0.15.0 **Maintained By**: Syntek Development Team
 **Language**: British English (en_GB) **Timezone**: Europe/London
 
 ---
@@ -77,11 +77,12 @@ A story is only complete when:
 
 ### Epic 2 — Rust Encryption Layer
 
-| Story             | Title                                                   | Points | Status    |
-| ----------------- | ------------------------------------------------------- | ------ | --------- |
-| [US006](US006.md) | `syntek-crypto` — Core Cryptographic Primitives         | 8      | Completed |
-| [US007](US007.md) | `syntek-pyo3` — PyO3 Django Bindings                    | 8      | Completed |
-| [US008](US008.md) | `syntek-graphql-crypto` — GraphQL Encryption Middleware | 13     | Completed |
+| Story             | Title                                                                  | Points | Status    |
+| ----------------- | ---------------------------------------------------------------------- | ------ | --------- |
+| [US006](US006.md) | `syntek-crypto` — Core Cryptographic Primitives                        | 8      | Completed |
+| [US007](US007.md) | `syntek-pyo3` — PyO3 Django Bindings                                   | 8      | Completed |
+| [US008](US008.md) | `syntek-graphql-crypto` — GraphQL Encryption Middleware                | 13     | Completed |
+| [US076](US076.md) | Security Policy: MFA-Enforcing SSO, Key Rotation, Network Architecture | 10     | Completed |
 
 ### Epic 3 — Core Backend Modules
 
@@ -238,7 +239,7 @@ A story is only complete when:
 | Epic                                | Stories | Points   |
 | ----------------------------------- | ------- | -------- |
 | Epic 1 — Foundation & Workspace     | 6       | 26       |
-| Epic 2 — Rust Encryption Layer      | 3       | 24       |
+| Epic 2 — Rust Encryption Layer      | 4       | 39       |
 | Epic 3 — Core Backend Modules       | 17      | 141      |
 | Epic 4 — Backend Feature Modules    | 24      | 207      |
 | Epic 5 — Backend Compliance & Media | 28      | 226      |

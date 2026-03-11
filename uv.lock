@@ -8,6 +8,7 @@ members = [
     "syntek-graphql-crypto",
     "syntek-modules-workspace",
     "syntek-pyo3",
+    "syntek-security",
 ]
 
 [[package]]
@@ -667,7 +668,7 @@ django = [
 
 [[package]]
 name = "syntek-auth"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "packages/backend/syntek-auth" }
 dependencies = [
     { name = "django" },
@@ -717,7 +718,7 @@ provides-extras = ["dev"]
 
 [[package]]
 name = "syntek-modules-workspace"
-version = "0.14.0"
+version = "0.15.0"
 source = { virtual = "." }
 
 [package.dev-dependencies]
@@ -736,6 +737,7 @@ dev = [
     { name = "syntek-auth" },
     { name = "syntek-graphql-crypto" },
     { name = "syntek-pyo3" },
+    { name = "syntek-security" },
     { name = "testcontainers" },
 ]
 
@@ -757,6 +759,7 @@ dev = [
     { name = "syntek-auth", editable = "packages/backend/syntek-auth" },
     { name = "syntek-graphql-crypto", editable = "packages/backend/syntek-graphql-crypto" },
     { name = "syntek-pyo3", editable = "rust/syntek-pyo3" },
+    { name = "syntek-security", editable = "packages/backend/syntek-security" },
     { name = "testcontainers", specifier = ">=4.0" },
 ]
 
@@ -764,6 +767,30 @@ dev = [
 name = "syntek-pyo3"
 version = "0.12.1"
 source = { editable = "rust/syntek-pyo3" }
+
+[[package]]
+name = "syntek-security"
+version = "0.1.0"
+source = { editable = "packages/backend/syntek-security" }
+dependencies = [
+    { name = "django" },
+]
+
+[package.optional-dependencies]
+dev = [
+    { name = "factory-boy" },
+    { name = "pytest" },
+    { name = "pytest-django" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "django", specifier = ">=6.0" },
+    { name = "factory-boy", marker = "extra == 'dev'", specifier = ">=3.3" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
+    { name = "pytest-django", marker = "extra == 'dev'", specifier = ">=4.9" },
+]
+provides-extras = ["dev"]
 
 [[package]]
 name = "testcontainers"

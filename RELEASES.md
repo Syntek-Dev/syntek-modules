@@ -1,5 +1,52 @@
 # Releases
 
+## v0.15.0 — 11/03/2026
+
+**Branch**: `us076/security-policy`\
+**Type**: MINOR\
+**Story**: US076 — Security Policy: MFA-Enforcing SSO, Key Rotation, and Network Architecture
+
+### Highlights
+
+- **SSO provider allowlist** — `syntek-auth` now enforces a strict allowlist of OAuth SSO providers.
+  Only providers where MFA is either mandatory by design (Defguard) or enforceable at the
+  organisation level before the OAuth flow completes (GitHub organisations with mandatory MFA
+  policy) are permitted. Consumer accounts for Google, Facebook, Instagram, LinkedIn, Twitter/X,
+  Apple, and Discord are blocked. This prevents credential compromise via phishing, credential
+  stuffing, or SIM swap attacks against weakly-protected social accounts.
+
+- **Encryption key versioning and rotation** — `syntek-crypto` now supports a `KeyRing` that holds
+  multiple AES-256-GCM keys identified by a 2-byte version number. Every ciphertext is prefixed with
+  the version of the key used to encrypt it, enabling zero-downtime key rotation: old ciphertexts
+  remain readable using the key version embedded in the ciphertext, while all new writes use the
+  current active key. A `reencrypt_to_active` function migrates existing ciphertexts to the latest
+  key on demand.
+
+- **`syntek-security` module** — a new Django middleware package covering proxy trust configuration
+  for Cloudflare Tunnel → Nginx → Gunicorn/Uvicorn deployments. Reads `SYNTEK_SECURITY` settings and
+  configures `SECURE_PROXY_SSL_HEADER`, `USE_X_FORWARDED_HOST`, and `ALLOWED_HOSTS` so Django
+  correctly identifies real client IP addresses and enforces HTTPS even behind a proxy chain.
+
+- **Sprint 05 complete** — Both US008 and US076 are delivered; 23/23 sprint points closed.
+
+### Breaking Changes
+
+None.
+
+### Verify
+
+```bash
+# Key versioning Rust tests
+cargo test -p syntek-crypto
+
+# SSO allowlist and security module Python tests
+source .venv/bin/activate
+pytest packages/backend/syntek-auth/tests/ -v
+pytest packages/backend/syntek-security/tests/ -v
+```
+
+---
+
 ## v0.14.0 — 11/03/2026
 
 **Branch**: `us008/syntek-graphql-crypto`\
