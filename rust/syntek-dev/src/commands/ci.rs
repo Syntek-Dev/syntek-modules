@@ -155,7 +155,10 @@ pub async fn run() -> Result<()> {
     step += 1;
     ui::section(&format!("{step}/{total}  Python — pip-audit"));
     if has_uv {
-        if !proc::run("uvx", &["pip-audit"], &root).await? {
+        // `uv run --with pip-audit pip-audit` audits the project's pyproject.toml
+        // dependencies through uv's managed environment, without requiring pip to
+        // be installed in the venv.
+        if !proc::run("uv", &["run", "--with", "pip-audit", "pip-audit"], &root).await? {
             failed.push("pip-audit");
         }
     } else {
