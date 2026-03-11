@@ -7,6 +7,71 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [0.15.0] — 11/03/2026
+
+### Added
+
+- **`rust/syntek-crypto/src/key_versioning.rs`** — `KeyVersion` newtype (2-byte `u16`), `KeyRing`
+  struct holding a map of `KeyVersion → [u8; 32]`, and four public functions: `encrypt_versioned`,
+  `decrypt_versioned`, `reencrypt_to_active`, and `KeyRing::active_version`. Every ciphertext
+  produced by the versioned API is prefixed with the 2-byte version identifier before base64
+  encoding: `base64(version(2) || nonce(12) || ciphertext || tag(16))`. This enables zero-downtime
+  key rotation — old ciphertexts remain readable while new writes always use the current key.
+- **`rust/syntek-crypto/tests/key_versioning_tests.rs`** — Rust test suite covering: `KeyVersion`
+  byte serialisation round-trip, `KeyRing` construction and active key resolution, version lookup,
+  `encrypt_versioned` / `decrypt_versioned` round-trip, version prefix presence, cross-version
+  decryption, `reencrypt_to_active` migration, and error cases (empty ring, unknown version, wrong
+  key, tampered ciphertext). US076 — AC4 / AC5.
+- **`packages/backend/syntek-auth/src/syntek_auth/allowlist.py`** — SSO provider allowlist
+  enforcement. Defines `ALLOWED_SSO_PROVIDERS` (GitHub, Defguard) and `BLOCKED_SSO_PROVIDERS` with
+  the rationale for each decision. `is_allowed_provider(provider)` returns `True` only for providers
+  where MFA is either mandatory by platform design (Defguard) or enforceable at the organisation
+  level before the OAuth flow completes (GitHub organisations with mandatory MFA policy). Consumer
+  accounts for Google, Facebook, Instagram, LinkedIn, Twitter/X, Apple, and Discord are blocked
+  because the platform cannot guarantee MFA enforcement at login time.
+- **`packages/backend/syntek-auth/src/syntek_auth/apps.py`** — `SyntekAuthConfig` Django `AppConfig`
+  class. Validates the `SYNTEK_AUTH` settings dict at startup via `AppConfig.ready()` and raises
+  `ImproperlyConfigured` if required keys are missing or have wrong types.
+- **`packages/backend/syntek-auth/tests/test_sso_allowlist.py`** — pytest tests covering allowed
+  provider acceptance, blocked provider rejection, case sensitivity, unknown provider handling, and
+  the completeness of the blocked list.
+- **`packages/backend/syntek-security/`** — new `syntek-security` Django package (US076). Rate
+  limiting, CORS, CSP, HSTS, and proxy-trust middleware for all Syntek deployments.
+- **`packages/backend/syntek-security/src/syntek_security/proxy_settings.py`** — `ProxySettings`
+  dataclass and `configure_proxy_trust(settings)` function. Reads
+  `SYNTEK_SECURITY['TRUSTED_PROXIES']` and configures Django's `SECURE_PROXY_SSL_HEADER`,
+  `USE_X_FORWARDED_HOST`, and `ALLOWED_HOSTS` for a Cloudflare Tunnel → Nginx → Gunicorn/Uvicorn
+  deployment topology.
+- **`packages/backend/syntek-security/src/syntek_security/apps.py`** — `SyntekSecurityConfig` Django
+  `AppConfig` with settings validation at startup.
+- **`packages/backend/syntek-security/tests/test_proxy_settings.py`** — pytest tests for proxy trust
+  configuration.
+- **`docs/TESTS/US076-TEST-STATUS.md`** and **`docs/TESTS/US076-MANUAL-TESTING.md`** — test status
+  and manual testing records for US076.
+- **`docs/SPRINTS/LOGS/COMPLETION-2026-03-11-SPRINT-05.md`** — Sprint 05 completion log; both US008
+  and US076 completed, 23/23 points.
+
+### Changed
+
+- **`rust/syntek-crypto/src/lib.rs`** — added `pub mod key_versioning` declaration to expose the new
+  key versioning module as part of the public API.
+- **`docs/SPRINTS/SPRINT-05.md`** and **`docs/SPRINTS/OVERVIEW.md`** — Sprint 05 marked complete
+  (11/03/2026); US076 recorded as completed.
+- **`docs/STORIES/US076.md`** and **`docs/STORIES/OVERVIEW.md`** — US076 status updated from To Do
+  to Completed; story points and completion date recorded.
+- **`.claude/CLAUDE.md`** and **`.claude/VERSIONING-GUIDE.md`** — minor documentation updates.
+- **`pyproject.toml`** (root workspace) — `syntek-security` added to `[tool.uv.sources]` and
+  `[dependency-groups].dev`; enables editable installs and pytest discovery for the new module.
+
+### Module Versions
+
+- **`syntek-auth`** bumped `0.1.0 → 0.2.0` — new SSO allowlist enforcement (`allowlist.py`) and
+  `AppConfig` settings validation (`apps.py`).
+- **`syntek-security`** introduced at `0.1.0` — new package; baseline version per project
+  convention.
+
+---
+
 ## [0.14.0] — 11/03/2026
 
 ### Added
