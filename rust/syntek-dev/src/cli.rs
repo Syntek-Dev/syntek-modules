@@ -17,6 +17,9 @@ pub enum Commands {
     /// Start development services (frontend watch, Storybook, Rust watcher)
     Up(UpArgs),
 
+    /// Build packages across all layers (Rust release, Python dev-install, web, mobile)
+    Build(BuildArgs),
+
     /// Run the test suite
     Test(TestArgs),
 
@@ -59,6 +62,41 @@ pub struct UpArgs {
     /// Start Rust file watcher (requires cargo-watch)
     #[arg(long)]
     pub rust: bool,
+}
+
+// ---------------------------------------------------------------------------
+// Build
+// ---------------------------------------------------------------------------
+
+#[derive(Args)]
+pub struct BuildArgs {
+    /// Build Rust crates (cargo build --release)
+    #[arg(long)]
+    pub rust: bool,
+
+    /// Specific Rust crate to build, e.g. syntek-pyo3
+    #[arg(long, value_name = "CRATE")]
+    pub rust_crate: Option<String>,
+
+    /// Build Python packages (uv sync --group dev)
+    #[arg(long)]
+    pub python: bool,
+
+    /// Build a specific Python package wheel, e.g. syntek-auth
+    #[arg(long, value_name = "PACKAGE")]
+    pub python_package: Option<String>,
+
+    /// Build web packages (turbo run build)
+    #[arg(long)]
+    pub web: bool,
+
+    /// Build a specific web package, e.g. @syntek/ui-auth
+    #[arg(long, value_name = "PACKAGE")]
+    pub web_package: Option<String>,
+
+    /// Build mobile packages
+    #[arg(long)]
+    pub mobile: bool,
 }
 
 // ---------------------------------------------------------------------------
