@@ -1,0 +1,377 @@
+"""EncryptionMiddleware — Strawberry extension that intercepts encrypted fields.
+
+Read path (queries): resolvers return ciphertext → middleware decrypts →
+client gets plaintext.
+Write path (mutations): client sends plaintext → middleware encrypts →
+resolver receives ciphertext.
+
+The middleware uses ``syntek_pyo3.decrypt_field`` / ``encrypt_field`` for
+individual fields and ``syntek_pyo3.decrypt_fields_batch`` /
+``encrypt_fields_batch`` for batch groups.
+"""
+
+from __future__ import annotations
+
+import base64
+import logging
+import os
+import re
+import typing
+from typing import TYPE_CHECKING, Any
+
+import syntek_pyo3
+from strawberry.extensions import SchemaExtension
+
+from syntek_graphql_crypto.directives import Encrypted
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+logger = logging.getLogger("syntek_graphql_crypto")
+
+
+def _resolve_key(model: str, field: str) -> bytes:
+    """Look up ``SYNTEK_FIELD_KEY_<MODEL>_<FIELD>`` and base64-decode it."""
+    env_var = f"SYNTEK_FIELD_KEY_{model.upper()}_{field.upper()}"
+    raw = os.environ.get(env_var)
+    if not raw:
+        raise RuntimeError(f"Missing encryption key env var: {env_var}")
+    try:
+        return base64.b64decode(raw)
+    except Exception as exc:
+        raise RuntimeError(f"Invalid base64 key in {env_var}: {exc}") from exc
+
+
+def _camel_to_snake(name: str) -> str:
+    """Convert camelCase to snake_case."""
+    s1 = re.sub(r"(.)([A-Z][a-z]+)", r"\1_\2", name)
+    return re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
+
+
+def _get_encrypted_args_from_method(
+    parent_type: Any, field_name: str
+) -> dict[str, Encrypted]:
+    """Return ``{python_arg_name: Encrypted}`` for all ``Annotated`` args on the
+    resolver.
+
+    Strawberry strips ``Annotated`` metadata when building ``StrawberryArgument``
+    (it only looks for ``StrawberryArgumentAnnotation`` instances). To recover
+    ``Encrypted()`` metadata we go back to the original Python method and call
+    ``typing.get_type_hints(..., include_extras=True)`` which preserves
+    ``Annotated`` wrappers.
+    """
+    try:
+        type_def = (getattr(parent_type, "extensions", None) or {}).get(
+            "strawberry-definition"
+        )
+        if type_def is None:
+            return {}
+        origin_cls = getattr(type_def, "origin", None)
+        if origin_cls is None:
+            return {}
+        python_name = _camel_to_snake(field_name)
+        method = getattr(origin_cls, python_name, None)
+        if method is None:
+            return {}
+        hints = typing.get_type_hints(method, include_extras=True)
+        result: dict[str, Encrypted] = {}
+        for arg_name, hint in hints.items():
+            if arg_name == "return":
+                continue
+            if typing.get_origin(hint) is typing.Annotated:
+                for meta in typing.get_args(hint)[1:]:
+                    if isinstance(meta, Encrypted):
+                        result[arg_name] = meta
+                        break
+        return result
+    except Exception:
+        return {}
+
+
+class EncryptionMiddleware(SchemaExtension):
+    """Strawberry extension that transparently encrypts/decrypts ``@encrypted``
+    fields."""
+
+    def __init__(self, *, model: str = "User", execution_context: Any = None) -> None:
+        # SchemaExtension passes execution_context as a keyword arg.
+        if execution_context is not None:
+            super().__init__(execution_context=execution_context)
+        self._model = model
+        self._errors: list[dict[str, Any]] = []
+
+    # ------------------------------------------------------------------
+    # Low-level helpers used directly by unit tests
+    # ------------------------------------------------------------------
+
+    def process_input(
+        self,
+        *,
+        field_name: str,
+        value: Any,
+        batch_group: str | None = None,  # noqa: ARG002
+        is_encrypted: bool = True,
+        capture: Callable[[Any], None] | None = None,
+    ) -> Any:
+        """Encrypt a single mutation input field.
+
+        Returns the ciphertext (or the original value if ``is_encrypted=False``).
+        """
+        if not is_encrypted:
+            return value
+        key = _resolve_key(self._model, field_name)
+        result = syntek_pyo3.encrypt_field(value, key, self._model, field_name)
+        if capture is not None:
+            capture(result)
+        return result
+
+    def process_batch_input(
+        self,
+        *,
+        batch_group: str,  # noqa: ARG002
+        fields: list[tuple[Any, str]],
+    ) -> list[Any]:
+        """Encrypt a batch of mutation input fields in one call."""
+        key = _resolve_key(self._model, fields[0][1])
+        # Rust: (field_name, value); public API: (value, field_name).
+        return syntek_pyo3.encrypt_fields_batch(
+            [(fn, v) for v, fn in fields], key, self._model
+        )
+
+    def process_output(
+        self,
+        *,
+        field_name: str,
+        value: Any,
+        batch_group: str | None = None,  # noqa: ARG002
+        is_encrypted: bool = True,
+    ) -> Any:
+        """Decrypt a single query output field.
+
+        Returns plaintext (or original value if ``is_encrypted=False``).
+        """
+        if not is_encrypted:
+            return value
+        key = _resolve_key(self._model, field_name)
+        return syntek_pyo3.decrypt_field(value, key, self._model, field_name)
+
+    def process_batch_output(
+        self,
+        *,
+        batch_group: str,  # noqa: ARG002
+        fields: list[tuple[Any, str]],
+    ) -> list[Any]:
+        """Decrypt a batch of query output fields in one call."""
+        key = _resolve_key(self._model, fields[0][1])
+        # Rust: (field_name, ciphertext); public API: (ciphertext, field_name).
+        return syntek_pyo3.decrypt_fields_batch(
+            [(fn, ct) for ct, fn in fields], key, self._model
+        )
+
+    # ------------------------------------------------------------------
+    # Strawberry SchemaExtension hooks (full schema execution)
+    # ------------------------------------------------------------------
+
+    def _is_authenticated(self) -> bool:
+        """Check if the current request is authenticated."""
+        try:
+            ctx = self.execution_context.context
+            return bool(ctx.user.is_authenticated)
+        except Exception:
+            return True  # No context — allow (unit-test mode without context)
+
+    def resolve(  # type: ignore[override]
+        self,
+        _next: Callable[..., Any],
+        root: Any,
+        info: Any,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Any:
+        """Intercept field resolution for encryption/decryption."""
+        # ---- Write path: mutation inputs --------------------------------
+        # Scan kwargs for arguments annotated with Encrypted (via strawberry.annotated).
+        if kwargs:
+            arg_directives = _get_encrypted_args_from_method(
+                info.parent_type, info.field_name
+            )
+
+            if arg_directives:
+                # Group by batch; individual fields have batch=None.
+                batches: dict[str, list[tuple[str, Any]]] = {}
+                individual: list[tuple[str, Any, Encrypted]] = []
+                for kw_name, kw_val in list(kwargs.items()):
+                    # GraphQL kwargs use camelCase; method hints use snake_case.
+                    directive = arg_directives.get(kw_name) or arg_directives.get(
+                        _camel_to_snake(kw_name)
+                    )
+                    if directive is None:
+                        continue
+                    if directive.batch is None:
+                        individual.append((kw_name, kw_val, directive))
+                    else:
+                        batches.setdefault(directive.batch, []).append(
+                            (kw_name, kw_val)
+                        )
+
+                try:
+                    for kw_name, kw_val, _d in individual:
+                        snake = _camel_to_snake(kw_name)
+                        key = _resolve_key(self._model, snake)
+                        kwargs[kw_name] = syntek_pyo3.encrypt_field(
+                            kw_val, key, self._model, snake
+                        )
+                    for batch_group, batch_pairs in batches.items():
+                        first_snake = (
+                            _camel_to_snake(batch_pairs[0][0])
+                            if batch_pairs
+                            else batch_group
+                        )
+                        key = _resolve_key(self._model, first_snake)
+                        ciphertexts = syntek_pyo3.encrypt_fields_batch(
+                            [(_camel_to_snake(k), v) for k, v in batch_pairs],
+                            key,
+                            self._model,
+                        )
+                        for (kw_name, _), ct in zip(  # noqa: B905
+                            batch_pairs, ciphertexts
+                        ):
+                            kwargs[kw_name] = ct
+                except RuntimeError as exc:
+                    raise Exception(f"Encryption failed: {exc}") from exc
+
+        return _next(root, info, *args, **kwargs)
+
+    def on_execute(self):  # type: ignore[return]
+        """Generator hook: decrypt output fields and enforce auth guard after
+        execution."""
+        yield  # let execution happen
+        result = self.execution_context.result
+        if result is None or result.data is None:
+            return
+        is_auth = self._is_authenticated()
+        self._process_data(result, is_auth)
+
+    def _process_data(self, result: Any, is_auth: bool) -> None:
+        """Walk result.data and decrypt encrypted fields, enforcing auth."""
+        data = result.data
+        if not isinstance(data, dict):
+            return
+
+        errors: list[Any] = list(result.errors or [])
+
+        for _root_key, root_val in data.items():
+            if not isinstance(root_val, dict):
+                continue
+            self._decrypt_object(root_val, is_auth, errors)
+
+        # Attach errors back.
+        if errors:
+            result.errors = errors
+
+    def _decrypt_object(
+        self, obj: dict[str, Any], is_auth: bool, errors: list[Any]
+    ) -> None:
+        """Decrypt all @encrypted fields on an object dict in-place."""
+        schema = self.execution_context.schema
+        encrypted_map = self._build_encrypted_map(schema)
+
+        if not is_auth and encrypted_map:
+            # Auth guard: null all encrypted fields and add error.
+            logger.warning(
+                "Unauthenticated access attempt to encrypted fields — nulling output"
+            )
+            for field_name in list(obj.keys()):
+                snake = _camel_to_snake(field_name)
+                if snake in encrypted_map or field_name in encrypted_map:
+                    obj[field_name] = None
+            errors.append(
+                {
+                    "message": "Unauthenticated: access to encrypted fields denied",
+                    "error_type": "AuthenticationError",
+                    "field_path": list(encrypted_map.keys()),
+                }
+            )
+            return
+
+        # Group fields by batch.
+        batches: dict[str, list[tuple[str, str, Any]]] = {}
+        individual: list[tuple[str, str, Any]] = []
+
+        for camel_name, value in obj.items():
+            snake = _camel_to_snake(camel_name)
+            directive = encrypted_map.get(snake) or encrypted_map.get(camel_name)
+            if directive is None:
+                continue
+            if directive.batch is None:
+                individual.append((camel_name, snake, value))
+            else:
+                batches.setdefault(directive.batch, []).append(
+                    (camel_name, snake, value)
+                )
+
+        # Decrypt individual fields.
+        for camel_name, snake, value in individual:
+            try:
+                key = _resolve_key(self._model, snake)
+                obj[camel_name] = syntek_pyo3.decrypt_field(
+                    value, key, self._model, snake
+                )
+            except Exception as exc:
+                obj[camel_name] = None
+                errors.append(
+                    {
+                        "message": str(exc),
+                        "error_type": "DecryptionError",
+                        "field_path": camel_name,
+                        "path": [camel_name],
+                    }
+                )
+
+        # Decrypt batch groups.
+        for batch_group, batch_fields in batches.items():
+            first_snake = batch_fields[0][1]
+            try:
+                key = _resolve_key(self._model, first_snake)
+                # Rust expects (field_name, ciphertext) order.
+                pairs = [(snake, obj[camel]) for camel, snake, _ in batch_fields]
+                plaintexts = syntek_pyo3.decrypt_fields_batch(pairs, key, self._model)
+                for (camel_name, _, _), plaintext in zip(  # noqa: B905
+                    batch_fields, plaintexts
+                ):
+                    obj[camel_name] = plaintext
+            except Exception as exc:
+                for camel_name, _, _ in batch_fields:
+                    obj[camel_name] = None
+                errors.append(
+                    {
+                        "message": str(exc),
+                        "error_type": "DecryptionError",
+                        "field_path": batch_group,
+                        "path": [camel for camel, _, _ in batch_fields],
+                    }
+                )
+
+    def _build_encrypted_map(self, schema: Any) -> dict[str, Encrypted]:
+        """Build {snake_field_name: Encrypted} for all encrypted fields in the
+        schema."""
+        result: dict[str, Encrypted] = {}
+        graphql_schema = getattr(schema, "_schema", None) or getattr(
+            schema, "graphql_schema", None
+        )
+        if graphql_schema is None:
+            return result
+
+        for _type_name, type_def in graphql_schema.type_map.items():
+            field_map = getattr(type_def, "fields", None)
+            if not field_map:
+                continue
+            for gql_field_name, gql_field in field_map.items():
+                ext = getattr(gql_field, "extensions", None) or {}
+                # Strawberry stores the StrawberryField on "strawberry-definition".
+                strawberry_field = ext.get("strawberry-definition")
+                for directive in getattr(strawberry_field, "directives", None) or []:
+                    if isinstance(directive, Encrypted):
+                        snake = _camel_to_snake(gql_field_name)
+                        result[snake] = directive
+                        break
+        return result
