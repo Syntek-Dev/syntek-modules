@@ -9,8 +9,20 @@ dependencies = []
 [tool.uv]
 package = false
 
+[tool.uv.sources]
+# Declare workspace packages so `uv sync --group dev` installs them as editable.
+# Add a new entry here each time a package is added to packages/backend/*.
+syntek-pyo3 = {workspace = true}
+syntek-auth = {workspace = true}
+syntek-graphql-crypto = {workspace = true}
+
 [tool.uv.workspace]
-members = ["packages/backend/*"]
+# rust/syntek-pyo3 uses maturin as its build backend — uv calls maturin via PEP 517
+# to compile the Rust extension and install it into the venv automatically.
+members = ["packages/backend/*", "rust/syntek-pyo3"]
+# packages/backend/syntek-pyo3 is a tests-only stub with no Python source and the
+# wrong build backend (hatchling). The real buildable package is rust/syntek-pyo3.
+exclude = ["packages/backend/syntek-pyo3"]
 
 # ---------------------------------------------------------------------------
 # Ruff — linting and formatting for all Python code
@@ -90,4 +102,11 @@ dev = [
     "pyyaml>=6.0",
     "django-stubs[compatible-mypy]>=5.0",
     "maturin>=1.8",
+    # Workspace packages — installed as editable so basedpyright and pytest can
+    # import them without a separate install step. syntek-pyo3 is built from Rust
+    # via maturin (uv invokes maturin automatically via PEP 517).
+    # Add each new packages/backend/* entry here as the package is created.
+    "syntek-pyo3",
+    "syntek-auth",
+    "syntek-graphql-crypto",
 ]

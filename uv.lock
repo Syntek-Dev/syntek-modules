@@ -733,6 +733,9 @@ dev = [
     { name = "pytest-django" },
     { name = "pyyaml" },
     { name = "ruff" },
+    { name = "syntek-auth" },
+    { name = "syntek-graphql-crypto" },
+    { name = "syntek-pyo3" },
     { name = "testcontainers" },
 ]
 
@@ -751,30 +754,16 @@ dev = [
     { name = "pytest-django", specifier = ">=4.9" },
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "ruff", specifier = ">=0.9" },
+    { name = "syntek-auth", editable = "packages/backend/syntek-auth" },
+    { name = "syntek-graphql-crypto", editable = "packages/backend/syntek-graphql-crypto" },
+    { name = "syntek-pyo3", editable = "rust/syntek-pyo3" },
     { name = "testcontainers", specifier = ">=4.0" },
 ]
 
 [[package]]
 name = "syntek-pyo3"
 version = "0.12.1"
-source = { editable = "packages/backend/syntek-pyo3" }
-dependencies = [
-    { name = "django" },
-]
-
-[package.optional-dependencies]
-dev = [
-    { name = "pytest" },
-    { name = "pytest-django" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "django", specifier = ">=6.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
-    { name = "pytest-django", marker = "extra == 'dev'", specifier = ">=4.9" },
-]
-provides-extras = ["dev"]
+source = { editable = "rust/syntek-pyo3" }
 
 [[package]]
 name = "testcontainers"
