@@ -1,21 +1,21 @@
-# Sprint 33 — Data Hooks & Form Primitives
+# Sprint 33 — Subscriptions & Comments
 
-**Sprint Goal**: Implement the React data fetching hooks library (paginated queries, infinite
-scroll, mutations) and the headless form primitives package with Zod validation.
+**Sprint Goal**: Implement the recurring subscription lifecycle module (distinct from Stripe
+subscriptions — business-level subscription management), and the threaded comments module with
+moderation and reactions.
 
-**Total Points**: 8 / 11 **MoSCoW Balance**: Must 100% **Status**: Planned
+**Total Points**: 8 / 11 **MoSCoW Balance**: Should 75% / Could 25% **Status**: Planned
 
 ## Stories
 
-| Story                        | Title                                      | Points | MoSCoW | Dependencies Met |
-| ---------------------------- | ------------------------------------------ | ------ | ------ | ---------------- |
-| [US045](../STORIES/US045.md) | `@syntek/data-hooks` — Data Fetching Hooks | 3      | Must   | US044 ✓          |
-| [US046](../STORIES/US046.md) | `@syntek/forms` — Headless Form Primitives | 5      | Must   | US042 ✓          |
+| Story                        | Title                                           | Points | MoSCoW | Dependencies Met          |
+| ---------------------------- | ----------------------------------------------- | ------ | ------ | ------------------------- |
+| [US062](../STORIES/US062.md) | `syntek-subscriptions` — Subscription Lifecycle | 5      | Should | US025 ✓, US019 ✓, US010 ✓ |
+| [US040](../STORIES/US040.md) | `syntek-comments` — Threaded Comments           | 3      | Could  | US009 ✓, US010 ✓, US011 ✓ |
 
 ## Notes
 
-- US045 and US046 are independent of each other and can be worked in parallel.
-- US045 hooks must handle loading, error, and empty states — consumers must never need to write
-  their own fetch state logic.
-- US046 form primitives are headless — they provide logic and accessibility, not styles. Styling is
-  applied by consuming the `@syntek/ui` components.
+- US062 and US040 are independent of each other and can be worked in parallel.
+- US062 subscription state transitions (active → past_due → cancelled) must be recorded via US013
+  (audit log).
+- US040 moderation actions must be permission-checked via US011 (RBAC).

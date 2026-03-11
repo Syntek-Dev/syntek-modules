@@ -1,21 +1,21 @@
-# Sprint 32 — Session Management & API Client
+# Sprint 32 — Accounting
 
-**Sprint Goal**: Implement the session context package with token refresh and idle timeout, and the
-generated typed GraphQL API client package.
+**Sprint Goal**: Implement double-entry accounting with VAT calculation, and optional
+Xero/Sage/QuickBooks Online export integration.
 
-**Total Points**: 10 / 11 **MoSCoW Balance**: Must 100% **Status**: Planned
+**Total Points**: 8 / 11 **MoSCoW Balance**: Should 100% **Status**: Planned
 
 ## Stories
 
-| Story                        | Title                                     | Points | MoSCoW | Dependencies Met |
-| ---------------------------- | ----------------------------------------- | ------ | ------ | ---------------- |
-| [US043](../STORIES/US043.md) | `@syntek/session` — Session Management    | 5      | Must   | US042 ✓, US009 ✓ |
-| [US044](../STORIES/US044.md) | `@syntek/api-client` — GraphQL API Client | 5      | Must   | US001 ✓, US004 ✓ |
+| Story                        | Title                                  | Points | MoSCoW | Dependencies Met          |
+| ---------------------------- | -------------------------------------- | ------ | ------ | ------------------------- |
+| [US037](../STORIES/US037.md) | `syntek-accounting` — Accounting & VAT | 8      | Should | US010 ✓, US025 ✓, US026 ✓ |
 
 ## Notes
 
-- US043 and US044 are independent of each other and can be worked in parallel.
-- US043 token refresh must be silent — the user must never see a forced logout due to token expiry
-  during active use.
-- US044 the generated client must be type-safe from the GraphQL schema — no `any` types.
-- US044 is a foundational dependency for most subsequent web packages.
+- Depends on US025 (payments) and US026 (invoicing) for transaction source data.
+- Double-entry journal entries must be immutable after posting — corrections via reversal entries
+  only.
+- Third-party accounting system credentials (Xero, Sage, QBO) must come from `SYNTEK_ACCOUNTING`
+  settings.
+- VAT rates must be configurable per tenant — UK standard 20% is the default.

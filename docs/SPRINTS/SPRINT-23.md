@@ -1,20 +1,26 @@
-# Sprint 23 — Donations
+# Sprint 23 — Media Upload Pipeline
 
-**Sprint Goal**: Implement the donations module with one-off and recurring donation processing, UK
-Gift Aid declaration management, campaign tracking, and donor receipts.
+**Sprint Goal**: Implement the chunked upload pipeline with real-time progress tracking, ClamAV
+virus scanning, session management, and commit integration with both `syntek-media-core` and
+`syntek-files`.
 
-**Total Points**: 8 / 11 **MoSCoW Balance**: Must 100% **Status**: Planned
+**Total Points**: 8 / 11 **MoSCoW Balance**: Should 100% **Status**: Planned
 
 ## Stories
 
-| Story                        | Title                                     | Points | MoSCoW | Dependencies Met          |
-| ---------------------------- | ----------------------------------------- | ------ | ------ | ------------------------- |
-| [US027](../STORIES/US027.md) | `syntek-donations` — Donations & Gift Aid | 8      | Must   | US009 ✓, US010 ✓, US025 ✓ |
+| Story                        | Title                                                            | Points | MoSCoW | Dependencies Met          |
+| ---------------------------- | ---------------------------------------------------------------- | ------ | ------ | ------------------------- |
+| [US106](../STORIES/US106.md) | `syntek-media-upload` — Chunked Upload Pipeline & Virus Scanning | 8      | Should | US030 ✓, US031 ✓, US015 ✓ |
 
 ## Notes
 
-- Depends on US025 (payments) for Stripe charge processing.
-- Gift Aid declarations must be stored with a full audit trail (US013) — HMRC compliance
-  requirement.
-- Donor receipts must dispatch via US019 (notifications).
-- Recurring donations must integrate with the Stripe subscription mechanism from US025.
+- US106 depends on US030 (`syntek-media-core`) and US031 (`syntek-files`) — Sprint 23 can only begin
+  once Sprints 18 and 58 are complete.
+- ClamAV is an optional runtime dependency. When `VIRUS_SCAN_ENABLED = False` (e.g., in development
+  or on cost-constrained infrastructure), the scan step is skipped and a warning is logged at
+  startup. The upload pipeline is otherwise identical.
+- Chunk storage uses Redis by default (`CHUNK_STORAGE_BACKEND = 'redis'`). Local file storage is
+  available as a development fallback.
+- Session tokens are signed JWTs — only the initiating user can upload chunks to their own session.
+- The cleanup periodic task must run at least every 10 minutes in production — expired sessions must
+  not accumulate.

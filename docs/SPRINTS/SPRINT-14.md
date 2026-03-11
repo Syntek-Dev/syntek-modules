@@ -1,20 +1,25 @@
-# Sprint 14 — Dynamic Forms & CalDav
+# Sprint 14 — Notification Core & Geolocation
 
-**Sprint Goal**: Implement the schema-driven dynamic form engine with conditional logic and
-validation, and the CalDav client module for Radicale calendar integration.
+**Sprint Goal**: Implement the notification core engine — unified channel dispatch API, per-user
+preferences, in-app WebSocket delivery, DLQ, and retry policy — and the geolocation module with UK
+postcode lookup and `nearby()` spatial queries. Channel adapters (email, SMS, push) are separate
+sub-modules delivered in Sprint 15–16.
 
-**Total Points**: 11 / 11 **MoSCoW Balance**: Must 73% / Should 27% **Status**: Planned
+**Total Points**: 11 / 11 **MoSCoW Balance**: Must 73% / Could 27% **Status**: Planned
 
 ## Stories
 
-| Story                        | Title                                | Points | MoSCoW | Dependencies Met |
-| ---------------------------- | ------------------------------------ | ------ | ------ | ---------------- |
-| [US023](../STORIES/US023.md) | `syntek-forms` — Dynamic Form Engine | 8      | Must   | US010 ✓, US016 ✓ |
-| [US035](../STORIES/US035.md) | `syntek-caldav` — Calendar / CalDav  | 3      | Should | US010 ✓          |
+| Story                        | Title                                                  | Points | MoSCoW | Dependencies Met |
+| ---------------------------- | ------------------------------------------------------ | ------ | ------ | ---------------- |
+| [US019](../STORIES/US019.md) | `syntek-notifications-core` — Core Notification Engine | 8      | Must   | US010 ✓, US015 ✓ |
+| [US036](../STORIES/US036.md) | `syntek-geo` — Address & Geolocation                   | 3      | Could  | US010 ✓          |
 
 ## Notes
 
-- US023 and US035 are independent of each other and can be worked in parallel.
-- US023 form schemas must be stored as tenant-scoped JSON — no hardcoded form definitions.
-- US035 must connect to the Radicale CalDav server on the Syntek infrastructure stack via
-  `SYNTEK_CALDAV` settings.
+- US019 and US036 are independent of each other and can be worked in parallel.
+- US019 notification dispatch must be async via Celery (US015); never block the request cycle.
+- US019 implements the channel registry only — downstream modules (US087 email, US088 SMS, US089
+  push) register their adapters via `AppConfig.ready()`. Core must remain functional with zero
+  adapters installed (in-app only).
+- US036 geocoding API credentials must be injected via `SYNTEK_GEO` settings — never hardcoded.
+- **Channel adapters** are delivered in Sprint 15 (US087 + US088) and Sprint 16 (US089).

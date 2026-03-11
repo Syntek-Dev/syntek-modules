@@ -1,22 +1,19 @@
-# Sprint 40 — Comments, Feedback & Maps UI
+# Sprint 40 — Authentication UI
 
-**Sprint Goal**: Implement the comment thread UI with reactions and moderation, the survey renderer
-and NPS widget UI, and the map wrapper with LocationPicker component.
+**Sprint Goal**: Implement the web authentication UI package covering login, registration, MFA
+flows, OAuth social login buttons, and passkey prompts.
 
-**Total Points**: 11 / 11 **MoSCoW Balance**: Could 100% **Status**: Planned
+**Total Points**: 8 / 11 **MoSCoW Balance**: Must 100% **Status**: Planned
 
 ## Stories
 
-| Story                        | Title                                        | Points | MoSCoW | Dependencies Met                   |
-| ---------------------------- | -------------------------------------------- | ------ | ------ | ---------------------------------- |
-| [US069](../STORIES/US069.md) | `@syntek/ui-comments` — Comments UI          | 3      | Could  | US042 ✓, US044 ✓, US040 ✓          |
-| [US070](../STORIES/US070.md) | `@syntek/ui-feedback` — Feedback & Survey UI | 3      | Could  | US042 ✓, US044 ✓, US067 ✓          |
-| [US071](../STORIES/US071.md) | `@syntek/ui-maps` — Maps UI                  | 5      | Could  | US042 ✓, US044 ✓, US065 ✓, US036 ✓ |
+| Story                        | Title                                 | Points | MoSCoW | Dependencies Met          |
+| ---------------------------- | ------------------------------------- | ------ | ------ | ------------------------- |
+| [US048](../STORIES/US048.md) | `@syntek/ui-auth` — Authentication UI | 8      | Must   | US042 ✓, US044 ✓, US009 ✓ |
 
 ## Notes
 
-- All three stories are independent of each other and can be worked in parallel.
-- US069 optimistic UI must revert cleanly on error — never leave a ghost comment in the UI.
-- US070 NPS widget must not show immediately on page load — implement a configurable delay.
-- US071 map API keys (Mapbox/Google) must come from server-side GraphQL config — never exposed in
-  client bundles.
+- All auth UI components must be accessible and keyboard-navigable (WCAG 2.2 AA).
+- OAuth social login buttons must be icon-slot driven — Font Awesome Pro brand icons recommended.
+- MFA input must accept both TOTP codes and backup codes with clear visual distinction.
+- Passkey UI must gracefully degrade on browsers that do not support WebAuthn.
