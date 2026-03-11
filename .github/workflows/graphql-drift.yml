@@ -28,13 +28,13 @@ jobs:
 
       - uses: pnpm/action-setup@v4
 
-      - name: Generate lockfile
-        run: pnpm install --lockfile-only
-
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
           cache: "pnpm"
+
+      - name: Generate lockfile
+        run: pnpm install --lockfile-only
 
       - name: Install dependencies
         run: pnpm install
