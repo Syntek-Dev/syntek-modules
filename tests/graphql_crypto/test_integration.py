@@ -33,9 +33,13 @@ from __future__ import annotations
 
 import os
 from base64 import b64encode
+from typing import Annotated
 from unittest.mock import MagicMock, patch
 
 import pytest
+import strawberry
+from syntek_graphql_crypto.directives import Encrypted
+from syntek_graphql_crypto.middleware import EncryptionMiddleware
 
 pytestmark = pytest.mark.integration
 
@@ -52,6 +56,62 @@ os.environ.setdefault("SYNTEK_FIELD_KEY_USER_FIRST_NAME", _TEST_KEY)
 os.environ.setdefault("SYNTEK_FIELD_KEY_USER_LAST_NAME", _TEST_KEY)
 os.environ.setdefault("SYNTEK_FIELD_KEY_USER_PHONE", _TEST_KEY)
 
+# ---------------------------------------------------------------------------
+# Module-level in-memory store (reset by fixture before each test)
+# ---------------------------------------------------------------------------
+
+_store: dict[str, dict[str, str | None]] = {
+    "1": {"email": None, "first_name": None, "last_name": None}
+}
+
+# ---------------------------------------------------------------------------
+# Strawberry types — must be at module level so that Strawberry can resolve
+# annotation strings when ``from __future__ import annotations`` is active.
+# See test_auth_guard.py for the same pattern and rationale.
+# ---------------------------------------------------------------------------
+
+
+# ``UpdateUserInput`` is intentionally absent: the middleware's write path only
+# handles ``Annotated[str, Encrypted()]`` direct resolver args, not input-type
+# fields with ``directives=[Encrypted()]``.  Use ``Annotated`` args instead.
+#
+# ``UserType`` fields carry ``directives=[Encrypted()]`` so that:
+#  - ``_build_encrypted_map`` finds them (not ``UpdateUserInput`` fields), and
+#  - the middleware decrypts them on both the mutation response and read queries.
+#
+# ``display_name`` has no directive and must come first (dataclass field-ordering
+# rule: non-default fields before fields that have a ``strawberry.field()`` default).
+
+
+@strawberry.type
+class UserType:
+    display_name: str
+    email: str | None = strawberry.field(directives=[Encrypted()])
+    first_name: str | None = strawberry.field(directives=[Encrypted(batch="profile")])
+    last_name: str | None = strawberry.field(directives=[Encrypted(batch="profile")])
+
+
+@strawberry.type
+class _TamperedUserType:
+    """UserType variant with resolver-based fields for the tampered-value test.
+
+    Uses resolver lambdas so the test does not depend on a live DB.
+    """
+
+    email: str | None = strawberry.field(
+        directives=[Encrypted()],
+        resolver=lambda: "TAMPERED_CIPHERTEXT",
+    )
+    first_name: str | None = strawberry.field(
+        directives=[Encrypted(batch="profile")],
+        resolver=lambda: "FAKE_CT_first_name",
+    )
+    last_name: str | None = strawberry.field(
+        directives=[Encrypted(batch="profile")],
+        resolver=lambda: "FAKE_CT_last_name",
+    )
+    display_name: str = strawberry.field(resolver=lambda: "Alice Smith")
+
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -59,75 +119,32 @@ os.environ.setdefault("SYNTEK_FIELD_KEY_USER_PHONE", _TEST_KEY)
 
 
 @pytest.fixture()
-def _django_setup():
-    """Minimal Django configuration for integration tests.
+def _schema():
+    """A Strawberry schema with ``EncryptionMiddleware`` and the module-level
+    ``_store`` acting as the simulated database for integration tests.
 
-    Sets up an in-memory SQLite database so that ORM calls in the schema
-    resolvers can execute without a real PostgreSQL instance.
+    Resets ``_store`` before each test so tests are independent.
     """
-    import django  # noqa: PLC0415
-    from django.conf import settings  # noqa: PLC0415
-
-    if not settings.configured:
-        settings.configure(
-            DATABASES={
-                "default": {
-                    "ENGINE": "django.db.backends.sqlite3",
-                    "NAME": ":memory:",
-                }
-            },
-            INSTALLED_APPS=[
-                "django.contrib.contenttypes",
-                "django.contrib.auth",
-                "syntek_graphql_crypto",
-            ],
-            DEFAULT_AUTO_FIELD="django.db.models.BigAutoField",
-            USE_TZ=True,
-        )
-        django.setup()
-
-
-@pytest.fixture()
-def _schema(_django_setup):
-    """A Strawberry schema with ``EncryptionMiddleware`` and a simple in-memory
-    ``UserStore`` acting as the "database" for integration tests.
-    """
-    import strawberry  # noqa: PLC0415
-
-    from syntek_graphql_crypto.directives import Encrypted  # noqa: PLC0415
-    from syntek_graphql_crypto.middleware import EncryptionMiddleware  # noqa: PLC0415
-
-    # In-memory store to simulate DB rows.
-    store: dict[str, dict[str, str | None]] = {
-        "1": {"email": None, "first_name": None, "last_name": None}
-    }
-
-    @strawberry.input
-    class UpdateUserInput:
-        email: str = strawberry.field(directives=[Encrypted()])
-        first_name: str = strawberry.field(directives=[Encrypted(batch="profile")])
-        last_name: str = strawberry.field(directives=[Encrypted(batch="profile")])
-
-    @strawberry.type
-    class UserType:
-        email: str | None
-        first_name: str | None
-        last_name: str | None
-        display_name: str
+    _store["1"] = {"email": None, "first_name": None, "last_name": None}
 
     @strawberry.type
     class MutationType:
         @strawberry.mutation
-        def update_user(self, input: UpdateUserInput) -> UserType:
-            # Resolver receives ciphertext from middleware — stores in DB.
-            store["1"]["email"] = input.email
-            store["1"]["first_name"] = input.first_name
-            store["1"]["last_name"] = input.last_name
+        def update_user(
+            self,
+            email: Annotated[str, Encrypted()],
+            first_name: Annotated[str, Encrypted(batch="profile")],
+            last_name: Annotated[str, Encrypted(batch="profile")],
+        ) -> UserType:
+            # Middleware encrypts args before the resolver runs; store ciphertext.
+            _store["1"]["email"] = email
+            _store["1"]["first_name"] = first_name
+            _store["1"]["last_name"] = last_name
             return UserType(
-                email=store["1"]["email"],
-                first_name=store["1"]["first_name"],
-                last_name=store["1"]["last_name"],
                 display_name="Alice Smith",
+                email=_store["1"]["email"],
+                first_name=_store["1"]["first_name"],
+                last_name=_store["1"]["last_name"],
             )
 
     @strawberry.type
@@ -135,10 +152,10 @@ def _schema(_django_setup):
         @strawberry.field
         def user(self) -> UserType:
             return UserType(
-                email=store["1"]["email"],
-                first_name=store["1"]["first_name"],
-                last_name=store["1"]["last_name"],
                 display_name="Alice Smith",
+                email=_store["1"]["email"],
+                first_name=_store["1"]["first_name"],
+                last_name=_store["1"]["last_name"],
             )
 
     return (
@@ -146,8 +163,9 @@ def _schema(_django_setup):
             query=Query,
             mutation=MutationType,
             extensions=[EncryptionMiddleware],
+            types=[UserType],
         ),
-        store,
+        _store,
     )
 
 
@@ -176,11 +194,11 @@ class TestIndividualFieldRoundtrip:
         write_result = schema.execute_sync(
             """
             mutation {
-                updateUser(input: {
+                updateUser(
                     email: "alice@example.com",
                     firstName: "Alice",
                     lastName: "Smith"
-                }) {
+                ) {
                     email
                     firstName
                     lastName
@@ -237,11 +255,11 @@ class TestBatchFieldRoundtrip:
         write_result = schema.execute_sync(
             """
             mutation {
-                updateUser(input: {
+                updateUser(
                     email: "alice@example.com",
                     firstName: "Alice",
                     lastName: "Smith"
-                }) {
+                ) {
                     email
                     firstName
                     lastName
@@ -289,20 +307,11 @@ class TestTamperedDbValue:
 
     def test_tampered_db_value_returns_null_field_with_error_rest_intact(
         self,
-        _schema,
     ) -> None:
         """When the DB contains a tampered / invalid ciphertext for ``email``,
         the query must return ``null`` for that field with an error entry, while
         ``display_name`` and batch-group fields remain readable (AC7).
         """
-        import strawberry  # noqa: PLC0415
-
-        from syntek_graphql_crypto.directives import Encrypted  # noqa: PLC0415
-        from syntek_graphql_crypto.middleware import EncryptionMiddleware  # noqa: PLC0415
-
-        # Seed the in-memory store with a tampered ciphertext for ``email`` and
-        # valid ciphertexts for the profile batch group.  We mock pyo3 so that
-        # only the ``email`` field raises on decrypt.
         mock_pyo3 = MagicMock()
 
         def _selective_decrypt(ciphertext: str, key: str, model: str, field: str) -> str:
@@ -312,32 +321,20 @@ class TestTamperedDbValue:
 
         mock_pyo3.decrypt_field.side_effect = _selective_decrypt
         mock_pyo3.decrypt_fields_batch.side_effect = lambda fields, key, model: [
-            f"PLAINTEXT_{fname}" for _ct, fname in fields
+            f"PLAINTEXT_{fname}" for fname, _ct in fields
         ]
-
-        @strawberry.type
-        class UserType:
-            email: str | None = strawberry.field(
-                directives=[Encrypted()],
-                resolver=lambda: "TAMPERED_CIPHERTEXT",
-            )
-            first_name: str | None = strawberry.field(
-                directives=[Encrypted(batch="profile")],
-                resolver=lambda: "FAKE_CT_first_name",
-            )
-            last_name: str | None = strawberry.field(
-                directives=[Encrypted(batch="profile")],
-                resolver=lambda: "FAKE_CT_last_name",
-            )
-            display_name: str = strawberry.field(resolver=lambda: "Alice Smith")
 
         @strawberry.type
         class Query:
             @strawberry.field
-            def user(self) -> UserType:
-                return UserType()
+            def user(self) -> _TamperedUserType:
+                return _TamperedUserType()
 
-        schema = strawberry.Schema(query=Query, extensions=[EncryptionMiddleware])
+        schema = strawberry.Schema(
+            query=Query,
+            extensions=[EncryptionMiddleware],
+            types=[_TamperedUserType],
+        )
 
         authenticated_context = MagicMock()
         authenticated_context.user.is_authenticated = True
@@ -380,12 +377,12 @@ class TestUnauthenticatedRead:
         request.  An auth error must be in the ``errors`` array.
         ``display_name`` (non-encrypted) must still be present (AC10).
         """
-        schema, _store = _schema
+        schema, _store_ref = _schema
 
         mock_pyo3 = MagicMock()
         mock_pyo3.decrypt_field.side_effect = lambda ct, k, m, f: f"PLAINTEXT_{f}"
         mock_pyo3.decrypt_fields_batch.side_effect = lambda fields, k, m: [
-            f"PLAINTEXT_{fname}" for _ct, fname in fields
+            f"PLAINTEXT_{fname}" for fname, _ct in fields
         ]
 
         unauthenticated_context = MagicMock()
