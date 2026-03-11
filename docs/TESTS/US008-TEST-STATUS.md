@@ -20,7 +20,7 @@
 
 > Red-phase plan recorded 56 tests (10 Rust). Final green-phase count is 59 — 3 additional Rust unit
 > tests were added during implementation to achieve full `MiddlewareError` variant coverage.
-
+>
 > Run with:
 >
 > - `cargo test -p syntek-graphql-crypto`
