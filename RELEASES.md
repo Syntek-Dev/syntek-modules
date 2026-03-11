@@ -1,5 +1,55 @@
 # Releases
 
+## v0.14.0 — 11/03/2026
+
+**Branch**: `us008/syntek-graphql-crypto`\
+**Type**: MINOR\
+**Story**: US008 — `syntek-graphql-crypto` GraphQL Encryption Middleware
+
+### Highlights
+
+- **`syntek-graphql-crypto` complete** — The GraphQL encryption middleware that prevents plaintext
+  resolver output is fully implemented across both the Rust and Python layers. All sensitive fields
+  annotated with `@encrypted` or `@encrypted(batch: "group_name")` in the Strawberry schema are
+  automatically encrypted before the ORM write and decrypted after the resolver returns — with no
+  crypto logic required in individual resolvers.
+
+- **Strawberry `SchemaExtension` middleware** — `EncryptionMiddleware` intercepts
+  `on_executing_start` (write path) and `on_executing_end` (read path). Individual fields use
+  `encrypt_field` / `decrypt_field`; batch groups use `encrypt_fields_batch` /
+  `decrypt_fields_batch` for a single call per group. On encrypt failure the mutation is rejected
+  entirely — no partial ciphertext is written. On decrypt failure, individual fields are nulled
+  with a structured error; batch group failures null all fields in the group with a single error.
+  Unauthenticated requests receive null encrypted fields and a structured auth error; non-encrypted
+  fields are never affected.
+
+- **Key naming convention** — Per-field encryption keys are resolved from environment variables
+  named `SYNTEK_FIELD_KEY_<MODEL>_<FIELD>` (e.g. `SYNTEK_FIELD_KEY_USER_EMAIL`). The Rust layer is
+  not configurable; all cryptographic algorithms and parameters are fixed by Syntek security policy.
+
+- **59 tests, all green** — 13 Rust unit tests (`cargo test -p syntek-graphql-crypto`), 42 Python
+  unit tests (`pytest packages/backend/syntek-graphql-crypto/tests/ -v`), and 4 integration tests
+  (`pytest tests/graphql_crypto/ -v`) covering all 11 acceptance criteria.
+
+### Breaking Changes
+
+None.
+
+### Verify
+
+```bash
+# Rust unit tests
+cargo test -p syntek-graphql-crypto
+
+# Python unit tests (no native extension required — syntek_pyo3 is mocked)
+pytest packages/backend/syntek-graphql-crypto/tests/ -v
+
+# Integration tests (requires maturin develop in rust/syntek-pyo3/ first)
+pytest tests/graphql_crypto/ -v
+```
+
+---
+
 ## v0.13.0 — 09/03/2026
 
 **Branch**: `us007/syntek-pyo3`\

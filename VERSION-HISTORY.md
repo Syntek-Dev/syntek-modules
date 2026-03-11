@@ -2,6 +2,7 @@
 
 | Version | Date       | Type  | Summary                                                                                             |
 | ------- | ---------- | ----- | --------------------------------------------------------------------------------------------------- |
+| 0.14.0  | 11/03/2026 | MINOR | `syntek-graphql-crypto` complete — GraphQL encryption middleware, 59 tests, US008 done              |
 | 0.13.0  | 09/03/2026 | MINOR | `syntek-pyo3` complete — PyO3 Django bindings, EncryptedField, 65 tests, US007 done                 |
 | 0.12.1  | 09/03/2026 | PATCH | Fix `cargo deny check` failures — cargo-deny 0.16+ config, SPDX identifiers, wildcard path deps     |
 | 0.12.0  | 09/03/2026 | MINOR | `syntek-crypto` complete — AES-256-GCM, Argon2id, HMAC-SHA256, batch APIs, 49 tests, US006 done     |
