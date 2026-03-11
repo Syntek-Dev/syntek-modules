@@ -23,6 +23,8 @@
 //! assert_eq!(plaintext, "hello@example.com");
 //! ```
 
+pub mod key_versioning;
+
 use aes_gcm::{
     Aes256Gcm, Key, Nonce,
     aead::{Aead, AeadCore, KeyInit, Payload},
