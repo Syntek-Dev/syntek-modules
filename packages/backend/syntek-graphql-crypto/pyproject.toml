@@ -1,0 +1,20 @@
+[project]
+name = "syntek-graphql-crypto"
+version = "0.1.0"
+description = "GraphQL middleware preventing plaintext resolver output for the Syntek encryption layer"
+requires-python = ">=3.14"
+dependencies = [
+    "django>=6.0",
+    "strawberry-graphql>=0.307.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-django>=4.9",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+

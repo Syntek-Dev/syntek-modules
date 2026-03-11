@@ -1,32 +1,20 @@
-# Sprint 31 — Web Design System (@syntek/ui)
+# Sprint 31 — Email Marketing & Loyalty / Referrals
 
-**Sprint Goal**: Implement the complete Syntek web design system — all primitive, composite, and
-layout components; form elements; navigation; overlays; data display; and rich text — token-driven
-and fully accessible.
+**Sprint Goal**: Implement the email marketing module with campaign management, subscriber lists,
+and GDPR opt-out; and the loyalty and referrals module with points, tiers, and referral attribution.
 
-**Total Points**: 21 / 11 ⚠️⚠️ SIGNIFICANTLY OVER CAPACITY **MoSCoW Balance**: Must 100% **Status**:
-Planned
+**Total Points**: 10 / 11 **MoSCoW Balance**: Should 100% **Status**: Planned
 
 ## Stories
 
-| Story                        | Title                            | Points | MoSCoW | Dependencies Met |
-| ---------------------------- | -------------------------------- | ------ | ------ | ---------------- |
-| [US042](../STORIES/US042.md) | `@syntek/ui` — Web Design System | 21     | Must   | US003 ✓, US001 ✓ |
+| Story                        | Title                                      | Points | MoSCoW | Dependencies Met          |
+| ---------------------------- | ------------------------------------------ | ------ | ------ | ------------------------- |
+| [US038](../STORIES/US038.md) | `syntek-email-marketing` — Email Marketing | 5      | Should | US010 ✓, US019 ✓, US029 ✓ |
+| [US041](../STORIES/US041.md) | `syntek-loyalty` — Loyalty & Referrals     | 5      | Should | US009 ✓, US010 ✓, US025 ✓ |
 
 ## Notes
 
-- ⚠️⚠️ This story is 21 points — nearly double sprint capacity. Strongly recommended to split at
-  sprint kick-off into three sub-sprints:
-  - **ui-primitives** (~8pts): Button, Input, Textarea, Select, Checkbox, Radio, Toggle, Label,
-    Badge, Avatar, Icon slots
-  - **ui-composite** (~8pts): Modal, Drawer, Tooltip, Popover, DropdownMenu, ContextMenu, Accordion,
-    Tabs, DatePicker, TimePicker, Slider, FileUpload, RichTextEditor
-  - **ui-layout** (~5pts): Header, Navbar, Footer, Breadcrumbs, Pagination, Stepper, Hero, Section,
-    Container, Grid, Stack, Cluster
-- **Parallel opportunity**: This sprint can start from Sprint 3 onwards (only needs US001 and US003
-  which complete in Sprint 2). Frontend work can run entirely in parallel with the Rust and backend
-  streams.
-- All components must consume design tokens from US003 — no hardcoded colours, spacing, or
-  typography.
-- Icon slots are React nodes — Font Awesome Pro is recommended but any package works.
-- All components must meet WCAG 2.2 AA accessibility standards.
+- US038 and US041 are independent of each other and can be worked in parallel.
+- US038 all subscriber lists must respect GDPR consent recorded via US029 — no mailing to
+  non-opted-in contacts.
+- US041 loyalty point transactions must be recorded in the audit log via US013.

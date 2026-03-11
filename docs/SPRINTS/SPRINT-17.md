@@ -1,22 +1,31 @@
-# Sprint 17 — GDPR Compliance & Locations
+# Sprint 17 — Dynamic Forms & CalDav
 
-**Sprint Goal**: Implement the GDPR/compliance module covering Subject Access Requests,
-right-to-erasure, consent tracking, and retention policies; and the locations module for
-multi-location management with geospatial queries.
+**Sprint Goal**: Implement the full schema-driven form engine with conditional logic, all field
+types, pre-fill resolution, draft persistence, spam protection, and webhook dispatch — and the
+CalDav client module for Radicale calendar integration.
 
-**Total Points**: 11 / 11 **MoSCoW Balance**: Must 73% / Could 27% **Status**: Planned
+**Total Points**: 16 / 11 **MoSCoW Balance**: Must 81% / Should 19% **Status**: Planned ⚠️ Over
+Capacity
 
 ## Stories
 
-| Story                        | Title                                    | Points | MoSCoW | Dependencies Met          |
-| ---------------------------- | ---------------------------------------- | ------ | ------ | ------------------------- |
-| [US029](../STORIES/US029.md) | `syntek-gdpr` — GDPR & Compliance        | 8      | Must   | US009 ✓, US010 ✓, US013 ✓ |
-| [US065](../STORIES/US065.md) | `syntek-locations` — Location Management | 3      | Could  | US010 ✓, US036 ✓          |
+| Story                        | Title                                     | Points | MoSCoW | Dependencies Met |
+| ---------------------------- | ----------------------------------------- | ------ | ------ | ---------------- |
+| [US023](../STORIES/US023.md) | `syntek-forms-core` — Dynamic Form Engine | 13     | Must   | US010 ✓, US015 ✓ |
+| [US035](../STORIES/US035.md) | `syntek-caldav` — Calendar / CalDav       | 3      | Should | US010 ✓          |
 
 ## Notes
 
-- US029 and US065 are independent of each other and can be worked in parallel.
-- US029 erasure workflows must cascade through all modules that store personal data — document the
-  integration points clearly.
-- US065 depends on US036 (geo) for geocoding; ensure US036 completes in Sprint 13 before starting
-  US065.
+- US023 and US035 are fully independent — assign one per developer and run in parallel.
+- Sprint exceeds capacity at 16pts. US023 is a 13pt cohesive form engine (schema DSL, all field type
+  validators, conditional engine, pre-fill resolver, draft persistence, spam protection). Both
+  stories are independent — track them as parallel streams.
+- US023 form schemas must be stored as tenant-scoped versioned JSON — no hardcoded form definitions.
+  Schema changes create a new `FormVersion`; existing submissions always reference the version in
+  use at submission time.
+- US023 file upload fields route to `syntek-documents` (US031) — if not installed, file fields are
+  disabled gracefully.
+- US023 webhook dispatch routes via `syntek-webhooks` (US020) — if not installed, the post-submit
+  hook is skipped silently.
+- US035 must connect to the Radicale CalDav server on the Syntek infrastructure stack via
+  `SYNTEK_CALDAV` settings.

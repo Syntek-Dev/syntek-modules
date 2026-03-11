@@ -1,25 +1,29 @@
-# Sprint 42 — Mobile Design System (@syntek/mobile-ui)
+# Sprint 42 — Payments UI & Search UI
 
-**Sprint Goal**: Implement the NativeWind component library for React Native with iOS/Android
-adaptive components, covering all primitive and composite UI components for mobile.
+**Sprint Goal**: Implement the Stripe Elements payments UI package with checkout and subscription
+management, and the full site search UI package with hooks-first API, autocomplete, faceted
+filtering, configurable result renderer, and command palette.
 
-**Total Points**: 13 / 11 ⚠️ OVER CAPACITY **MoSCoW Balance**: Must 100% **Status**: Planned
+**Total Points**: 13 / 11 **MoSCoW Balance**: Must 38% / Should 62% **Status**: Planned ⚠️ Over
+Capacity
 
 ## Stories
 
-| Story                        | Title                                      | Points | MoSCoW | Dependencies Met |
-| ---------------------------- | ------------------------------------------ | ------ | ------ | ---------------- |
-| [US057](../STORIES/US057.md) | `@syntek/mobile-ui` — Mobile Design System | 13     | Must   | US003 ✓, US001 ✓ |
+| Story                        | Title                               | Points | MoSCoW | Dependencies Met          |
+| ---------------------------- | ----------------------------------- | ------ | ------ | ------------------------- |
+| [US052](../STORIES/US052.md) | `@syntek/ui-payments` — Payments UI | 5      | Must   | US042 ✓, US044 ✓, US025 ✓ |
+| [US053](../STORIES/US053.md) | `@syntek/ui-search` — Search UI     | 8      | Should | US042 ✓, US044 ✓, US022 ✓ |
 
 ## Notes
 
-- ⚠️ This story exceeds the 11-point sprint capacity. Consider splitting at sprint kick-off into:
-  - **mobile-ui-primitives** (~8pts): Button, Input, Text, View primitives, typography scale, colour
-    tokens, spacing
-  - **mobile-ui-composite** (~5pts): Modal, BottomSheet, ActionSheet, List, Card, Avatar, Badge,
-    Toast
-- **Parallel opportunity**: This sprint can start from Sprint 3 onwards — it only requires US001 and
-  US003 (completed Sprint 2). Mobile work runs entirely in parallel with backend and web streams.
-- All components must respect iOS and Android platform conventions — no forced cross-platform
-  uniformity where it harms UX.
-- Design tokens must map to the same token names as `@syntek/ui` where possible for consistency.
+- US052 and US053 are fully independent of each other and can be worked in parallel — assign one per
+  developer.
+- US052 card input must use Stripe Elements — card numbers must never touch the application's own
+  DOM or network.
+- US053 search must debounce user input and show a loading skeleton during queries — never blank out
+  results between keystrokes.
+- US053 `useSearch` hook must be fully usable headlessly — consuming projects may bypass all
+  provided components and render results in their own UI.
+- Sprint exceeds capacity at 13pts due to US053 expanding to a hooks-first API with provider
+  context, command palette, and configurable result renderer. Both stories are independent and
+  parallelisable; no over-capacity risk if staffed as two concurrent tracks.

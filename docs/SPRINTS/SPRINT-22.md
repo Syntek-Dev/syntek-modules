@@ -1,19 +1,26 @@
-# Sprint 22 — Invoicing
+# Sprint 22 — File Storage
 
-**Sprint Goal**: Implement PDF invoice generation with UK VAT support, Making Tax Digital (MTD)
-compliance, and automated invoice delivery via the notifications module.
+**Sprint Goal**: Implement MinIO-backed file storage with document metadata in PostgreSQL, presigned
+URL generation with permission gating, file versioning and history, SHA-256 checksum validation, and
+retention-based expiry.
 
-**Total Points**: 8 / 11 **MoSCoW Balance**: Must 100% **Status**: Planned
+**Total Points**: 13 / 11 ⚠️ OVER CAPACITY **MoSCoW Balance**: Must 100% **Status**: Planned
 
 ## Stories
 
-| Story                        | Title                                | Points | MoSCoW | Dependencies Met |
-| ---------------------------- | ------------------------------------ | ------ | ------ | ---------------- |
-| [US026](../STORIES/US026.md) | `syntek-invoicing` — Invoicing & VAT | 8      | Must   | US010 ✓, US025 ✓ |
+| Story                        | Title                                                     | Points | MoSCoW | Dependencies Met          |
+| ---------------------------- | --------------------------------------------------------- | ------ | ------ | ------------------------- |
+| [US031](../STORIES/US031.md) | `syntek-files` — MinIO File Storage & Document Management | 13     | Must   | US010 ✓, US011 ✓, US015 ✓ |
 
 ## Notes
 
-- Depends on US025 (payments) for payment reference linking.
-- UK VAT rates and MTD submission formats must be configurable via `SYNTEK_INVOICING` settings.
-- Invoice PDFs must be stored via US031 (documents/MinIO) — not on the filesystem.
-- Invoice emails must dispatch via US019 (notifications).
+- US031 is a single cohesive story — the MinIO client, versioning model, permission gate, presigned
+  URL generation, and retention task are tightly coupled and cannot be split cleanly.
+- MinIO credentials must always come from environment variables via `SYNTEK_FILES` settings — never
+  hardcoded.
+- Presigned URLs must use short TTLs (default 15 minutes / 900 seconds). `DOWNLOAD_URL_TTL` is
+  configurable per consuming project.
+- Both modules must enforce tenant-scoped access — a tenant cannot access another tenant's files.
+- Checksums (SHA-256) are computed on upload and verified on download — do not skip for large files.
+- If `syntek-tasks` (US015) is not installed, the retention expiry Celery task is silently skipped
+  with a startup warning.

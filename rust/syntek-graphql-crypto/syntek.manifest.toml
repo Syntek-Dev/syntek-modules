@@ -1,0 +1,52 @@
+# syntek.manifest.toml — syntek-graphql-crypto
+#
+# Crate ID and Forgejo registry coordinates.
+# No user-configurable options — the Rust encryption layer is fixed by Syntek
+# security policy. The `syntek add` CLI reads this file, pins the version in
+# the consumer's Cargo.toml, and prints the post-install steps below.
+
+id      = "syntek-graphql-crypto"
+version = "0.14.0"
+kind    = "rust-crate"
+
+# ---------------------------------------------------------------------------
+# Post-install steps
+#
+# Shown to the developer after `syntek add syntek-graphql-crypto` completes.
+# The Python middleware package must be installed into the consumer's
+# environment alongside the Rust crate.
+# ---------------------------------------------------------------------------
+
+[[post_install_steps]]
+label   = "Install the Python middleware package (uv preferred; pip fallback)"
+snippet = "uv pip install syntek-graphql-crypto 2>/dev/null || pip install syntek-graphql-crypto"
+lang    = "bash"
+
+[[post_install_steps]]
+label   = "Add EncryptionMiddleware to your Strawberry schema extensions"
+snippet = """
+from syntek_graphql_crypto.middleware import EncryptionMiddleware
+
+schema = strawberry.Schema(
+    query=Query,
+    mutation=Mutation,
+    extensions=[EncryptionMiddleware],
+)"""
+lang    = "python"
+
+[[post_install_steps]]
+label   = "Annotate encrypted fields with @encrypted or @encrypted(batch: ...)"
+snippet = """
+from syntek_graphql_crypto.directives import Encrypted
+
+@strawberry.type
+class UserType:
+    email: str | None = strawberry.field(directives=[Encrypted()])
+    first_name: str | None = strawberry.field(directives=[Encrypted(batch="profile")])
+    last_name: str | None = strawberry.field(directives=[Encrypted(batch="profile")])"""
+lang    = "python"
+
+[[post_install_steps]]
+label   = "Set per-field encryption keys in your environment (one per encrypted column)"
+snippet = "SYNTEK_FIELD_KEY_<MODEL>_<FIELD>=<base64-encoded-32-byte-key>  # e.g. SYNTEK_FIELD_KEY_USER_EMAIL"
+lang    = "bash"

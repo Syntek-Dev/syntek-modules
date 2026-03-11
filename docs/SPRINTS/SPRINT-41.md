@@ -1,21 +1,20 @@
-# Sprint 41 — Scheduling UI
+# Sprint 41 — Data Table & Notifications UI
 
-**Sprint Goal**: Implement the calendar views, availability grid, and booking form UI for the
-scheduling module.
+**Sprint Goal**: Implement the sortable, filterable, paginated data table package and the
+notification bell, feed, and WebSocket update UI package.
 
-**Total Points**: 5 / 11 **MoSCoW Balance**: Should 100% **Status**: Planned
+**Total Points**: 10 / 11 **MoSCoW Balance**: Must 60% / Should 40% **Status**: Planned
 
 ## Stories
 
-| Story                        | Title                                   | Points | MoSCoW | Dependencies Met          |
-| ---------------------------- | --------------------------------------- | ------ | ------ | ------------------------- |
-| [US072](../STORIES/US072.md) | `@syntek/ui-scheduling` — Scheduling UI | 5      | Should | US042 ✓, US044 ✓, US064 ✓ |
+| Story                        | Title                                         | Points | MoSCoW | Dependencies Met          |
+| ---------------------------- | --------------------------------------------- | ------ | ------ | ------------------------- |
+| [US050](../STORIES/US050.md) | `@syntek/data-table` — Data Table             | 5      | Must   | US042 ✓, US045 ✓          |
+| [US051](../STORIES/US051.md) | `@syntek/ui-notifications` — Notifications UI | 5      | Should | US042 ✓, US044 ✓, US019 ✓ |
 
 ## Notes
 
-- This sprint is intentionally light — US072 cannot be combined with adjacent stories without
-  exceeding capacity.
-- **Parallel opportunity**: Mobile stream (Sprints 42–45) can begin concurrently with this sprint.
-- Calendar views must be fully keyboard-navigable — date navigation must work without a mouse.
-- Availability slots must poll or subscribe (WebSocket) for real-time updates — booking races must
-  be handled gracefully.
+- US050 and US051 are independent of each other and can be worked in parallel.
+- US050 table must virtualise rows for large datasets — no DOM rendering of thousands of rows.
+- US051 WebSocket connection must reconnect automatically on drop — the user must never lose live
+  notification updates silently.

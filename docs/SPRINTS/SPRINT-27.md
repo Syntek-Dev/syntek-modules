@@ -1,21 +1,19 @@
-# Sprint 27 — Accounting
+# Sprint 27 — Invoicing
 
-**Sprint Goal**: Implement double-entry accounting with VAT calculation, and optional
-Xero/Sage/QuickBooks Online export integration.
+**Sprint Goal**: Implement PDF invoice generation with UK VAT support, Making Tax Digital (MTD)
+compliance, and automated invoice delivery via the notifications module.
 
-**Total Points**: 8 / 11 **MoSCoW Balance**: Should 100% **Status**: Planned
+**Total Points**: 8 / 11 **MoSCoW Balance**: Must 100% **Status**: Planned
 
 ## Stories
 
-| Story                        | Title                                  | Points | MoSCoW | Dependencies Met          |
-| ---------------------------- | -------------------------------------- | ------ | ------ | ------------------------- |
-| [US037](../STORIES/US037.md) | `syntek-accounting` — Accounting & VAT | 8      | Should | US010 ✓, US025 ✓, US026 ✓ |
+| Story                        | Title                                | Points | MoSCoW | Dependencies Met |
+| ---------------------------- | ------------------------------------ | ------ | ------ | ---------------- |
+| [US026](../STORIES/US026.md) | `syntek-invoicing` — Invoicing & VAT | 8      | Must   | US010 ✓, US025 ✓ |
 
 ## Notes
 
-- Depends on US025 (payments) and US026 (invoicing) for transaction source data.
-- Double-entry journal entries must be immutable after posting — corrections via reversal entries
-  only.
-- Third-party accounting system credentials (Xero, Sage, QBO) must come from `SYNTEK_ACCOUNTING`
-  settings.
-- VAT rates must be configurable per tenant — UK standard 20% is the default.
+- Depends on US025 (payments) for payment reference linking.
+- UK VAT rates and MTD submission formats must be configurable via `SYNTEK_INVOICING` settings.
+- Invoice PDFs must be stored via US031 (documents/MinIO) — not on the filesystem.
+- Invoice emails must dispatch via US019 (notifications).

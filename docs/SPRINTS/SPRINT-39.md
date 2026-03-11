@@ -1,20 +1,20 @@
-# Sprint 39 — Onboarding UI & Donations UI
+# Sprint 39 — Layout Shell & GDPR UI
 
-**Sprint Goal**: Implement the multi-step onboarding wizard with resumable state, and the donation
-form UI with Gift Aid capture and campaign progress display.
+**Sprint Goal**: Implement the application layout shell package (sidebar, top nav, breadcrumbs,
+command palette) and the GDPR/cookie consent UI package.
 
-**Total Points**: 10 / 11 **MoSCoW Balance**: Should 80% / Could 20% **Status**: Planned
+**Total Points**: 10 / 11 **MoSCoW Balance**: Must 100% **Status**: Planned
 
 ## Stories
 
-| Story                        | Title                                          | Points | MoSCoW | Dependencies Met                   |
-| ---------------------------- | ---------------------------------------------- | ------ | ------ | ---------------------------------- |
-| [US056](../STORIES/US056.md) | `@syntek/ui-onboarding` — Onboarding Wizard UI | 5      | Should | US042 ✓, US046 ✓                   |
-| [US068](../STORIES/US068.md) | `@syntek/ui-donations` — Donations UI          | 5      | Should | US042 ✓, US044 ✓, US027 ✓, US052 ✓ |
+| Story                        | Title                                           | Points | MoSCoW | Dependencies Met          |
+| ---------------------------- | ----------------------------------------------- | ------ | ------ | ------------------------- |
+| [US047](../STORIES/US047.md) | `@syntek/layout` — Application Layout Shell     | 5      | Must   | US042 ✓, US044 ✓          |
+| [US049](../STORIES/US049.md) | `@syntek/ui-gdpr` — Cookie Consent & Privacy UI | 5      | Must   | US042 ✓, US044 ✓, US029 ✓ |
 
 ## Notes
 
-- US056 and US068 are independent of each other and can be worked in parallel.
-- US056 wizard state must be resumable — progress must persist across page reloads and sessions.
-- US068 Gift Aid checkbox must display the full HMRC-required declaration text — this is a legal
-  requirement.
+- US047 and US049 are independent of each other and can be worked in parallel.
+- US047 the command palette must be keyboard-navigable and screen-reader accessible.
+- US049 consent choices must be persisted and synced to the backend US029 (GDPR) module — not just
+  stored in localStorage.

@@ -1,19 +1,21 @@
-# Sprint 35 — Authentication UI
+# Sprint 35 — Inventory & Feedback
 
-**Sprint Goal**: Implement the web authentication UI package covering login, registration, MFA
-flows, OAuth social login buttons, and passkey prompts.
+**Sprint Goal**: Implement the inventory management module with stock levels, movements, and
+multi-location reservations; and the feedback module with surveys, NPS scoring, and conditional
+question logic.
 
-**Total Points**: 8 / 11 **MoSCoW Balance**: Must 100% **Status**: Planned
+**Total Points**: 10 / 11 **MoSCoW Balance**: Should 100% **Status**: Planned
 
 ## Stories
 
-| Story                        | Title                                 | Points | MoSCoW | Dependencies Met          |
-| ---------------------------- | ------------------------------------- | ------ | ------ | ------------------------- |
-| [US048](../STORIES/US048.md) | `@syntek/ui-auth` — Authentication UI | 8      | Must   | US042 ✓, US044 ✓, US009 ✓ |
+| Story                        | Title                                     | Points | MoSCoW | Dependencies Met          |
+| ---------------------------- | ----------------------------------------- | ------ | ------ | ------------------------- |
+| [US066](../STORIES/US066.md) | `syntek-inventory` — Inventory Management | 5      | Should | US010 ✓, US019 ✓          |
+| [US067](../STORIES/US067.md) | `syntek-feedback` — Surveys & Feedback    | 5      | Should | US010 ✓, US023 ✓, US029 ✓ |
 
 ## Notes
 
-- All auth UI components must be accessible and keyboard-navigable (WCAG 2.2 AA).
-- OAuth social login buttons must be icon-slot driven — Font Awesome Pro brand icons recommended.
-- MFA input must accept both TOTP codes and backup codes with clear visual distinction.
-- Passkey UI must gracefully degrade on browsers that do not support WebAuthn.
+- US066 and US067 are independent of each other and can be worked in parallel.
+- US066 stock movement records must be immutable — corrections via counter-movement entries only.
+- US067 survey response data is personal data — GDPR retention rules from US029 must apply.
+- US067 depends on US023 (dynamic forms) for conditional question logic implementation.

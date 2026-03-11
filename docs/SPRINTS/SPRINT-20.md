@@ -1,19 +1,22 @@
-# Sprint 20 — Full-Text Search
+# Sprint 20 — GDPR Compliance & Locations
 
-**Sprint Goal**: Implement Elasticsearch/OpenSearch full-text search with facets, fuzzy matching,
-index management, and per-tenant index isolation.
+**Sprint Goal**: Implement the GDPR/compliance module covering Subject Access Requests,
+right-to-erasure, consent tracking, and retention policies; and the locations module for
+multi-location management with geospatial queries.
 
-**Total Points**: 8 / 11 **MoSCoW Balance**: Must 100% **Status**: Planned
+**Total Points**: 11 / 11 **MoSCoW Balance**: Must 73% / Could 27% **Status**: Planned
 
 ## Stories
 
-| Story                        | Title                              | Points | MoSCoW | Dependencies Met |
-| ---------------------------- | ---------------------------------- | ------ | ------ | ---------------- |
-| [US022](../STORIES/US022.md) | `syntek-search` — Full-Text Search | 8      | Must   | US010 ✓, US011 ✓ |
+| Story                        | Title                                    | Points | MoSCoW | Dependencies Met          |
+| ---------------------------- | ---------------------------------------- | ------ | ------ | ------------------------- |
+| [US029](../STORIES/US029.md) | `syntek-gdpr` — GDPR & Compliance        | 8      | Must   | US009 ✓, US010 ✓, US013 ✓ |
+| [US065](../STORIES/US065.md) | `syntek-locations` — Location Management | 3      | Could  | US010 ✓, US036 ✓          |
 
 ## Notes
 
-- Search indices must be tenant-scoped — queries must never return results from another tenant's
-  index.
-- Index updates must be async via Celery (US015) to avoid blocking write operations.
-- Connection configuration for Elasticsearch/OpenSearch must come from `SYNTEK_SEARCH` settings.
+- US029 and US065 are independent of each other and can be worked in parallel.
+- US029 erasure workflows must cascade through all modules that store personal data — document the
+  integration points clearly.
+- US065 depends on US036 (geo) for geocoding; ensure US036 completes in Sprint 14 before starting
+  US065.

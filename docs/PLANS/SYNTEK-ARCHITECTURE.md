@@ -25,6 +25,7 @@ repo.
    - [syntek-premium](#syntek-premium)
    - [syntek-store](#syntek-store)
    - [syntek-marketplace](#syntek-marketplace)
+   - [syntek-cli](#syntek-cli)
 4. [AI Products](#ai-products)
 5. [Data Flow & Integration Map](#data-flow--integration-map)
 6. [Licensing & Access Model](#licensing--access-model)
@@ -53,6 +54,9 @@ repo.
 - **Self-hosting is a first-class concern.** Developers can run the entire stack on their own
   infrastructure without any dependency on Syntek's Hetzner server. Syntek's server is for Syntek's
   own managed clients only.
+- **One install CLI, all products.** `syntek-cli` is the single entry point for installing any
+  Syntek package — modules, extensions, templates, store packages. `syntek-infrastructure` is the
+  only product outside its scope; it is Syntek-internal and managed via NixOS tooling only.
 - **Community revenue sharing.** Third-party developers can publish modules, templates, and
   extensions to the Syntek Store and receive the full sale price minus payment processing fees.
   Syntek does not take a platform cut.
@@ -82,7 +86,10 @@ Syntek Organisation
 │
 ├── syntek-docs               # All documentation for the ecosystem
 │
-└── syntek-marketplace        # Internal: Claude Code plugins for Syntek development workflow
+├── syntek-marketplace        # Internal: Claude Code plugins for Syntek development workflow
+│
+└── syntek-cli                # Consumer install CLI — `syntek add/remove/update/license`
+                              # NOT for syntek-infrastructure (Syntek-internal only)
 ```
 
 ---
@@ -167,6 +174,11 @@ products.
   commercial and proprietary ones
 - **Licensed packages:** Require a valid developer license key verified against `syntek-licensing`;
   Syntek clients get access automatically as part of their managed package
+
+**`syntek-manifest` library:** This repo contains the `syntek-manifest` Rust crate — a shared
+manifest parser used by `syntek-cli` to read and validate every `syntek.manifest.toml` file.
+`syntek-manifest` is published to the Forgejo Cargo registry and consumed as a dependency by
+`syntek-cli`. Each package in this repo ships a `syntek.manifest.toml` alongside its source.
 
 **Depends on:** `syntek-licensing` (for licensed package verification only)
 
@@ -658,6 +670,67 @@ Syntek development team to accelerate work across all repositories.
 
 ---
 
+### syntek-cli
+
+**Purpose:** The unified consumer-facing CLI for installing, removing, and managing all Syntek
+packages. Produces a single `syntek` binary that any developer installs once and uses across every
+project they build on the Syntek ecosystem.
+
+**`syntek-infrastructure` is explicitly excluded.** Infrastructure management is Syntek-internal
+only and is handled via the NixOS tooling in that repo. `syntek-cli` covers every other product in
+the ecosystem.
+
+**Commands:**
+
+```bash
+# Package management
+syntek add syntek-auth              # install a free backend module
+syntek add syntek-extension-payments # install a paid extension (validates licence)
+syntek add @syntek/ui-auth          # install a free web package
+syntek add syntek-pyo3              # install a Rust/PyO3 crate (pins version, runs maturin)
+syntek add my-store-plugin          # install a third-party store package (validates licence)
+syntek remove syntek-auth
+syntek update                       # update all installed packages to latest compatible versions
+syntek list                         # show installed packages and their versions
+
+# Authentication
+syntek auth login                   # authenticate with the Forgejo registry
+syntek auth logout
+
+# Licence management
+syntek license activate <key>       # activate a commercial licence key
+syntek license status               # show all active licences and expiry dates
+```
+
+**What it does per package kind (read from `syntek.manifest.toml`):**
+
+| Kind         | Actions performed                                                                                                         |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| `backend`    | `uv add` from Forgejo PyPI; appends `INSTALLED_APPS`; writes `SYNTEK_*` block to `settings.py`; prints post-install steps |
+| `frontend`   | `pnpm add` from Forgejo npm; wraps entry point with declared providers                                                    |
+| `mobile`     | `pnpm add` from Forgejo npm; wraps entry point with declared providers                                                    |
+| `rust-crate` | `cargo add` from Forgejo Cargo; runs `maturin build --release`; installs wheel via `uv pip install` (pip fallback)        |
+
+**Licence validation flow:**
+
+When `syntek add` is called for a paid package, the CLI calls `syntek-licensing`'s validation API
+with the developer's stored licence key before downloading anything. If validation fails the install
+is aborted immediately with a clear error. Free packages skip this step entirely.
+
+**Works standalone or as a called subprocess.** `syntek-platform`'s `syntek create` scaffolder
+invokes `syntek add` internally when a developer selects modules during project creation. Any
+developer can also run `syntek add` directly in an existing project without the platform scaffolder.
+
+**Parser engine:** Uses `syntek-manifest` (a library crate published from `syntek-modules`) to parse
+and validate `syntek.manifest.toml` files fetched from the Forgejo registry.
+
+**Stack:** Rust (single statically-linked binary, no runtime dependencies)
+
+**Depends on:** `syntek-manifest` (manifest parsing, published crate from `syntek-modules`),
+`syntek-licensing` (licence key validation for paid packages)
+
+---
+
 ## AI Products
 
 Syntek's AI capability surfaces in two distinct products, both powered by the same three-layer
@@ -730,22 +803,24 @@ Full architecture and implementation detail: `docs/PLANS/PLAN-SYNTEK-AI-AND-MULT
          │ hook system
          ▼
 ┌──────────────────┐       ┌──────────────────┐
-│ syntek-extensions│──────►│ syntek-licensing  │
-│ + syntek-store   │       │ (entitlement API) │
-│ (third-party)    │       │ ← Rust key server │
-└────────┬─────────┘       │   in infra        │
-         │ uses            └──────────────────┘
-         ▼
-┌──────────────────┐       ┌──────────────────┐
-│   syntek-ai      │       │  syntek-store    │
-│ (prompts, tasks, │       │  (marketplace)   │
-│  rules — YAML/MD)│       └──────────────────┘
-└────────┬─────────┘
-         │ loaded by platform AI module
-         ▼
-┌──────────────────────────────────────────┐
-│         syntek-infrastructure            │
-│   (NixOS / Hetzner — Syntek clients)    │
+│ syntek-extensions│──────►│ syntek-licensing  │◄──────────────────┐
+│ + syntek-store   │       │ (entitlement API) │                   │
+│ (third-party)    │       │ ← Rust key server │                   │
+└────────┬─────────┘       │   in infra        │                   │
+         │ uses            └──────────────────┘                   │
+         ▼                                                         │ licence validation
+┌──────────────────┐       ┌──────────────────┐   ┌──────────────────────────┐
+│   syntek-ai      │       │  syntek-store    │   │       syntek-cli          │
+│ (prompts, tasks, │       │  (marketplace)   │   │  `syntek add/remove/...`  │
+│  rules — YAML/MD)│       └──────────────────┘   │                          │
+└────────┬─────────┘                               │  installs into any       │
+         │ loaded by platform AI module            │  consumer project:       │
+         ▼                                         │  backend · web · mobile  │
+┌──────────────────────────────────────────┐       │  · rust-crate packages   │
+│         syntek-infrastructure            │       │                          │
+│   (NixOS / Hetzner — Syntek clients)    │       │  NOT for syntek-infra    │
+│   ⚠ Syntek-internal only — not          │       │  (Syntek-internal only)  │
+│     accessible via syntek-cli           │       └──────────────────────────┘
 │                                          │
 │  rust-tools/ai-gateway/    (LLM routing) │
 │  rust-tools/license-server/ (key crypto) │
@@ -849,7 +924,8 @@ shared hosting platform for platform developers.
 | Mobile                                    | React Native 0.84.x (Expo), NativeWind 4, TypeScript 5.9                                                                                                                                               |
 | Media (images, video)                     | Cloudinary — metadata in PostgreSQL, assets served via Cloudinary CDN                                                                                                                                  |
 | Documents (PDFs, office files)            | MinIO — presigned URLs; not used for images or static assets                                                                                                                                           |
-| Package distribution                      | PyPI (Python packages), npm (TypeScript/JS packages)                                                                                                                                                   |
+| Package distribution                      | Forgejo PyPI · Forgejo npm · Forgejo Cargo (all registries); installed via `syntek-cli` (`syntek add`) or manually with `uv`/`pnpm`/`cargo`                                                            |
+| Consumer install CLI                      | Rust (`syntek-cli` repo) — `syntek` binary; `syntek add/remove/update/list/license/auth`; not applicable to `syntek-infrastructure`                                                                    |
 | Payments                                  | Square (developer store + licensing renewal)                                                                                                                                                           |
 | Documentation                             | Markdown → Docusaurus static site                                                                                                                                                                      |
 | Secrets                                   | agenix (NixOS boot-time), OpenBao (runtime)                                                                                                                                                            |

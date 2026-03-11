@@ -1,23 +1,20 @@
-# Sprint 44 — Mobile Notifications & Media
+# Sprint 44 — Onboarding UI & Donations UI
 
-**Sprint Goal**: Implement the mobile push notifications package with FCM/APNs support and deep-link
-routing, and the mobile media package with camera, photo library access, and chunked upload.
+**Sprint Goal**: Implement the multi-step onboarding wizard with resumable state, and the donation
+form UI with Gift Aid capture and campaign progress display.
 
-**Total Points**: 8 / 11 **MoSCoW Balance**: Must 75% / Should 25% **Status**: Planned
+**Total Points**: 10 / 11 **MoSCoW Balance**: Should 80% / Could 20% **Status**: Planned
 
 ## Stories
 
-| Story                        | Title                                                 | Points | MoSCoW | Dependencies Met          |
-| ---------------------------- | ----------------------------------------------------- | ------ | ------ | ------------------------- |
-| [US059](../STORIES/US059.md) | `@syntek/mobile-notifications` — Mobile Notifications | 5      | Must   | US057 ✓, US019 ✓          |
-| [US073](../STORIES/US073.md) | `@syntek/mobile-media` — Mobile Media Capture         | 3      | Should | US057 ✓, US030 ✓, US044 ✓ |
+| Story                        | Title                                          | Points | MoSCoW | Dependencies Met                   |
+| ---------------------------- | ---------------------------------------------- | ------ | ------ | ---------------------------------- |
+| [US056](../STORIES/US056.md) | `@syntek/ui-onboarding` — Onboarding Wizard UI | 5      | Should | US042 ✓, US046 ✓                   |
+| [US068](../STORIES/US068.md) | `@syntek/ui-donations` — Donations UI          | 5      | Should | US042 ✓, US044 ✓, US027 ✓, US052 ✓ |
 
 ## Notes
 
-- US059 and US073 are independent of each other and can be worked in parallel.
-- US059 push token registration must handle token rotation — stale tokens must be automatically
-  refreshed.
-- US059 notification tap must deep-link to the correct in-app screen — generic "open app" is not
-  acceptable.
-- US073 chunked upload must resume after network interruption — never require a full re-upload on
-  failure.
+- US056 and US068 are independent of each other and can be worked in parallel.
+- US056 wizard state must be resumable — progress must persist across page reloads and sessions.
+- US068 Gift Aid checkbox must display the full HMRC-required declaration text — this is a legal
+  requirement.

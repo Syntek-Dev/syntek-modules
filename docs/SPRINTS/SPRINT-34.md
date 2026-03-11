@@ -1,20 +1,21 @@
-# Sprint 34 — Layout Shell & GDPR UI
+# Sprint 34 — Scheduling Backend
 
-**Sprint Goal**: Implement the application layout shell package (sidebar, top nav, breadcrumbs,
-command palette) and the GDPR/cookie consent UI package.
+**Sprint Goal**: Implement the appointment scheduling backend with availability management, atomic
+double-booking prevention, and calendar integration via the CalDav module.
 
-**Total Points**: 10 / 11 **MoSCoW Balance**: Must 100% **Status**: Planned
+**Total Points**: 8 / 11 **MoSCoW Balance**: Should 100% **Status**: Planned
 
 ## Stories
 
-| Story                        | Title                                           | Points | MoSCoW | Dependencies Met          |
-| ---------------------------- | ----------------------------------------------- | ------ | ------ | ------------------------- |
-| [US047](../STORIES/US047.md) | `@syntek/layout` — Application Layout Shell     | 5      | Must   | US042 ✓, US044 ✓          |
-| [US049](../STORIES/US049.md) | `@syntek/ui-gdpr` — Cookie Consent & Privacy UI | 5      | Must   | US042 ✓, US044 ✓, US029 ✓ |
+| Story                        | Title                                        | Points | MoSCoW | Dependencies Met                   |
+| ---------------------------- | -------------------------------------------- | ------ | ------ | ---------------------------------- |
+| [US064](../STORIES/US064.md) | `syntek-scheduling` — Appointment Scheduling | 8      | Should | US010 ✓, US015 ✓, US019 ✓, US033 ✓ |
 
 ## Notes
 
-- US047 and US049 are independent of each other and can be worked in parallel.
-- US047 the command palette must be keyboard-navigable and screen-reader accessible.
-- US049 consent choices must be persisted and synced to the backend US029 (GDPR) module — not just
-  stored in localStorage.
+- Booking slot reservation must use SELECT FOR UPDATE to prevent double-booking under concurrent
+  requests.
+- Appointment confirmations and reminders must dispatch via US019 (notifications).
+- Calendar sync must use US035 (CalDav) for Radicale integration.
+- Scheduling rules (buffer times, advance booking limits) must be configurable via
+  `SYNTEK_SCHEDULING` settings.
