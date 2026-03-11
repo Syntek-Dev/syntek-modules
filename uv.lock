@@ -5,6 +5,7 @@ requires-python = ">=3.14"
 [manifest]
 members = [
     "syntek-auth",
+    "syntek-graphql-crypto",
     "syntek-modules-workspace",
     "syntek-pyo3",
 ]
@@ -687,6 +688,30 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
     { name = "pytest-django", marker = "extra == 'dev'", specifier = ">=4.9" },
     { name = "strawberry-graphql", extras = ["django"], specifier = ">=0.307" },
+]
+provides-extras = ["dev"]
+
+[[package]]
+name = "syntek-graphql-crypto"
+version = "0.1.0"
+source = { editable = "packages/backend/syntek-graphql-crypto" }
+dependencies = [
+    { name = "django" },
+    { name = "strawberry-graphql" },
+]
+
+[package.optional-dependencies]
+dev = [
+    { name = "pytest" },
+    { name = "pytest-django" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "django", specifier = ">=6.0" },
+    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
+    { name = "pytest-django", marker = "extra == 'dev'", specifier = ">=4.9" },
+    { name = "strawberry-graphql", specifier = ">=0.307.1" },
 ]
 provides-extras = ["dev"]
 
