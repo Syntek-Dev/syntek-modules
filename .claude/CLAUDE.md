@@ -17,7 +17,7 @@
 - [Development Commands](#development-commands)
 - [Module Registry](#module-registry)
 - [Configuration Pattern](#configuration-pattern)
-- [Security Layer](#security-layer)
+- [Security Layer](#security-layer) — see also [Encryption Guide](.claude/ENCRYPTION-GUIDE.md)
 - [Versioning](#versioning)
 - [Ecosystem Context](#ecosystem-context)
 
@@ -30,11 +30,12 @@
 
 ## Reference Guides
 
-| Guide                                                        | Purpose                                                          |
-| ------------------------------------------------------------ | ---------------------------------------------------------------- |
-| [`.claude/CLI-TOOLING.md`](.claude/CLI-TOOLING.md)           | `syntek-dev` CLI — all commands, flags, and usage                |
-| [`.claude/GIT-GUIDE.md`](.claude/GIT-GUIDE.md)               | Git workflow — lint before commit, CI before push                |
-| [`.claude/VERSIONING-GUIDE.md`](.claude/VERSIONING-GUIDE.md) | Versioning rules — root files, per-module files, increment types |
+| Guide                                                        | Purpose                                                                            |
+| ------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| [`.claude/CLI-TOOLING.md`](.claude/CLI-TOOLING.md)           | `syntek-dev` CLI — all commands, flags, and usage                                  |
+| [`.claude/GIT-GUIDE.md`](.claude/GIT-GUIDE.md)               | Git workflow — lint before commit, CI before push                                  |
+| [`.claude/VERSIONING-GUIDE.md`](.claude/VERSIONING-GUIDE.md) | Versioning rules — root files, per-module files, increment types                   |
+| [`.claude/ENCRYPTION-GUIDE.md`](.claude/ENCRYPTION-GUIDE.md) | Encryption rules — EncryptedField, individual/batch, unique tokens, migration path |
 
 ---
 
@@ -493,6 +494,11 @@ SYNTEK_DOCUMENTS = {
 ---
 
 ## Security Layer
+
+> **IMPORTANT:** Always follow [`.claude/ENCRYPTION-GUIDE.md`](.claude/ENCRYPTION-GUIDE.md) when
+> adding encrypted fields, writing service-layer encrypt/decrypt calls, or designing unique
+> encrypted columns. The guide is authoritative — do not infer encryption behaviour from the code
+> alone.
 
 **Zero-plaintext guarantee:** Sensitive fields are encrypted by the Rust layer before any database
 write. The frontend never handles raw cryptographic operations.
