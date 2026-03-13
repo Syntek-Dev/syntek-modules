@@ -1,5 +1,37 @@
 # Releases
 
+## v0.16.1 — 13/03/2026
+
+**Branch**: `fix/us006/qa-report-11-03-2026`\
+**Type**: PATCH\
+**Story**: US006 — Syntek Crypto: QA Security Review Fixes
+
+### Highlights
+
+- **13 QA findings resolved in `syntek-crypto`** — all findings raised in the US006 security review
+  have been addressed. Fixes span critical, high, medium, and low severity categories.
+
+- **Critical fixes** — `decrypt_fields_batch` now enforces a key-length guard upfront before any
+  decryption attempt; `KeyRing::add` now rejects duplicate key versions rather than silently
+  replacing them, preventing accidental key state corruption.
+
+- **High fixes** — `reencrypt_to_active` now wraps the temporary plaintext buffer in
+  `Zeroizing<String>` so memory is wiped on drop; `hmac_sign` and `hmac_verify` both guard against
+  empty keys and now return `Result` rather than panicking; `verify_password` now passes explicit
+  Argon2 parameters rather than relying on defaults; `syntek.manifest.toml` created (was missing).
+
+- **Medium fixes** — `hmac_verify` now normalises hex to lowercase before comparison, eliminating
+  false negatives from mixed-case input; `deny.toml` `unmaintained` policy changed from `"all"` to
+  `"warn"` to unblock CI; `KeyRing` capacity field documented.
+
+- **Low fixes** — `CryptoError` now derives `PartialEq` for assertion-friendly tests;
+  `KeyVersion(0)` is now rejected as an invalid version number; `examples/.gitkeep` added.
+
+- **Bug report** — all 17 findings (13 code, 4 informational) consolidated in
+  `docs/BUGS/BUG-US006-SYNTEK-CRYPTO-13-03-2026.md`.
+
+---
+
 ## v0.16.0 — 13/03/2026
 
 **Branch**: `us009/syntek-auth`\

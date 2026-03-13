@@ -7,6 +7,36 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [0.16.1] — 13/03/2026
+
+### Fixed
+
+- **`rust/syntek-crypto/src/lib.rs`** — `decrypt_fields_batch` now validates key length upfront
+  before entering the decryption loop; `hmac_sign` now returns `Result<String, CryptoError>` with
+  an empty-key guard instead of panicking; `hmac_verify` guards against empty keys and normalises
+  hex to lowercase before comparison, eliminating false negatives from mixed-case input;
+  `verify_password` now passes explicit Argon2 parameters (`m=65536`, `t=3`, `p=4`) rather than
+  relying on potentially-changing defaults; `CryptoError` now derives `PartialEq` for
+  assertion-friendly tests; key-length doc comments added to public API.
+- **`rust/syntek-crypto/src/key_versioning.rs`** — `KeyRing::add` now rejects duplicate key
+  versions with `CryptoError::InvalidInput`; `KeyVersion(0)` is rejected as an invalid version
+  number; `reencrypt_to_active` now wraps the temporary plaintext buffer in `Zeroizing<String>` so
+  memory is zeroed on drop; capacity documentation added.
+- **`rust/syntek-crypto/tests/crypto_tests.rs`** — 8 `hmac_sign` call sites updated for the new
+  `Result` return type.
+- **`deny.toml`** — `unmaintained` policy changed from `"all"` to `"warn"` to unblock CI on
+  transitively unmaintained crates that are not direct security risks.
+
+### Added
+
+- **`rust/syntek-crypto/syntek.manifest.toml`** — Syntek manifest file created (was missing from
+  initial implementation).
+- **`rust/syntek-crypto/examples/.gitkeep`** — `examples/` directory placeholder added.
+- **`docs/BUGS/BUG-US006-SYNTEK-CRYPTO-13-03-2026.md`** — combined bug report covering all 17
+  findings (13 code fixes, 4 informational) from the US006 QA security review.
+
+---
+
 ## [0.16.0] — 13/03/2026
 
 ### Added
