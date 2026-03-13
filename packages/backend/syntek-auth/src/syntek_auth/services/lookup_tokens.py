@@ -1,9 +1,15 @@
-"""HMAC-SHA256 lookup token helpers for encrypted unique fields — syntek-auth.
+"""HMAC-SHA256 lookup token helpers for encrypted fields — syntek-auth.
 
 Encrypted fields use non-deterministic AES-256-GCM, so the ciphertext itself
 cannot carry a DB UNIQUE constraint.  Instead, a deterministic HMAC-SHA256
-token of the normalised plaintext is stored in a companion ``*_token`` column
-that holds the uniqueness constraint.
+token of the normalised plaintext is stored in a companion ``*_token`` column.
+
+Token columns serve two purposes:
+
+1. **Uniqueness** — the token holds the UNIQUE constraint that the ciphertext
+   cannot (e.g. ``email_token``, ``totp_secret_token``).
+2. **Lookups** — ``filter(email_token=make_email_token(x))`` finds a user
+   without decrypting every row.
 
 Write path:
     service layer  →  ``encrypt_field(plaintext)``  →  save ciphertext
@@ -151,6 +157,30 @@ def make_provider_token(provider: str) -> str:
         A 64-character hex string (SHA-256 digest).
     """
     normalised = provider.strip().lower()
+    return _hmac.new(
+        _hmac_key(), normalised.encode("utf-8"), hashlib.sha256
+    ).hexdigest()
+
+
+def make_totp_secret_token(secret: str) -> str:
+    """Return the HMAC-SHA256 integrity token for a TOTP secret.
+
+    Used to enforce uniqueness (no two users may share the same TOTP seed)
+    without exposing the plaintext secret, which is stored encrypted.
+    TOTP secrets are base32-encoded uppercase strings; only surrounding
+    whitespace is stripped before hashing.
+
+    Parameters
+    ----------
+    secret:
+        The plaintext base32-encoded TOTP secret.
+
+    Returns
+    -------
+    str
+        A 64-character hex string (SHA-256 digest).
+    """
+    normalised = secret.strip()
     return _hmac.new(
         _hmac_key(), normalised.encode("utf-8"), hashlib.sha256
     ).hexdigest()

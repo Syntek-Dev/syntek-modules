@@ -411,7 +411,9 @@ def _fetch_jwks(jwks_uri: str) -> dict[str, Any]:
         raise ValueError(f"Failed to fetch JWKS from {jwks_uri!r}: {exc}") from exc
 
 
-def _find_jwk(jwks: dict[str, Any], kid: str | None) -> dict[str, Any]:
+def _find_jwk(
+    jwks: dict[str, Any], kid: str | None, kty: str = "RSA"
+) -> dict[str, Any]:
     """Find the matching JWK from the key set.
 
     Parameters
@@ -419,7 +421,10 @@ def _find_jwk(jwks: dict[str, Any], kid: str | None) -> dict[str, Any]:
     jwks:
         The JWKS document.
     kid:
-        The Key ID to match.  When ``None`` the first RSA key is returned.
+        The Key ID to match.  When ``None`` the first key of ``kty`` is returned.
+    kty:
+        The key type to fall back to when no ``kid`` match is found
+        (``'RSA'`` for RS256, ``'EC'`` for ES256).
 
     Returns
     -------
@@ -437,12 +442,12 @@ def _find_jwk(jwks: dict[str, Any], kid: str | None) -> dict[str, Any]:
             if key.get("kid") == kid:
                 return key
 
-    # Fall back to first RSA key.
+    # Fall back to first key of the expected type.
     for key in keys:
-        if key.get("kty") == "RSA":
+        if key.get("kty") == kty:
             return key
 
-    raise ValueError(f"No suitable JWK found (kid={kid!r}).")
+    raise ValueError(f"No suitable JWK found (kid={kid!r}, kty={kty!r}).")
 
 
 def _verify_rs256(token: str, jwks_uri: str) -> dict[str, Any]:
@@ -493,7 +498,7 @@ def _verify_rs256(token: str, jwks_uri: str) -> dict[str, Any]:
     sig_bytes = _b64url_decode(parts[2])
 
     jwks = _fetch_jwks(jwks_uri)
-    jwk = _find_jwk(jwks, kid)
+    jwk = _find_jwk(jwks, kid, kty="RSA")
 
     def _b64url_to_int(s: str) -> int:
         return int.from_bytes(_b64url_decode(s), "big")
@@ -509,6 +514,79 @@ def _verify_rs256(token: str, jwks_uri: str) -> dict[str, Any]:
         public_key.verify(sig_bytes, signing_input_bytes, PKCS1v15(), SHA256())
     except InvalidSignature as exc:
         raise ValueError("RS256 signature verification failed.") from exc
+
+    exp = payload.get("exp")
+    if exp is not None and time.time() > exp:
+        raise ValueError("JWT has expired.")
+
+    return payload
+
+
+def _verify_es256(token: str, jwks_uri: str) -> dict[str, Any]:
+    """Verify an ES256-signed JWT using the provider's JWKS.
+
+    Used for providers that sign ID tokens with ECDSA P-256 (e.g. Apple
+    Sign In).  Requires ``cryptography>=42``.
+
+    Parameters
+    ----------
+    token:
+        The compact JWT string.
+    jwks_uri:
+        The provider's JWKS URI.
+
+    Returns
+    -------
+    dict
+        The verified payload.
+
+    Raises
+    ------
+    ValueError
+        On signature failure, expiry, or missing ``cryptography`` library.
+    """
+    try:
+        from cryptography.exceptions import (  # type: ignore[import-not-found]
+            InvalidSignature,
+        )
+        from cryptography.hazmat.primitives.asymmetric.ec import (  # type: ignore[import-not-found]
+            ECDSA,
+            SECP256R1,
+            EllipticCurvePublicNumbers,
+        )
+        from cryptography.hazmat.primitives.hashes import (  # type: ignore[import-not-found]
+            SHA256,
+        )
+    except ImportError as exc:
+        raise ValueError(
+            "ES256 ID token validation requires the 'cryptography' package. "
+            "Install it with: uv add cryptography"
+        ) from exc
+
+    header, payload, signing_input = _decode_jwt_unverified(token)
+    kid = header.get("kid")
+
+    parts = token.split(".")
+    sig_bytes = _b64url_decode(parts[2])
+
+    jwks = _fetch_jwks(jwks_uri)
+    jwk = _find_jwk(jwks, kid, kty="EC")
+
+    def _b64url_to_int(s: str) -> int:
+        return int.from_bytes(_b64url_decode(s), "big")
+
+    public_numbers = EllipticCurvePublicNumbers(
+        x=_b64url_to_int(jwk["x"]),
+        y=_b64url_to_int(jwk["y"]),
+        curve=SECP256R1(),
+    )
+    public_key = public_numbers.public_key()
+
+    signing_input_bytes = signing_input.encode("ascii")
+    try:
+        public_key.verify(sig_bytes, signing_input_bytes, ECDSA(SHA256()))
+    except InvalidSignature as exc:
+        raise ValueError("ES256 signature verification failed.") from exc
 
     exp = payload.get("exp")
     if exp is not None and time.time() > exp:
@@ -564,11 +642,17 @@ def validate_id_token(
 
     if alg == "RS256":
         payload = _verify_rs256(id_token, jwks_uri)
+    elif alg == "ES256":
+        payload = _verify_es256(id_token, jwks_uri)
     elif alg == "HS256":
-        # HS256 tokens are only expected in tests; production providers use RS256.
-        raise ValueError("HS256 ID tokens are not accepted — providers must use RS256.")
+        # HS256 is rejected — production providers must use RS256 or ES256.
+        raise ValueError(
+            "HS256 ID tokens are not accepted — providers must use RS256 or ES256."
+        )
     else:
-        raise ValueError(f"Unsupported JWT algorithm: {alg!r}. Only RS256 is accepted.")
+        raise ValueError(
+            f"Unsupported JWT algorithm: {alg!r}. Only RS256 and ES256 are accepted."
+        )
 
     # Validate issuer.
     if payload.get("iss") != expected_issuer:

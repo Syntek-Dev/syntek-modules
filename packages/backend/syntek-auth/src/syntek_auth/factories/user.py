@@ -60,6 +60,7 @@ class UserFactory(factory.django.DjangoModelFactory):
 
     class Meta:  # pyright: ignore[reportIncompatibleVariableOverride]
         model = get_user_model()
+        skip_postgeneration_save = True
 
     email: factory.LazyAttribute = factory.Sequence(  # type: ignore[assignment]
         lambda n: f"user{n}@example.com"
@@ -102,7 +103,7 @@ class UserFactory(factory.django.DjangoModelFactory):
     @factory.post_generation  # type: ignore[misc]
     def password(
         self: object,  # type: ignore[misc]
-        create: bool,  # noqa: ARG002
+        create: bool,
         extracted: str | None,
         **kwargs: object,  # noqa: ARG002
     ) -> None:
@@ -110,7 +111,13 @@ class UserFactory(factory.django.DjangoModelFactory):
 
         When ``extracted`` is provided it is used as the plaintext password.
         Otherwise ``"testpassword123"`` is used as the default.
+
+        Explicitly saves the instance when ``create=True`` because
+        ``skip_postgeneration_save = True`` suppresses the automatic re-save
+        that factory_boy used to perform after post-generation hooks.
         """
         if isinstance(self, AbstractBaseUser):
             password_value = extracted if extracted is not None else "testpassword123"
             self.set_password(password_value)  # type: ignore[union-attr]
+            if create:
+                self.save(update_fields=["password"])  # type: ignore[union-attr]

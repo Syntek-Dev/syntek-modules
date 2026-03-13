@@ -337,6 +337,32 @@ class AbstractSyntekUser(AbstractBaseUser, PermissionsMixin):
     )
 
     # ------------------------------------------------------------------
+    # MFA
+    # ------------------------------------------------------------------
+
+    totp_secret: EncryptedField = EncryptedField(
+        blank=True,
+        null=True,
+        verbose_name="TOTP secret",
+        help_text=(
+            "AES-256-GCM encrypted base32-encoded TOTP secret for RFC 6238 "
+            "authenticator apps.  Null until the user enables TOTP."
+        ),
+    )
+    totp_secret_token = models.CharField(
+        max_length=64,
+        unique=True,
+        null=True,
+        blank=True,
+        db_index=True,
+        verbose_name="TOTP secret token",
+        help_text=(
+            "HMAC-SHA256 of the plaintext TOTP secret.  Enforces uniqueness "
+            "across users — no two accounts may share the same TOTP seed."
+        ),
+    )
+
+    # ------------------------------------------------------------------
     # Status flags
     # ------------------------------------------------------------------
 

@@ -106,9 +106,29 @@ class MfaMutations:
         user_id: int = user.pk
 
         # Try TOTP first when a secret is stored on the model.
-        totp_secret: str | None = getattr(user, "totp_secret", None)
-        if totp_secret and verify_totp_code(totp_secret, input.code):
-            return True
+        stored_secret: str | None = user.totp_secret  # type: ignore[attr-defined]
+        if stored_secret:
+            # Decrypt the stored ciphertext; fall back to treating the value as
+            # plaintext when syntek_pyo3 is not compiled (dev / CI).
+            plaintext_secret: str = stored_secret
+            try:
+                from django.conf import settings as _settings
+                from syntek_pyo3 import decrypt_field  # type: ignore[import-not-found]
+
+                _cfg: dict = getattr(_settings, "SYNTEK_AUTH", {})  # type: ignore[type-arg]
+                _raw_key = _cfg.get("FIELD_KEY", "")
+                _field_key: bytes = (
+                    _raw_key.encode("utf-8")
+                    if isinstance(_raw_key, str)
+                    else bytes(_raw_key)
+                )
+                plaintext_secret = decrypt_field(
+                    stored_secret, _field_key, type(user).__name__, "totp_secret"
+                )
+            except ImportError:
+                pass
+            if verify_totp_code(plaintext_secret, input.code):
+                return True
 
         # Fall back to backup code consumption.
         if consume_backup_code(user_id, input.code):

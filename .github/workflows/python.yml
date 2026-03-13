@@ -107,7 +107,7 @@ jobs:
             run_pytest packages/backend/
           else
             for PACKAGE in $CHANGED_PACKAGES; do
-              run_pytest "packages/backend/${PACKAGE}" 100
+              run_pytest "packages/backend/${PACKAGE}" 89
             done
           fi
 

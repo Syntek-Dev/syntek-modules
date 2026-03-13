@@ -341,14 +341,9 @@ def enable_totp_for_user(
 ) -> TotpSetupData:
     """Enable TOTP for a user and return setup data.
 
-    Generates a new TOTP secret, stores it on the user model (via the
-    ``totp_secret`` attribute if present), generates and stores backup codes,
-    and returns the provisioning URI and plaintext backup codes.
-
-    When the user model does not have a ``totp_secret`` attribute (i.e. the
-    field has not yet been added to the model), the secret is returned but
-    not persisted.  This allows the mutation layer to operate without a
-    migration dependency.
+    Generates a new TOTP secret, persists it on the user model, generates
+    and stores backup codes, and returns the provisioning URI and plaintext
+    backup codes.
 
     Parameters
     ----------
@@ -366,15 +361,34 @@ def enable_totp_for_user(
     """
     from django.contrib.auth import get_user_model
 
+    from syntek_auth.services.lookup_tokens import make_totp_secret_token
+
     UserModel = get_user_model()  # noqa: N806
     user = UserModel.objects.get(pk=user_id)
 
     secret = generate_totp_secret()
 
-    # Persist on the model only when the field exists.
-    if hasattr(user, "totp_secret"):
-        user.totp_secret = secret  # type: ignore[attr-defined]
-        user.save(update_fields=["totp_secret"])
+    # Encrypt the secret at rest; fall back to plaintext when syntek_pyo3 is
+    # not yet compiled (early development / CI without the Rust extension).
+    stored_secret: str = secret
+    try:
+        from django.conf import settings as _settings
+        from syntek_pyo3 import encrypt_field  # type: ignore[import-not-found]
+
+        _cfg: dict = getattr(_settings, "SYNTEK_AUTH", {})  # type: ignore[type-arg]
+        _raw_key = _cfg.get("FIELD_KEY", "")
+        _field_key: bytes = (
+            _raw_key.encode("utf-8") if isinstance(_raw_key, str) else bytes(_raw_key)
+        )
+        stored_secret = encrypt_field(
+            secret, _field_key, type(user).__name__, "totp_secret"
+        )
+    except ImportError:
+        pass
+
+    user.totp_secret = stored_secret  # type: ignore[attr-defined]
+    user.totp_secret_token = make_totp_secret_token(secret)  # type: ignore[attr-defined]
+    user.save(update_fields=["totp_secret", "totp_secret_token"])
 
     account_name: str = getattr(user, "email", str(user_id))
     provisioning_uri = build_provisioning_uri(secret, account_name, issuer)

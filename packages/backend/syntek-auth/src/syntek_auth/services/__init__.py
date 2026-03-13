@@ -21,6 +21,7 @@ from syntek_auth.services.lockout import (
 from syntek_auth.services.lookup_tokens import (
     make_email_token,
     make_phone_token,
+    make_totp_secret_token,
     make_username_token,
 )
 from syntek_auth.services.mfa import (
@@ -146,6 +147,7 @@ __all__ = [
     "logout",
     "make_email_token",
     "make_phone_token",
+    "make_totp_secret_token",
     "make_username_token",
     "oidc_amr_satisfies_mfa",
     "request_password_reset",
