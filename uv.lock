@@ -668,7 +668,7 @@ django = [
 
 [[package]]
 name = "syntek-auth"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "packages/backend/syntek-auth" }
 dependencies = [
     { name = "django" },
@@ -718,7 +718,7 @@ provides-extras = ["dev"]
 
 [[package]]
 name = "syntek-modules-workspace"
-version = "0.15.0"
+version = "0.16.0"
 source = { virtual = "." }
 
 [package.dev-dependencies]

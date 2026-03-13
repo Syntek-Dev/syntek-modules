@@ -2,6 +2,7 @@
 
 | Version | Date       | Type  | Summary                                                                                                          |
 | ------- | ---------- | ----- | ---------------------------------------------------------------------------------------------------------------- |
+| 0.16.0  | 13/03/2026 | MINOR | `syntek-auth` complete — full auth module, 13 test files, migrations, MFA, OAuth, US009 done                     |
 | 0.15.0  | 11/03/2026 | MINOR | Security policy: SSO allowlist, key versioning/rotation in `syntek-crypto`, `syntek-security` module, US076 done |
 | 0.14.0  | 11/03/2026 | MINOR | `syntek-graphql-crypto` complete — GraphQL encryption middleware, 59 tests, US008 done                           |
 | 0.13.0  | 09/03/2026 | MINOR | `syntek-pyo3` complete — PyO3 Django bindings, EncryptedField, 65 tests, US007 done                              |
