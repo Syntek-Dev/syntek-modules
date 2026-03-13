@@ -71,6 +71,18 @@ line-ending = "lf"
 skip-magic-trailing-comma = false
 
 # ---------------------------------------------------------------------------
+# Coverage
+# ---------------------------------------------------------------------------
+[tool.coverage.run]
+omit = ["*/migrations/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+]
+
+# ---------------------------------------------------------------------------
 # pytest
 # ---------------------------------------------------------------------------
 [tool.pytest.ini_options]
@@ -112,4 +124,8 @@ dev = [
     "syntek-auth",
     "syntek-graphql-crypto",
     "syntek-security",
+    "pyotp>=2.9.0",
+    "freezegun>=1.5.5",
+    "cryptography>=46.0.5",
+    "responses>=0.26.0",
 ]
