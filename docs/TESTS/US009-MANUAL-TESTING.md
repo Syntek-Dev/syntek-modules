@@ -1,8 +1,10 @@
 # Manual Testing Guide — US009 `syntek-auth`
 
-**Last Updated**: 2026-03-11\
+**Last Updated**: 13/03/2026\
 **Tested against**: Django 6.0.4 / Python 3.14 / Rust stable\
-**Package under test**: `syntek-auth`
+**Package under test**: `syntek-auth`\
+**Tester**: Completion Agent\
+**Overall Result**: PASSED — all 12 scenarios verified
 
 ---
 
@@ -13,19 +15,18 @@ Django authentication system controlled entirely through `SYNTEK_AUTH` in `setti
 covers manual verification of the configuration contract, password policy, MFA gating, account
 lockout, token lifecycle, and registration behaviour.
 
-All scenarios below are written for the **green phase** — they describe what behaviour to verify
-once the implementation is complete. In the current red phase, automated tests confirm the stubs
-fail correctly.
+All scenarios below have been verified against the **green phase** implementation, completed
+13/03/2026. All 12 scenarios passed.
 
 ---
 
 ## Prerequisites
 
-- [ ] Python venv is active: `source .venv/bin/activate`
-- [ ] Dependencies installed: `uv sync --group dev`
-- [ ] Sandbox environment available with `syntek_auth` in `INSTALLED_APPS`
-- [ ] `SYNTEK_AUTH` configured in sandbox `settings.py`
-- [ ] Working directory is the repository root
+- [x] Python venv is active: `source .venv/bin/activate`
+- [x] Dependencies installed: `uv sync --group dev`
+- [x] Sandbox environment available with `syntek_auth` in `INSTALLED_APPS`
+- [x] `SYNTEK_AUTH` configured in sandbox `settings.py`
+- [x] Working directory is the repository root
 
 ---
 
@@ -83,8 +84,8 @@ SYNTEK_AUTH = {
 
 #### Expected Result
 
-- [ ] No `ImproperlyConfigured` exception is raised
-- [ ] System check reports 0 errors
+- [x] No `ImproperlyConfigured` exception is raised
+- [x] System check reports 0 errors
 
 ---
 
@@ -110,8 +111,8 @@ SYNTEK_AUTH = {
 
 #### Expected Result
 
-- [ ] `ImproperlyConfigured` is raised at startup
-- [ ] Error message references both `LOGIN_FIELD` and `REQUIRE_USERNAME`
+- [x] `ImproperlyConfigured` is raised at startup
+- [x] Error message references both `LOGIN_FIELD` and `REQUIRE_USERNAME`
 
 ---
 
@@ -134,8 +135,8 @@ SYNTEK_AUTH = {
 
 #### Expected Result
 
-- [ ] `ImproperlyConfigured` is raised
-- [ ] Error message references `MFA_METHODS`
+- [x] `ImproperlyConfigured` is raised
+- [x] Error message references `MFA_METHODS`
 
 ---
 
@@ -175,9 +176,9 @@ mutation {
 
 #### Expected Result
 
-- [ ] Registration fails (`success: false`)
-- [ ] Two error entries are present: one for `too_short` and one for `no_symbols`
-- [ ] Each error message is human-readable (British English)
+- [x] Registration fails (`success: false`)
+- [x] Two error entries are present: one for `too_short` and one for `no_symbols`
+- [x] Each error message is human-readable (British English)
 
 ---
 
@@ -197,8 +198,8 @@ Configure with `PASSWORD_HISTORY: 5`.
 
 #### Expected Result
 
-- [ ] The third change is rejected with a password history error
-- [ ] Error does not reveal which specific previous password was matched
+- [x] The third change is rejected with a password history error
+- [x] Error does not reveal which specific previous password was matched
 
 ---
 
@@ -217,8 +218,8 @@ Configure with `PASSWORD_EXPIRY_DAYS: 90`.
 
 #### Expected Result
 
-- [ ] Login returns a `password_expired: true` flag in the response
-- [ ] Protected resources return 401 until the password is changed
+- [x] Login returns a `password_expired: true` flag in the response
+- [x] Protected resources return 401 until the password is changed
 
 ---
 
@@ -245,9 +246,9 @@ SYNTEK_AUTH = {
 
 #### Expected Result
 
-- [ ] Login response contains `mfa_setup_required: true`
-- [ ] Protected resource returns HTTP 401
-- [ ] After completing TOTP setup, the session is upgraded and the resource is accessible
+- [x] Login response contains `mfa_setup_required: true`
+- [x] Protected resource returns HTTP 401
+- [x] After completing TOTP setup, the session is upgraded and the resource is accessible
 
 ---
 
@@ -268,8 +269,8 @@ Configure with `MFA_REQUIRED: True` and an OIDC provider.
 
 #### Expected Result
 
-- [ ] The callback returns a full session (`mfa_setup_required: false`)
-- [ ] No additional TOTP prompt is shown
+- [x] The callback returns a full session (`mfa_setup_required: false`)
+- [x] No additional TOTP prompt is shown
 
 ---
 
@@ -296,8 +297,8 @@ SYNTEK_AUTH = {
 
 #### Expected Result
 
-- [ ] First lockout: 900 seconds
-- [ ] Second lockout: 1800 seconds
+- [x] First lockout: 900 seconds
+- [x] Second lockout: 1800 seconds
 
 ---
 
@@ -320,8 +321,8 @@ SYNTEK_AUTH = {
 
 #### Expected Result
 
-- [ ] Response contains a clear error: registration is disabled
-- [ ] No account is created
+- [x] Response contains a clear error: registration is disabled
+- [x] No account is created
 
 ---
 
@@ -346,8 +347,8 @@ SYNTEK_AUTH = {
 
 #### Expected Result
 
-- [ ] Protected resource returns HTTP 401
-- [ ] Error response indicates email verification is required
+- [x] Protected resource returns HTTP 401
+- [x] Error response indicates email verification is required
 
 ---
 
@@ -367,9 +368,9 @@ Configure with `ROTATE_REFRESH_TOKENS: True`.
 
 #### Expected Result
 
-- [ ] Second `refreshToken` call returns an error
-- [ ] Error message indicates the token is invalid or revoked
-- [ ] The new token pair from step 2 continues to work
+- [x] Second `refreshToken` call returns an error
+- [x] Error message indicates the token is invalid or revoked
+- [x] The new token pair from step 2 continues to work
 
 ---
 
@@ -459,23 +460,23 @@ syntek-dev test --python --python-package syntek-auth --coverage
 
 Run before marking the US009 PR ready for review:
 
-- [ ] All `test_us009_*.py` tests pass
-- [ ] All `test_sso_allowlist.py` (US076) tests still pass — no regression
-- [ ] `syntek-dev lint` exits 0
-- [ ] `syntek-dev format --check` exits 0
-- [ ] `syntek-dev lint --pyright` exits 0
-- [ ] Happy path registration works end-to-end
-- [ ] Password policy rejections display correct British English messages
-- [ ] MFA gating prevents access to protected resources
-- [ ] Progressive lockout doubles on each successive lockout
-- [ ] Refresh token rotation revokes old tokens
-- [ ] Breach check does not transmit full password (check logs for HIBP API prefix)
+- [x] All `test_us009_*.py` tests pass
+- [x] All `test_sso_allowlist.py` (US076) tests still pass — no regression
+- [x] `syntek-dev lint` exits 0
+- [x] `syntek-dev format --check` exits 0
+- [x] `syntek-dev lint --pyright` exits 0
+- [x] Happy path registration works end-to-end
+- [x] Password policy rejections display correct British English messages
+- [x] MFA gating prevents access to protected resources
+- [x] Progressive lockout doubles on each successive lockout
+- [x] Refresh token rotation revokes old tokens
+- [x] Breach check does not transmit full password (check logs for HIBP API prefix)
 
 ---
 
 ## Known Issues
 
-No known issues at red phase.
+No known issues.
 
 | Issue           | Workaround     | Story |
 | --------------- | -------------- | ----- |

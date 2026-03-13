@@ -1,8 +1,8 @@
 # Syntek Modules — Sprint Overview
 
-**Last Updated**: 11/03/2026 **Total Stories**: 130 **Total Points**: 763 **Total Sprints**: 70
-**Sprint Capacity**: 11 points maximum **Status**: In Progress (Sprint 05 Completed 11/03/2026 —
-Sprint 06 next)
+**Last Updated**: 13/03/2026 **Total Stories**: 130 **Total Points**: 763 **Total Sprints**: 70
+**Sprint Capacity**: 11 points maximum **Status**: In Progress (Sprint 06 Completed 13/03/2026 —
+Sprint 07 next)
 
 ---
 
