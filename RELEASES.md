@@ -1,5 +1,38 @@
 # Releases
 
+## v0.16.2 — 13/03/2026
+
+**Branch**: `fix/us006/qa-report-11-03-2026`\
+**Type**: PATCH\
+**Story**: US006 — Syntek Crypto: further fixes + pytest performance
+
+### Highlights
+
+- **AES-GCM helper extraction** — a new `aes_gcm.rs` module (`pub(crate)`) consolidates the
+  canonical AES-256-GCM encrypt/decrypt primitives. Both `lib.rs` and `key_versioning.rs` now
+  delegate to these helpers, eliminating the previous code duplication and ensuring a single
+  implementation can be audited and tested in isolation.
+
+- **Remaining crypto fixes applied** — two further findings from the US006 QA review have been
+  resolved, bringing the total to 15 fixed out of 17 findings (2 marked no-fix after analysis).
+  The consolidated bug report in `docs/BUGS/BUG-US006-SYNTEK-CRYPTO-13-03-2026.md` reflects the
+  final status.
+
+- **Refactoring decision record** — `docs/REFACTORING/REFACTOR-SYNTEK-CRYPTO-AES-GCM-HELPERS-2026-03-13.md`
+  documents the rationale and approach for the AES-GCM extraction.
+
+- **pytest-xdist parallelism** — `syntek-dev test --python` now runs the syntek-auth test suite
+  in parallel across all available CPU cores (`-n auto`). A fast Argon2id override
+  (`m=8, t=1, p=1`) eliminates password-hashing cost during test execution, significantly
+  reducing wall-clock time.
+
+- **Test markers** — all 18 syntek-auth test modules now carry a `pytestmark` (`unit` or `slow`)
+  enabling targeted test selection and better xdist distribution.
+
+- **`syntek-auth 0.3.1`** — per-module patch bump to record the test suite improvements.
+
+---
+
 ## v0.16.1 — 13/03/2026
 
 **Branch**: `fix/us006/qa-report-11-03-2026`\

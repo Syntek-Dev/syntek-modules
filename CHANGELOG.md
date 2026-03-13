@@ -7,6 +7,46 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [0.16.2] — 13/03/2026
+
+### Fixed
+
+- **`rust/syntek-crypto/src/lib.rs`** — applied remaining actionable findings from the US006 QA
+  review (2 additional fixes applied after the initial 0.16.1 batch).
+- **`rust/syntek-crypto/src/key_versioning.rs`** — delegating to new `aes_gcm` helpers eliminates
+  duplicated AES-256-GCM logic; `Zeroizing<String>` applied to all intermediate plaintext buffers.
+- **`docs/BUGS/BUG-US006-SYNTEK-CRYPTO-13-03-2026.md`** — consolidated bug report updated to
+  reflect final fix status for all 17 findings (15 Fixed, 2 No Fix).
+
+### Added
+
+- **`rust/syntek-crypto/src/aes_gcm.rs`** — new `pub(crate)` module exporting `aes_gcm_encrypt` and
+  `aes_gcm_decrypt` helpers. The canonical AES-256-GCM implementation now lives in one place;
+  both `lib.rs` and `key_versioning.rs` delegate to these helpers.
+- **`docs/REFACTORING/REFACTOR-SYNTEK-CRYPTO-AES-GCM-HELPERS-2026-03-13.md`** — decision record
+  documenting the extraction of AES-GCM primitives into a dedicated module.
+- **`rust/syntek-crypto/tests/crypto_tests.rs`** — large-payload proptest module added (4 property
+  tests, `ProptestConfig { cases: 10 }`) exercising encrypt/decrypt round-trips at scale.
+
+### Changed
+
+- **`pyproject.toml`** — `pytest-xdist>=3.0` added to dev dependencies; `addopts` restored to
+  `["--strict-markers", "--tb=short", "-v"]` (parallel flags moved to CLI invocation).
+- **`rust/syntek-dev/src/commands/test.rs`** — pytest invocation now prepends `-n auto --reuse-db`
+  so parallel execution is the default when using `syntek-dev test --python`.
+- **`conftest.py`** (root) — `SYNTEK_AUTH` test override adds `ARGON2ID_TIME_COST=1`,
+  `ARGON2ID_MEMORY_COST=8`, `ARGON2ID_PARALLELISM=1` to eliminate Argon2id cost during test runs.
+- **`packages/backend/syntek-auth/tests/conftest.py`** — same Argon2id override applied at the
+  package level.
+- **All 18 `packages/backend/syntek-auth/tests/test_*.py` files** — `pytestmark` added to each
+  module classifying tests as `unit` or `slow` for xdist distribution and marker filtering.
+
+### Module Version
+
+- **`syntek-auth`** — bumped `0.3.0 → 0.3.1` (test suite parallelism and Argon2id overrides).
+
+---
+
 ## [0.16.1] — 13/03/2026
 
 ### Fixed
