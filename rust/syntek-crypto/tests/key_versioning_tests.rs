@@ -97,6 +97,17 @@ fn test_keyring_new_is_empty() {
     assert_eq!(ring.len(), 0, "new KeyRing len must be 0");
 }
 
+/// KeyRing::default() must produce an empty ring identical to KeyRing::new().
+#[test]
+fn test_keyring_default_produces_empty_ring() {
+    let ring = KeyRing::default();
+    assert!(
+        ring.is_empty(),
+        "KeyRing::default() must produce an empty ring"
+    );
+    assert_eq!(ring.len(), 0, "KeyRing::default() len must be 0");
+}
+
 /// After adding one key the ring has len 1 and is not empty.
 #[test]
 fn test_keyring_add_single_key_len_is_one() {
@@ -486,6 +497,28 @@ fn test_reencrypt_to_active_migrates_old_version_to_current() {
         recovered, PLAINTEXT,
         "plaintext must be preserved after migration to active key"
     );
+}
+
+/// reencrypt_to_active must return a DecryptionError when the base64-decoded
+/// blob is shorter than 2 bytes and cannot contain a version prefix.
+#[test]
+fn test_reencrypt_to_active_blob_too_short_returns_error() {
+    use base64ct::{Base64, Encoding};
+    // A 1-byte blob — too short to contain the 2-byte version prefix.
+    let too_short = Base64::encode_string(&[0u8; 1]);
+    let ring = single_key_ring();
+    let result = reencrypt_to_active(&too_short, &ring, MODEL, FIELD);
+    assert!(
+        result.is_err(),
+        "reencrypt_to_active with a 1-byte blob must return Err"
+    );
+    match result.unwrap_err() {
+        CryptoError::DecryptionError(_) => {}
+        other => panic!(
+            "expected CryptoError::DecryptionError for too-short blob, got {:?}",
+            other
+        ),
+    }
 }
 
 /// reencrypt_to_active must return DecryptionError when the old ciphertext

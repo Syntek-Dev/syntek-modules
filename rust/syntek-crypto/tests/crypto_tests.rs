@@ -174,6 +174,48 @@ fn test_decrypt_field_invalid_base64_returns_decryption_error() {
     }
 }
 
+/// AC1 (key validation): Passing a key shorter than 32 bytes to encrypt_field must return
+/// an InvalidInput error before any cryptographic operation is attempted.
+#[test]
+fn test_encrypt_field_wrong_key_length_returns_invalid_input() {
+    let short_key = [0u8; 16];
+    let result = encrypt_field(PLAINTEXT, &short_key, MODEL, FIELD);
+    assert!(
+        result.is_err(),
+        "encrypt_field must return Err for a non-32-byte key"
+    );
+    match result.unwrap_err() {
+        CryptoError::InvalidInput(_) => {}
+        other => panic!(
+            "expected CryptoError::InvalidInput for wrong key length, got {:?}",
+            other
+        ),
+    }
+}
+
+/// AC2 (key validation): Passing a key shorter than 32 bytes to decrypt_field must return
+/// a DecryptionError. The base64 blob must be long enough to pass the length guard so
+/// that the key-length check is reached.
+#[test]
+fn test_decrypt_field_wrong_key_length_returns_decryption_error() {
+    use base64ct::{Base64, Encoding};
+    // 28-byte blob: >= 12 bytes so the nonce-length guard passes, then the key-length check fires.
+    let blob = Base64::encode_string(&[0u8; 28]);
+    let short_key = [0u8; 16];
+    let result = decrypt_field(&blob, &short_key, MODEL, FIELD);
+    assert!(
+        result.is_err(),
+        "decrypt_field must return Err for a non-32-byte key"
+    );
+    match result.unwrap_err() {
+        CryptoError::DecryptionError(_) => {}
+        other => panic!(
+            "expected CryptoError::DecryptionError for wrong key length, got {:?}",
+            other
+        ),
+    }
+}
+
 /// AC3: A ciphertext that is too short to contain a nonce must return a DecryptionError.
 #[test]
 fn test_decrypt_field_too_short_ciphertext_returns_decryption_error() {

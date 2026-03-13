@@ -1,17 +1,21 @@
-"""US076 — Red phase: SSO provider allowlist tests for ``syntek-auth``.
+"""US076 — SSO provider allowlist tests for ``syntek-auth``.
 
 Tests cover:
-- Blocked providers raise ``ImproperlyConfigured`` at startup with a message
-  that names the offending provider.
-- All 8 blocked providers are individually rejected.
-- All 7 built-in allowed providers pass validation without error.
+- Providers in MFA_GATED_PROVIDERS pass startup validation without raising
+  (they are MFA-gated at the OAuth callback layer, not blocked at startup).
+- ``is_mfa_gated_provider()`` correctly identifies gated vs. allowed providers.
+- ``MFA_GATED_PROVIDERS`` and ``BUILTIN_ALLOWED_PROVIDERS`` are disjoint sets
+  containing exactly the expected provider identifiers.
+- All 8 built-in allowed providers pass validation without error (unchanged).
 - An uncertified custom OIDC provider (no ``mfa_enforced: True``) is rejected.
 - A custom OIDC provider with ``mfa_enforced: True`` is accepted.
 - An empty ``OAUTH_PROVIDERS`` list passes without error.
-- ``SyntekAuthConfig.ready()`` calls the allowlist check.
+- ``SyntekAuthConfig.ready()`` does not raise for MFA-gated providers.
 
-All tests **fail** in the red phase because both ``validate_oauth_providers``
-and ``SyntekAuthConfig.ready()`` raise ``NotImplementedError``.
+Red phase: importing ``MFA_GATED_PROVIDERS`` and ``is_mfa_gated_provider`` fails
+with ``ImportError`` because ``backends/allowlist.py`` still exports
+``BLOCKED_PROVIDERS`` and does not yet export these new symbols.  Every test in
+this file therefore fails at collection time in the red phase.
 
 Run with: ``syntek-dev test --python --python-package syntek-auth``
 """
@@ -20,9 +24,10 @@ from __future__ import annotations
 
 import pytest
 from django.core.exceptions import ImproperlyConfigured
-from syntek_auth.allowlist import (
-    BLOCKED_PROVIDERS,
+from syntek_auth.backends.allowlist import (
     BUILTIN_ALLOWED_PROVIDERS,
+    MFA_GATED_PROVIDERS,
+    is_mfa_gated_provider,
     validate_oauth_providers,
 )
 
@@ -42,93 +47,120 @@ def single_provider(name: str, **extra: object) -> dict:  # type: ignore[type-ar
 
 
 # ---------------------------------------------------------------------------
-# AC: Blocked providers raise ImproperlyConfigured
+# AC: MFA-gated providers pass startup validation (no longer raise)
 # ---------------------------------------------------------------------------
 
 
-class TestBlockedProviders:
-    """Every provider in BLOCKED_PROVIDERS must raise ImproperlyConfigured."""
+class TestMfaGatedProviders:
+    """Every provider in MFA_GATED_PROVIDERS must pass startup validation.
 
-    @pytest.mark.parametrize("provider_id", sorted(BLOCKED_PROVIDERS))
-    def test_blocked_provider_raises_improperly_configured(
-        self, provider_id: str
-    ) -> None:
-        """Configuring any blocked provider must raise ImproperlyConfigured."""
+    These providers are allowed through ``AppConfig.ready()`` — they are gated
+    at the OAuth callback layer (``PendingOAuthSession`` flow) not at startup.
+    """
+
+    @pytest.mark.parametrize("provider_id", sorted(MFA_GATED_PROVIDERS))
+    def test_mfa_gated_provider_does_not_raise(self, provider_id: str) -> None:
+        """Configuring any MFA-gated provider must NOT raise at startup."""
         syntek_auth = settings_with_providers(single_provider(provider_id))
+        # Must not raise — the gating happens at oidcCallback, not at startup.
+        validate_oauth_providers(syntek_auth)
 
-        with pytest.raises(ImproperlyConfigured) as exc_info:
-            validate_oauth_providers(syntek_auth)
-
-        msg = str(exc_info.value)
-        assert provider_id in msg.lower(), (
-            f"Error message must name the blocked provider '{provider_id}'; got: {msg!r}"
-        )
-
-    def test_google_blocked_names_provider_in_message(self) -> None:
-        """Google-specific: error message must name 'google' explicitly."""
+    def test_google_is_mfa_gated_does_not_raise(self) -> None:
+        """Google is MFA-gated — must pass startup validation."""
         syntek_auth = settings_with_providers(single_provider("google"))
+        validate_oauth_providers(syntek_auth)  # must not raise
 
-        with pytest.raises(ImproperlyConfigured) as exc_info:
-            validate_oauth_providers(syntek_auth)
-
-        assert "google" in str(exc_info.value).lower()
-
-    def test_facebook_blocked_raises_improperly_configured(self) -> None:
-        """Facebook must be rejected unconditionally."""
+    def test_facebook_is_mfa_gated_does_not_raise(self) -> None:
+        """Facebook is MFA-gated — must pass startup validation."""
         syntek_auth = settings_with_providers(single_provider("facebook"))
+        validate_oauth_providers(syntek_auth)  # must not raise
 
-        with pytest.raises(ImproperlyConfigured):
-            validate_oauth_providers(syntek_auth)
-
-    def test_discord_blocked_raises_improperly_configured(self) -> None:
-        """Discord must be rejected unconditionally."""
+    def test_discord_is_mfa_gated_does_not_raise(self) -> None:
+        """Discord is MFA-gated — must pass startup validation."""
         syntek_auth = settings_with_providers(single_provider("discord"))
+        validate_oauth_providers(syntek_auth)  # must not raise
 
-        with pytest.raises(ImproperlyConfigured):
-            validate_oauth_providers(syntek_auth)
-
-    def test_twitter_blocked_raises_improperly_configured(self) -> None:
-        """Twitter / X must be rejected unconditionally."""
+    def test_twitter_is_mfa_gated_does_not_raise(self) -> None:
+        """Twitter / X is MFA-gated — must pass startup validation."""
         syntek_auth = settings_with_providers(single_provider("twitter"))
+        validate_oauth_providers(syntek_auth)  # must not raise
 
-        with pytest.raises(ImproperlyConfigured):
-            validate_oauth_providers(syntek_auth)
-
-    def test_error_message_includes_docs_reference(self) -> None:
-        """The error message must mention SYNTEK_AUTH['OAUTH_ALLOWED_PROVIDERS']."""
-        syntek_auth = settings_with_providers(single_provider("google"))
-
-        with pytest.raises(ImproperlyConfigured) as exc_info:
-            validate_oauth_providers(syntek_auth)
-
-        msg = str(exc_info.value)
-        assert "OAUTH_ALLOWED_PROVIDERS" in msg or "does not enforce MFA" in msg, (
-            f"Error must reference OAUTH_ALLOWED_PROVIDERS or explain MFA requirement; got: {msg!r}"
-        )
-
-    def test_blocked_provider_mixed_case_is_rejected(self) -> None:
-        """Provider identifiers should be normalised to lowercase before checking."""
+    def test_mfa_gated_provider_mixed_case_normalised(self) -> None:
+        """Provider identifiers are normalised to lowercase — 'Google' passes."""
         syntek_auth = settings_with_providers(single_provider("Google"))
+        validate_oauth_providers(syntek_auth)  # must not raise
+        assert is_mfa_gated_provider("google") is True
 
-        with pytest.raises(ImproperlyConfigured):
-            validate_oauth_providers(syntek_auth)
-
-    def test_first_blocked_provider_fails_fast(self) -> None:
-        """When multiple providers are listed and the first is blocked, the error
-        must reference that first provider."""
+    def test_mfa_gated_and_builtin_allowed_providers_can_coexist_in_config(
+        self,
+    ) -> None:
+        """A list containing a MFA-gated provider alongside an allowed provider
+        must pass — both types are permitted at startup."""
         syntek_auth = settings_with_providers(
             single_provider("google"),
             single_provider("github"),
         )
+        validate_oauth_providers(syntek_auth)  # must not raise
 
-        with pytest.raises(ImproperlyConfigured) as exc_info:
-            validate_oauth_providers(syntek_auth)
+    def test_is_mfa_gated_provider_returns_true_for_gated(self) -> None:
+        """is_mfa_gated_provider must return True for every gated provider."""
+        assert is_mfa_gated_provider("google") is True
+        assert is_mfa_gated_provider("facebook") is True
+        assert is_mfa_gated_provider("instagram") is True
+        assert is_mfa_gated_provider("linkedin") is True
+        assert is_mfa_gated_provider("twitter") is True
+        assert is_mfa_gated_provider("x") is True
+        assert is_mfa_gated_provider("apple") is True
+        assert is_mfa_gated_provider("discord") is True
+        assert is_mfa_gated_provider("microsoft") is True
 
-        assert "google" in str(exc_info.value).lower()
+    def test_is_mfa_gated_provider_returns_false_for_allowed(self) -> None:
+        """is_mfa_gated_provider must return False for built-in allowed providers."""
+        assert is_mfa_gated_provider("github") is False
+        assert is_mfa_gated_provider("okta") is False
+        assert is_mfa_gated_provider("defguard") is False
+        assert is_mfa_gated_provider("authentik") is False
+
+    def test_is_mfa_gated_provider_returns_false_for_unknown(self) -> None:
+        """is_mfa_gated_provider must return False for an unknown identifier."""
+        assert is_mfa_gated_provider("unknown-idp") is False
+        assert is_mfa_gated_provider("my-corp-sso") is False
+
+    def test_is_mfa_gated_provider_normalises_case(self) -> None:
+        """is_mfa_gated_provider is case-insensitive."""
+        assert is_mfa_gated_provider("Google") is True
+        assert is_mfa_gated_provider("FACEBOOK") is True
+        assert is_mfa_gated_provider("Twitter") is True
+
+    def test_mfa_gated_providers_contains_expected_set(self) -> None:
+        """MFA_GATED_PROVIDERS must be exactly the nine expected identifiers."""
+        assert (
+            frozenset(
+                {
+                    "google",
+                    "facebook",
+                    "instagram",
+                    "linkedin",
+                    "twitter",
+                    "x",
+                    "apple",
+                    "discord",
+                    "microsoft",
+                }
+            )
+            == MFA_GATED_PROVIDERS
+        )
+
+    def test_mfa_gated_and_builtin_allowed_sets_are_disjoint(self) -> None:
+        """No provider can appear in both MFA_GATED_PROVIDERS and BUILTIN_ALLOWED_PROVIDERS."""
+        overlap = MFA_GATED_PROVIDERS & BUILTIN_ALLOWED_PROVIDERS
+        assert overlap == frozenset(), (
+            f"Providers in both sets would be ambiguous: {overlap!r}"
+        )
 
 
 # ---------------------------------------------------------------------------
-# AC: Allowed built-in providers pass validation
+# AC: Allowed built-in providers pass validation (unchanged from US076)
 # ---------------------------------------------------------------------------
 
 
@@ -169,7 +201,7 @@ class TestAllowedBuiltinProviders:
 
 
 # ---------------------------------------------------------------------------
-# AC: Custom / self-hosted OIDC providers
+# AC: Custom / self-hosted OIDC providers (unchanged from US076)
 # ---------------------------------------------------------------------------
 
 
@@ -229,7 +261,7 @@ class TestCustomOidcProviders:
 
 
 # ---------------------------------------------------------------------------
-# AC: Empty provider list
+# AC: Empty provider list (unchanged from US076)
 # ---------------------------------------------------------------------------
 
 
@@ -254,11 +286,14 @@ class TestEmptyProviderList:
 class TestSyntekAuthConfigReady:
     """SyntekAuthConfig.ready() must delegate to validate_oauth_providers."""
 
-    def test_ready_with_blocked_provider_raises_improperly_configured(
+    def test_ready_with_mfa_gated_provider_does_not_raise(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """ready() must raise ImproperlyConfigured when SYNTEK_AUTH contains a
-        blocked provider."""
+        """ready() must NOT raise when SYNTEK_AUTH contains an MFA-gated provider.
+
+        MFA-gated providers (e.g. Google) are permitted at startup — the gating
+        occurs at the OAuth callback layer, not at AppConfig.ready().
+        """
         from django.conf import settings as django_settings
         from syntek_auth.apps import SyntekAuthConfig
 
@@ -270,9 +305,7 @@ class TestSyntekAuthConfigReady:
         )
 
         app_config = SyntekAuthConfig("syntek_auth", __import__("syntek_auth"))
-
-        with pytest.raises(ImproperlyConfigured):
-            app_config.ready()
+        app_config.ready()  # must NOT raise
 
     def test_ready_with_allowed_provider_does_not_raise(
         self, monkeypatch: pytest.MonkeyPatch

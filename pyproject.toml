@@ -1,7 +1,7 @@
 # uv workspace root — not a deployable app; shared tooling config only
 [project]
 name = "syntek-modules-workspace"
-version = "0.15.0"
+version = "0.16.0"
 description = "Workspace root — development tooling only, not published"
 requires-python = ">=3.14"
 dependencies = []
@@ -33,6 +33,7 @@ line-length = 88
 target-version = "py314"
 src = ["packages/backend"]
 indent-width = 4
+exclude = ["**/migrations"]
 
 [tool.ruff.lint]
 select = [
@@ -68,6 +69,18 @@ quote-style = "double"
 indent-style = "space"
 line-ending = "lf"
 skip-magic-trailing-comma = false
+
+# ---------------------------------------------------------------------------
+# Coverage
+# ---------------------------------------------------------------------------
+[tool.coverage.run]
+omit = ["*/migrations/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+]
 
 # ---------------------------------------------------------------------------
 # pytest
@@ -111,4 +124,8 @@ dev = [
     "syntek-auth",
     "syntek-graphql-crypto",
     "syntek-security",
+    "pyotp>=2.9.0",
+    "freezegun>=1.5.5",
+    "cryptography>=46.0.5",
+    "responses>=0.26.0",
 ]
