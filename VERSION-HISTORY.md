@@ -2,7 +2,7 @@
 
 | Version | Date       | Type  | Summary                                                                                                          |
 | ------- | ---------- | ----- | ---------------------------------------------------------------------------------------------------------------- |
-| 0.16.2  | 13/03/2026 | PATCH | AES-GCM helper extraction, 2 further crypto fixes, pytest-xdist parallelism, fast Argon2id test params          |
+| 0.16.2  | 13/03/2026 | PATCH | AES-GCM helper extraction, 2 further crypto fixes, pytest-xdist parallelism, fast Argon2id test params           |
 | 0.16.1  | 13/03/2026 | PATCH | `syntek-crypto` QA fixes — 13 security findings resolved from US006 review                                       |
 | 0.16.0  | 13/03/2026 | MINOR | `syntek-auth` complete — full auth module, 13 test files, migrations, MFA, OAuth, US009 done                     |
 | 0.15.0  | 11/03/2026 | MINOR | Security policy: SSO allowlist, key versioning/rotation in `syntek-crypto`, `syntek-security` module, US076 done |

@@ -14,17 +14,17 @@
   implementation can be audited and tested in isolation.
 
 - **Remaining crypto fixes applied** — two further findings from the US006 QA review have been
-  resolved, bringing the total to 15 fixed out of 17 findings (2 marked no-fix after analysis).
-  The consolidated bug report in `docs/BUGS/BUG-US006-SYNTEK-CRYPTO-13-03-2026.md` reflects the
-  final status.
+  resolved, bringing the total to 15 fixed out of 17 findings (2 marked no-fix after analysis). The
+  consolidated bug report in `docs/BUGS/BUG-US006-SYNTEK-CRYPTO-13-03-2026.md` reflects the final
+  status.
 
-- **Refactoring decision record** — `docs/REFACTORING/REFACTOR-SYNTEK-CRYPTO-AES-GCM-HELPERS-2026-03-13.md`
-  documents the rationale and approach for the AES-GCM extraction.
+- **Refactoring decision record** —
+  `docs/REFACTORING/REFACTOR-SYNTEK-CRYPTO-AES-GCM-HELPERS-2026-03-13.md` documents the rationale
+  and approach for the AES-GCM extraction.
 
-- **pytest-xdist parallelism** — `syntek-dev test --python` now runs the syntek-auth test suite
-  in parallel across all available CPU cores (`-n auto`). A fast Argon2id override
-  (`m=8, t=1, p=1`) eliminates password-hashing cost during test execution, significantly
-  reducing wall-clock time.
+- **pytest-xdist parallelism** — `syntek-dev test --python` now runs the syntek-auth test suite in
+  parallel across all available CPU cores (`-n auto`). A fast Argon2id override (`m=8, t=1, p=1`)
+  eliminates password-hashing cost during test execution, significantly reducing wall-clock time.
 
 - **Test markers** — all 18 syntek-auth test modules now carry a `pytestmark` (`unit` or `slow`)
   enabling targeted test selection and better xdist distribution.

@@ -15,14 +15,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
   review (2 additional fixes applied after the initial 0.16.1 batch).
 - **`rust/syntek-crypto/src/key_versioning.rs`** — delegating to new `aes_gcm` helpers eliminates
   duplicated AES-256-GCM logic; `Zeroizing<String>` applied to all intermediate plaintext buffers.
-- **`docs/BUGS/BUG-US006-SYNTEK-CRYPTO-13-03-2026.md`** — consolidated bug report updated to
-  reflect final fix status for all 17 findings (15 Fixed, 2 No Fix).
+- **`docs/BUGS/BUG-US006-SYNTEK-CRYPTO-13-03-2026.md`** — consolidated bug report updated to reflect
+  final fix status for all 17 findings (15 Fixed, 2 No Fix).
 
 ### Added
 
 - **`rust/syntek-crypto/src/aes_gcm.rs`** — new `pub(crate)` module exporting `aes_gcm_encrypt` and
-  `aes_gcm_decrypt` helpers. The canonical AES-256-GCM implementation now lives in one place;
-  both `lib.rs` and `key_versioning.rs` delegate to these helpers.
+  `aes_gcm_decrypt` helpers. The canonical AES-256-GCM implementation now lives in one place; both
+  `lib.rs` and `key_versioning.rs` delegate to these helpers.
 - **`docs/REFACTORING/REFACTOR-SYNTEK-CRYPTO-AES-GCM-HELPERS-2026-03-13.md`** — decision record
   documenting the extraction of AES-GCM primitives into a dedicated module.
 - **`rust/syntek-crypto/tests/crypto_tests.rs`** — large-payload proptest module added (4 property
