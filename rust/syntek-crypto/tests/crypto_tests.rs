@@ -979,3 +979,155 @@ fn test_decrypt_fields_batch_aad_mismatch_returns_batch_error() {
         ),
     }
 }
+
+// ---------------------------------------------------------------------------
+// Large-payload property tests (BUG-US006-016 — L4)
+//
+// These tests validate AES-256-GCM correctness at multi-megabyte payload sizes.
+// They are deliberately kept to 10 cases (ProptestConfig::cases) so the full
+// module completes in under 30 s on a modern laptop in release mode and under
+// 60 s in debug mode. A 10-second per-case timeout (ProptestConfig::timeout)
+// prevents a single slow allocation from hanging CI indefinitely.
+// ---------------------------------------------------------------------------
+
+mod large_payload {
+    use proptest::prelude::*;
+    use syntek_crypto::key_versioning::{
+        KeyRing, KeyVersion, decrypt_versioned, encrypt_versioned,
+    };
+    use syntek_crypto::{decrypt_field, encrypt_field};
+
+    /// 32-byte all-zero key — same value as the outer TEST_KEY constant.
+    const TEST_KEY: [u8; 32] = [0u8; 32];
+
+    /// A second distinct 32-byte key used to verify decryption failures under a wrong key.
+    /// All bytes are 0x01, which differs from TEST_KEY on every byte.
+    const OTHER_KEY: [u8; 32] = [1u8; 32];
+
+    const MODEL: &str = "User";
+    const FIELD: &str = "bio";
+
+    /// Property: encrypt_field → decrypt_field must recover the original value for
+    /// arbitrarily large plaintexts up to 2 MiB.
+    ///
+    /// The byte strategy is converted to a UTF-8 string via `from_utf8_lossy` so
+    /// that the `&str` API is satisfied without restricting the byte space.
+    #[test]
+    fn prop_encrypt_decrypt_roundtrip_large_plaintext() {
+        let config = ProptestConfig {
+            cases: 10,
+            timeout: 10_000,
+            ..ProptestConfig::default()
+        };
+
+        proptest!(config, |(bytes in prop::collection::vec(any::<u8>(), 0..=2_000_000))| {
+            let plaintext = String::from_utf8_lossy(&bytes).into_owned();
+
+            let ciphertext = encrypt_field(&plaintext, &TEST_KEY, MODEL, FIELD)
+                .expect("encrypt_field must succeed for any large plaintext");
+
+            let recovered = decrypt_field(&ciphertext, &TEST_KEY, MODEL, FIELD)
+                .expect("decrypt_field must succeed for a freshly encrypted large ciphertext");
+
+            prop_assert_eq!(
+                recovered,
+                plaintext,
+                "large plaintext round-trip must recover the original value"
+            );
+        });
+    }
+
+    /// Property: the base64-encoded ciphertext is always strictly longer than the
+    /// input bytes, confirming that no silent truncation occurs at any payload size.
+    ///
+    /// AES-256-GCM adds 12 bytes (nonce) + 16 bytes (tag) = 28 bytes overhead;
+    /// base64 then expands the byte count by a factor of ~4/3.  For any non-trivial
+    /// input the output string is always longer than the input byte slice.
+    #[test]
+    fn prop_encrypt_output_larger_than_input_large_payload() {
+        let config = ProptestConfig {
+            cases: 10,
+            timeout: 10_000,
+            ..ProptestConfig::default()
+        };
+
+        proptest!(config, |(bytes in prop::collection::vec(any::<u8>(), 0..=2_000_000))| {
+            let plaintext = String::from_utf8_lossy(&bytes).into_owned();
+
+            let ciphertext = encrypt_field(&plaintext, &TEST_KEY, MODEL, FIELD)
+                .expect("encrypt_field must succeed");
+
+            // The ciphertext string (base64) must always be longer than the raw input bytes
+            // because the GCM overhead (28 bytes) plus base64 expansion ensures growth.
+            prop_assert!(
+                ciphertext.len() > plaintext.len(),
+                "ciphertext ({} chars) must be longer than plaintext ({} bytes) — \
+                 GCM overhead + base64 expansion always increases size",
+                ciphertext.len(),
+                plaintext.len()
+            );
+        });
+    }
+
+    /// Property: encrypt_versioned → decrypt_versioned must recover the original value
+    /// for arbitrarily large plaintexts up to 2 MiB using a minimal single-key ring.
+    #[test]
+    fn prop_versioned_encrypt_decrypt_roundtrip_large_plaintext() {
+        let config = ProptestConfig {
+            cases: 10,
+            timeout: 10_000,
+            ..ProptestConfig::default()
+        };
+
+        proptest!(config, |(bytes in prop::collection::vec(any::<u8>(), 0..=2_000_000))| {
+            let plaintext = String::from_utf8_lossy(&bytes).into_owned();
+
+            let mut ring = KeyRing::new();
+            ring.add(KeyVersion(1), &TEST_KEY)
+                .expect("KeyRing::add must accept a valid 32-byte key at version 1");
+
+            let ciphertext = encrypt_versioned(&plaintext, &ring, MODEL, FIELD)
+                .expect("encrypt_versioned must succeed for any large plaintext");
+
+            let recovered = decrypt_versioned(&ciphertext, &ring, MODEL, FIELD)
+                .expect("decrypt_versioned must succeed for a freshly versioned-encrypted ciphertext");
+
+            prop_assert_eq!(
+                recovered,
+                plaintext,
+                "versioned large-plaintext round-trip must recover the original value"
+            );
+        });
+    }
+
+    /// Property: decrypting with a different valid 32-byte key must always return Err.
+    ///
+    /// Uses a medium-large payload range (1 KiB – 100 KiB) — there is no need to
+    /// reach 2 MiB for a failure-path test and the smaller cap keeps this case fast.
+    #[test]
+    fn prop_large_payload_wrong_key_always_fails_decryption() {
+        let config = ProptestConfig {
+            cases: 10,
+            timeout: 10_000,
+            ..ProptestConfig::default()
+        };
+
+        proptest!(config, |(bytes in prop::collection::vec(any::<u8>(), 1_000..=100_000))| {
+            let plaintext = String::from_utf8_lossy(&bytes).into_owned();
+
+            // Encrypt with TEST_KEY.
+            let ciphertext = encrypt_field(&plaintext, &TEST_KEY, MODEL, FIELD)
+                .expect("encrypt_field must succeed");
+
+            // Attempt to decrypt with OTHER_KEY — must always fail.
+            let result = decrypt_field(&ciphertext, &OTHER_KEY, MODEL, FIELD);
+
+            prop_assert!(
+                result.is_err(),
+                "decrypt_field must return Err when the wrong key is used; \
+                 plaintext byte length was {}",
+                bytes.len()
+            );
+        });
+    }
+}

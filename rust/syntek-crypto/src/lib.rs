@@ -23,17 +23,13 @@
 //! assert_eq!(plaintext, "hello@example.com");
 //! ```
 
+mod aes_gcm;
 pub mod key_versioning;
 
-use aes_gcm::{
-    Aes256Gcm, Key, Nonce,
-    aead::{Aead, AeadCore, KeyInit, Payload},
-};
 use argon2::{
     Algorithm, Argon2, Params, Version,
     password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
 };
-use base64ct::{Base64, Encoding};
 use hmac::{Hmac, Mac};
 use rand::rngs::OsRng;
 use sha2::Sha256;
@@ -100,25 +96,8 @@ pub fn encrypt_field(
         )));
     }
 
-    let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(key));
-    let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
     let aad = format!("{}:{}", model, field);
-
-    let ciphertext_and_tag = cipher
-        .encrypt(
-            &nonce,
-            Payload {
-                msg: plaintext.as_bytes(),
-                aad: aad.as_bytes(),
-            },
-        )
-        .map_err(|_| CryptoError::EncryptionError("AES-256-GCM encryption failed".to_string()))?;
-
-    let mut blob = Vec::with_capacity(12 + ciphertext_and_tag.len());
-    blob.extend_from_slice(&nonce);
-    blob.extend_from_slice(&ciphertext_and_tag);
-
-    Ok(Base64::encode_string(&blob))
+    aes_gcm::aes_gcm_encrypt(plaintext, key, aad.as_bytes())
 }
 
 /// Decrypts a base64-encoded `ciphertext` produced by [`encrypt_field`].
@@ -147,6 +126,11 @@ pub fn decrypt_field(
     model: &str,
     field: &str,
 ) -> Result<String, CryptoError> {
+    // Validate base64 and minimum length before the key check so that the
+    // error variant order matches the original contract (tests assert
+    // DecryptionError for a wrong-length key, which is only reachable after
+    // the blob length guard).
+    use base64ct::{Base64, Encoding};
     let blob = Base64::decode_vec(ciphertext)
         .map_err(|_| CryptoError::DecryptionError("invalid base64 encoding".to_string()))?;
 
@@ -163,23 +147,8 @@ pub fn decrypt_field(
         )));
     }
 
-    let nonce = Nonce::from_slice(&blob[..12]);
     let aad = format!("{}:{}", model, field);
-
-    let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(key));
-    let plaintext_bytes = cipher
-        .decrypt(
-            nonce,
-            Payload {
-                msg: &blob[12..],
-                aad: aad.as_bytes(),
-            },
-        )
-        .map_err(|_| CryptoError::DecryptionError("AES-256-GCM decryption failed".to_string()))?;
-
-    String::from_utf8(plaintext_bytes).map_err(|_| {
-        CryptoError::DecryptionError("decrypted bytes are not valid UTF-8".to_string())
-    })
+    aes_gcm::aes_gcm_decrypt(ciphertext, key, aad.as_bytes())
 }
 
 /// Hashes `password` using Argon2id with Syntek standard parameters:

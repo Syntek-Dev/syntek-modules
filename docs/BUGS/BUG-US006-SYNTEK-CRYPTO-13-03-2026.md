@@ -1,7 +1,7 @@
 # BUG-US006 — `syntek-crypto` QA Findings
 
 **Date**: 13/03/2026 **Source**: `docs/QA/QA-US006-SYNTEK-CRYPTO-11-03-2026.md` **Total Findings**:
-17 **Fixed**: 13 **No Fix Required**: 2 **Deferred**: 2
+17 **Fixed**: 15 **No Fix Required**: 2 **Deferred**: 0
 
 ---
 
@@ -17,14 +17,14 @@
 | 006 | High     | `verify_password` uses `Argon2::default()`          | Fixed                          |
 | 007 | Medium   | `KeyRing` O(n) lookup undocumented                  | Fixed (doc)                    |
 | 008 | Medium   | `hmac_verify` rejects uppercase hex signatures      | Fixed                          |
-| 009 | Medium   | `encrypt_versioned`/`decrypt_versioned` duplication | Deferred                       |
+| 009 | Medium   | `encrypt_versioned`/`decrypt_versioned` duplication | Fixed                          |
 | 010 | Medium   | Test count discrepancy US006 vs US076               | Investigated — No Fix Required |
 | 011 | Medium   | `deny.toml` strict `unmaintained` policy            | Fixed                          |
 | 012 | Medium   | Empty `examples/` directory                         | Fixed                          |
 | 013 | Low      | `CryptoError` lacks `PartialEq`                     | Fixed                          |
 | 014 | Low      | `KeyVersion(0)` reserved but not enforced           | Fixed                          |
 | 015 | Low      | `hmac_sign`/`hmac_verify` missing key length docs   | Fixed                          |
-| 016 | Low      | Property test excludes large payloads               | Deferred                       |
+| 016 | Low      | Property test excludes large payloads               | Fixed                          |
 | 017 | Low      | All-zero test key not guarded                       | Investigated — No Fix Required |
 
 **Verification**: `cargo clippy -p syntek-crypto -- -D warnings` — clean ·
@@ -342,23 +342,35 @@ let Some(expected) = decode_hex_32(&sig_lower) else {
 
 ### BUG-US006-009 — `encrypt_versioned`/`decrypt_versioned` duplicate AES-GCM logic
 
-**Severity**: Medium **Status**: Deferred **QA Finding**: M3 **File(s)**:
-`rust/syntek-crypto/src/key_versioning.rs`, `rust/syntek-crypto/src/lib.rs`
+**Severity**: Medium **Status**: Fixed **QA Finding**: M3 **File(s)**:
+`rust/syntek-crypto/src/aes_gcm.rs` (new), `rust/syntek-crypto/src/key_versioning.rs`,
+`rust/syntek-crypto/src/lib.rs`
 
 #### Root Cause
 
-`encrypt_versioned` and `decrypt_versioned` re-import `aes_gcm`, `base64ct`, and `rand` and
-duplicate the AES-256-GCM encrypt/decrypt logic that already exists in `lib.rs`. The AAD
-construction `format!("{}:{}", model, field)` appears in four locations. Any future change to the
-encryption routine must be applied in two places.
+`encrypt_versioned` and `decrypt_versioned` re-imported `aes_gcm`, `base64ct`, and `rand` and
+duplicated the AES-256-GCM encrypt/decrypt logic that already existed in `lib.rs`. The AAD
+construction `format!("{}:{}", model, field)` appeared in four locations. Any change to the
+encryption routine had to be applied in two places.
 
 #### Fix Applied
 
-Deferred. This is a refactoring task that does not affect correctness or security. The appropriate
-action is to extract private `aes_encrypt_raw` / `aes_decrypt_raw` helpers that both the unversioned
-and versioned paths call.
+Extracted two `pub(crate)` helpers into a new file `rust/syntek-crypto/src/aes_gcm.rs`:
 
-**Handoff**: `/syntek-dev-suite:refactor` — extract shared AES-GCM helpers.
+- `aes_gcm_encrypt(plaintext: &str, key: &[u8], aad: &[u8]) -> Result<String, CryptoError>`
+- `aes_gcm_decrypt(ciphertext: &str, key: &[u8], aad: &[u8]) -> Result<String, CryptoError>`
+
+These hold the single canonical AES-256-GCM implementation (nonce generation, encryption, base64
+encoding/decoding). AAD is passed in as a parameter — callers construct
+`format!("{}:{}", model, field).into_bytes()` as before, keeping the calling convention unchanged.
+
+`lib.rs` — `encrypt_field` and `decrypt_field` now delegate to the helpers. `key_versioning.rs` —
+`encrypt_versioned` and `decrypt_versioned` now delegate to the helpers; inline `use` blocks inside
+function bodies removed.
+
+#### Verification
+
+All 80 tests pass. `cargo clippy -p syntek-crypto -- -D warnings` — clean. No behaviour change.
 
 ---
 
@@ -509,22 +521,36 @@ behaviour for short/long keys, and that empty keys are rejected.
 
 ### BUG-US006-016 — Property test does not cover large payloads
 
-**Severity**: Low **Status**: Deferred **QA Finding**: L4 **File(s)**:
+**Severity**: Low **Status**: Fixed **QA Finding**: L4 **File(s)**:
 `rust/syntek-crypto/tests/crypto_tests.rs`
 
 #### Root Cause
 
 The proptest strategy `".*"` generates arbitrary Rust `String` values within proptest's default size
-limit. It does not test very large plaintexts (e.g. multi-megabyte strings) that could expose
-performance issues or memory allocation failures in the AES-GCM path.
+limit (~256 bytes). It did not test very large plaintexts (e.g. multi-megabyte strings) that could
+expose performance issues or memory allocation failures in the AES-GCM path.
 
 #### Fix Applied
 
-Deferred. Adding large-payload property tests requires proper test infrastructure (timeout
-configuration, memory limits).
+Added a new `mod large_payload` block at the bottom of `crypto_tests.rs` with four property tests,
+each using `ProptestConfig { cases: 10, timeout: 10_000, ..default() }` to keep the suite fast in
+both local dev and CI/CD.
 
-**Handoff**: `/syntek-dev-suite:test-writer` — add large-payload property tests for both the
-unversioned and versioned encrypt/decrypt paths.
+| Test                                                       | Strategy                            | Property verified                                              |
+| ---------------------------------------------------------- | ----------------------------------- | -------------------------------------------------------------- |
+| `prop_encrypt_decrypt_roundtrip_large_plaintext`           | `vec(any::<u8>(), 0..=2_000_000)`   | Full round-trip correctness at up to 2 MiB                     |
+| `prop_encrypt_output_larger_than_input_large_payload`      | same                                | Ciphertext always larger than plaintext — no silent truncation |
+| `prop_versioned_encrypt_decrypt_roundtrip_large_plaintext` | same                                | Versioned API round-trip correctness at up to 2 MiB            |
+| `prop_large_payload_wrong_key_always_fails_decryption`     | `vec(any::<u8>(), 1_000..=100_000)` | Wrong-key decrypt always returns `Err`                         |
+
+Note: proptest 1.5 silently ignores the `timeout` field in closure-style `proptest!` invocations.
+The `cases: 10` cap is the primary speed-control mechanism. The `timeout` field is retained for
+documentation intent and forward compatibility.
+
+#### Verification
+
+- `cargo test -p syntek-crypto large_payload` — 4/4 pass, ~22 s in debug mode (budget: 60 s)
+- `cargo test -p syntek-crypto` — 84/84 pass (80 existing + 4 new)
 
 ---
 
@@ -549,9 +575,6 @@ be validated as non-zero and generated from a CSPRNG before use.
 
 ---
 
-## Deferred Items
+## All findings resolved
 
-| ID  | Handoff agent                   | Task                                       |
-| --- | ------------------------------- | ------------------------------------------ |
-| 009 | `/syntek-dev-suite:refactor`    | Extract shared AES-GCM helpers from lib.rs |
-| 016 | `/syntek-dev-suite:test-writer` | Add large-payload property tests           |
+All 17 QA findings have been addressed. 15 fixed in code, 2 investigated with no fix required.
