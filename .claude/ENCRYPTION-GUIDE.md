@@ -22,9 +22,12 @@
 
 ## Zero-Plaintext Guarantee
 
-**No plaintext PII ever reaches the database.** Sensitive fields are encrypted by the Rust layer
-(`syntek-pyo3`) before any DB write. The GraphQL middleware decrypts on the way out. The model field
-itself is a storage type only.
+**No plaintext sensitive data ever reaches the database.** This is a wholesale security policy, not
+just a GDPR/PII compliance measure. Any field whose exposure would cause a security breach —
+regardless of whether it identifies a person — must be encrypted at rest.
+
+Sensitive fields are encrypted by the Rust layer (`syntek-pyo3`) before any DB write. The GraphQL
+middleware decrypts on the way out. The model field itself is a storage type only.
 
 The three actors and their responsibilities:
 
@@ -354,20 +357,39 @@ See `syntek_auth/migrations/0003_user_encrypted_unique_tokens.py` for the canoni
 
 ---
 
+## What Needs Encryption
+
+Encrypt any field that, if read directly from the database, would cause a security or privacy
+breach:
+
+- **PII** — name, email, phone, address, national insurance number, date of birth, any government ID
+- **Long-lived cryptographic secrets** — TOTP secrets, API keys, OAuth client secrets, webhook
+  signing keys. These are random (not PII) but a DB read leaks them permanently, enabling ongoing
+  attacks (e.g. a stolen TOTP secret allows MFA bypass indefinitely).
+- **Session-adjacent secrets** — anything whose exposure allows account takeover
+
+The test: _"If an attacker reads this value from a DB dump, what can they do?"_ If the answer is
+"access accounts", "impersonate users", or "contact/identify someone", encrypt it.
+
 ## What Does NOT Need Encryption
 
-Not every field is PII. Do not encrypt fields that are:
+Do not encrypt fields that are:
 
-- **Not sensitive** — `is_active`, `is_staff`, `created_at`, `updated_at`
-- **Already hashed** — password hashes, backup code hashes (`code_hash`) — hashing is not
-  encryption; these are already non-reversible
-- **Random tokens** — JWT JTIs, verification tokens, TOTP secrets stored as base32 — these are
-  random, not derived from user input
+- **Non-sensitive flags and metadata** — `is_active`, `is_staff`, `created_at`, `updated_at`
+- **Already hashed** — password hashes, backup code hashes (`code_hash`) — hashing is
+  non-reversible; there is no plaintext to protect. Do not double-encrypt hashed values.
+- **Short-lived single-use tokens** — JWT JTIs (used only for revocation lookups), email
+  verification tokens (expire within minutes/hours and are single-use). These are high-entropy and
+  become worthless shortly after creation, so the risk window of a DB read is minimal. They do still
+  get HMAC token companions for lookup purposes.
 - **Foreign keys** — encrypt the referenced row's PII, not the FK integer
-- **Enum / choice fields** — `code_type`, `status` — low cardinality, not PII
+- **Enum / choice fields** — `code_type`, `status` — low cardinality, no sensitive information
 
-When in doubt: if the value could identify a real person or be used to contact them (name, email,
-phone, address, government ID), encrypt it.
+**Key distinction — random is not the same as safe:** A value being cryptographically random does
+not make it safe to store as plaintext. A TOTP secret is random, but it is also long-lived and its
+exposure enables indefinite MFA bypass. Randomness speaks to unpredictability; encryption at rest
+speaks to what happens if the database is compromised. Ask the consequence question, not the
+derivation question.
 
 ---
 
