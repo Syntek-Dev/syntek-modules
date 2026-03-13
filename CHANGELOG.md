@@ -13,18 +13,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 - **`packages/backend/syntek-auth/src/syntek_auth/backends/auth_backend.py`** — custom Django
   authentication backend for the syntek-auth module.
-- **`packages/backend/syntek-auth/src/syntek_auth/backends/allowlist.py`** — SSO provider
-  allowlist relocated from package root to `backends/` sub-package. Public API unchanged.
+- **`packages/backend/syntek-auth/src/syntek_auth/backends/allowlist.py`** — SSO provider allowlist
+  relocated from package root to `backends/` sub-package. Public API unchanged.
 - **`packages/backend/syntek-auth/src/syntek_auth/conf.py`** — settings dataclass and
   `get_syntek_auth_settings()` helper that reads and validates the `SYNTEK_AUTH` settings dict.
-- **`packages/backend/syntek-auth/src/syntek_auth/factories/`** — factory_boy factories for
-  `User`, token models, and verification models used in tests.
+- **`packages/backend/syntek-auth/src/syntek_auth/factories/`** — factory_boy factories for `User`,
+  token models, and verification models used in tests.
 - **`packages/backend/syntek-auth/src/syntek_auth/migrations/0001_initial.py`** — initial schema:
   custom `User` model with email as `USERNAME_FIELD`.
 - **`packages/backend/syntek-auth/src/syntek_auth/migrations/0002_*`** — adds verification flags,
   `VerificationCode`, and `Denylist` models.
-- **`packages/backend/syntek-auth/src/syntek_auth/migrations/0003_*`** — adds encrypted unique
-  token columns to `User` using `EncryptedField`.
+- **`packages/backend/syntek-auth/src/syntek_auth/migrations/0003_*`** — adds encrypted unique token
+  columns to `User` using `EncryptedField`.
 - **`packages/backend/syntek-auth/src/syntek_auth/migrations/0004_*`** — adds `PendingOAuthSession`
   model for storing in-flight OAuth state.
 - **`packages/backend/syntek-auth/src/syntek_auth/migrations/0005_*`** — encrypts the `provider`
@@ -33,34 +33,34 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
   all token models.
 - **`packages/backend/syntek-auth/src/syntek_auth/migrations/0007_*`** — renames indexes for
   consistency with Django naming conventions.
-- **`packages/backend/syntek-auth/src/syntek_auth/models/user.py`** — custom `User` model with
-  email login, MFA flags, lockout counters, and encrypted unique-token columns.
+- **`packages/backend/syntek-auth/src/syntek_auth/models/user.py`** — custom `User` model with email
+  login, MFA flags, lockout counters, and encrypted unique-token columns.
 - **`packages/backend/syntek-auth/src/syntek_auth/models/tokens.py`** — `AccessToken`,
   `RefreshToken`, and `MFAToken` models with encrypted JTI fields.
-- **`packages/backend/syntek-auth/src/syntek_auth/models/verification.py`** — `VerificationCode`
-  and `Denylist` models for email and phone verification flows.
+- **`packages/backend/syntek-auth/src/syntek_auth/models/verification.py`** — `VerificationCode` and
+  `Denylist` models for email and phone verification flows.
 - **`packages/backend/syntek-auth/src/syntek_auth/models/oauth_pending.py`** — `PendingOAuthSession`
   model for OAuth CSRF/state validation.
 - **`packages/backend/syntek-auth/src/syntek_auth/mutations/auth.py`** — Strawberry GraphQL
   mutations: `login`, `logout`, `refreshToken`.
-- **`packages/backend/syntek-auth/src/syntek_auth/mutations/mfa.py`** — GraphQL mutations for
-  MFA enrolment, TOTP verification, and MFA token exchange.
-- **`packages/backend/syntek-auth/src/syntek_auth/mutations/oidc.py`** — GraphQL mutations for
-  the OAuth/OIDC social login flow with MFA bridge.
+- **`packages/backend/syntek-auth/src/syntek_auth/mutations/mfa.py`** — GraphQL mutations for MFA
+  enrolment, TOTP verification, and MFA token exchange.
+- **`packages/backend/syntek-auth/src/syntek_auth/mutations/oidc.py`** — GraphQL mutations for the
+  OAuth/OIDC social login flow with MFA bridge.
 - **`packages/backend/syntek-auth/src/syntek_auth/mutations/password.py`** — GraphQL mutations:
   `changePassword`, `requestPasswordReset`, `confirmPasswordReset`.
 - **`packages/backend/syntek-auth/src/syntek_auth/services/email_verification.py`** — email
   verification service: issue code, verify code, mark email verified.
-- **`packages/backend/syntek-auth/src/syntek_auth/services/lockout.py`** — account lockout
-  service: increment failures, check lockout, reset on successful login.
+- **`packages/backend/syntek-auth/src/syntek_auth/services/lockout.py`** — account lockout service:
+  increment failures, check lockout, reset on successful login.
 - **`packages/backend/syntek-auth/src/syntek_auth/services/lookup_tokens.py`** — token lookup
   helpers using encrypted unique-token columns for O(1) user lookups.
 - **`packages/backend/syntek-auth/src/syntek_auth/services/mfa.py`** — MFA orchestration service:
   enrol, verify TOTP, exchange MFA token for access/refresh pair.
-- **`packages/backend/syntek-auth/src/syntek_auth/services/oauth_mfa.py`** — OAuth MFA bridge:
-  after social login, enforce MFA before issuing tokens.
-- **`packages/backend/syntek-auth/src/syntek_auth/services/oidc.py`** — OIDC/OAuth callback
-  handler: validate provider, exchange code, upsert user, initiate MFA bridge.
+- **`packages/backend/syntek-auth/src/syntek_auth/services/oauth_mfa.py`** — OAuth MFA bridge: after
+  social login, enforce MFA before issuing tokens.
+- **`packages/backend/syntek-auth/src/syntek_auth/services/oidc.py`** — OIDC/OAuth callback handler:
+  validate provider, exchange code, upsert user, initiate MFA bridge.
 - **`packages/backend/syntek-auth/src/syntek_auth/services/password.py`** — password validation
   against policy settings (min length, complexity, common-password check).
 - **`packages/backend/syntek-auth/src/syntek_auth/services/password_change.py`** — authenticated
@@ -69,42 +69,42 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
   flow: generate signed reset token, validate, apply new password.
 - **`packages/backend/syntek-auth/src/syntek_auth/services/phone_verification.py`** — phone
   verification service: issue SMS code, verify code, mark phone verified.
-- **`packages/backend/syntek-auth/src/syntek_auth/services/session.py`** — session management:
-  issue access/refresh token pair, rotate refresh tokens, revoke all tokens.
-- **`packages/backend/syntek-auth/src/syntek_auth/services/tokens.py`** — token lifecycle:
-  create, sign, verify, and revoke JWT tokens with encrypted JTI storage.
-- **`packages/backend/syntek-auth/src/syntek_auth/services/totp.py`** — TOTP secret generation,
-  QR provisioning URI, and time-window verification.
+- **`packages/backend/syntek-auth/src/syntek_auth/services/session.py`** — session management: issue
+  access/refresh token pair, rotate refresh tokens, revoke all tokens.
+- **`packages/backend/syntek-auth/src/syntek_auth/services/tokens.py`** — token lifecycle: create,
+  sign, verify, and revoke JWT tokens with encrypted JTI storage.
+- **`packages/backend/syntek-auth/src/syntek_auth/services/totp.py`** — TOTP secret generation, QR
+  provisioning URI, and time-window verification.
 - **`packages/backend/syntek-auth/src/syntek_auth/types/auth.py`** — Strawberry GraphQL types:
   `AuthPayload`, `MFAPayload`, `UserType`.
-- **`packages/backend/syntek-auth/tests/test_us009_email_verification.py`** — pytest tests for
-  email verification service.
-- **`packages/backend/syntek-auth/tests/test_us009_lockout.py`** — pytest tests for account
-  lockout logic.
-- **`packages/backend/syntek-auth/tests/test_us009_login_field.py`** — pytest tests verifying
-  email is the login field and username is not accepted.
-- **`packages/backend/syntek-auth/tests/test_us009_logout.py`** — pytest tests for logout and
-  token revocation.
-- **`packages/backend/syntek-auth/tests/test_us009_mfa.py`** — pytest tests for TOTP MFA
-  enrolment, verification, and token exchange.
+- **`packages/backend/syntek-auth/tests/test_us009_email_verification.py`** — pytest tests for email
+  verification service.
+- **`packages/backend/syntek-auth/tests/test_us009_lockout.py`** — pytest tests for account lockout
+  logic.
+- **`packages/backend/syntek-auth/tests/test_us009_login_field.py`** — pytest tests verifying email
+  is the login field and username is not accepted.
+- **`packages/backend/syntek-auth/tests/test_us009_logout.py`** — pytest tests for logout and token
+  revocation.
+- **`packages/backend/syntek-auth/tests/test_us009_mfa.py`** — pytest tests for TOTP MFA enrolment,
+  verification, and token exchange.
 - **`packages/backend/syntek-auth/tests/test_us009_password_change.py`** — pytest tests for
   authenticated password change.
-- **`packages/backend/syntek-auth/tests/test_us009_password_policy.py`** — pytest tests for
-  password policy validation (length, complexity, common passwords).
-- **`packages/backend/syntek-auth/tests/test_us009_password_reset.py`** — pytest tests for
-  password reset request and confirmation flow.
-- **`packages/backend/syntek-auth/tests/test_us009_phone_verification.py`** — pytest tests for
-  phone verification service.
+- **`packages/backend/syntek-auth/tests/test_us009_password_policy.py`** — pytest tests for password
+  policy validation (length, complexity, common passwords).
+- **`packages/backend/syntek-auth/tests/test_us009_password_reset.py`** — pytest tests for password
+  reset request and confirmation flow.
+- **`packages/backend/syntek-auth/tests/test_us009_phone_verification.py`** — pytest tests for phone
+  verification service.
 - **`packages/backend/syntek-auth/tests/test_us009_settings_validation.py`** — pytest tests for
   `SYNTEK_AUTH` settings validation at startup.
 - **`packages/backend/syntek-auth/tests/test_us009_social_oauth_mfa.py`** — pytest tests for the
   OAuth/OIDC social login MFA bridge.
-- **`packages/backend/syntek-auth/tests/test_us009_tokens.py`** — pytest tests for token
-  creation, signing, verification, and revocation.
-- **`packages/backend/syntek-auth/tests/test_us009_user_model.py`** — pytest tests for the
-  custom user model, manager methods, and field constraints.
-- **`sandbox/`** — minimal sandbox Django project providing `manage.py` for `syntek-dev db`
-  commands during local development. Not deployed.
+- **`packages/backend/syntek-auth/tests/test_us009_tokens.py`** — pytest tests for token creation,
+  signing, verification, and revocation.
+- **`packages/backend/syntek-auth/tests/test_us009_user_model.py`** — pytest tests for the custom
+  user model, manager methods, and field constraints.
+- **`sandbox/`** — minimal sandbox Django project providing `manage.py` for `syntek-dev db` commands
+  during local development. Not deployed.
 - **`.claude/ENCRYPTION-GUIDE.md`** — authoritative guide covering `EncryptedField` usage,
   individual and batch encrypt/decrypt patterns, unique-token columns, and the migration path.
 - **`docs/GUIDES/SANDBOX.md`** — guide documenting the sandbox project and `syntek-dev db` usage.
@@ -119,10 +119,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ### Changed
 
-- **`packages/backend/syntek-auth/src/syntek_auth/__init__.py`** — updated module exports to
-  reflect the new sub-package structure.
-- **`packages/backend/syntek-auth/src/syntek_auth/apps.py`** — updated `SyntekAuthConfig.ready()`
-  to use `conf.py` settings validation and register the new backends.
+- **`packages/backend/syntek-auth/src/syntek_auth/__init__.py`** — updated module exports to reflect
+  the new sub-package structure.
+- **`packages/backend/syntek-auth/src/syntek_auth/apps.py`** — updated `SyntekAuthConfig.ready()` to
+  use `conf.py` settings validation and register the new backends.
 - **`packages/backend/syntek-auth/tests/conftest.py`** — updated fixtures to use the new factory
   classes and the relocated allowlist import path.
 - **`packages/backend/syntek-auth/tests/test_sso_allowlist.py`** — updated import path from

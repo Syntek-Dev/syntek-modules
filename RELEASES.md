@@ -12,17 +12,17 @@
   published. The module delivers a custom user model, JWT token management, TOTP-based MFA, phone
   verification, email verification, account lockout, password policy enforcement, password reset,
   OAuth/OIDC social login with an MFA enforcement bridge, GraphQL mutations, and a complete
-  encrypted-field migration history (0001–0007). All sensitive fields use the Rust AES-256-GCM
-  layer via `EncryptedField`.
+  encrypted-field migration history (0001–0007). All sensitive fields use the Rust AES-256-GCM layer
+  via `EncryptedField`.
 
 - **SSO allowlist moved to `backends/`** — `allowlist.py` has been relocated from the package root
-  to `backends/allowlist.py` for better sub-package organisation. The `is_allowed_provider`
-  function and allowed/blocked provider sets are unchanged.
+  to `backends/allowlist.py` for better sub-package organisation. The `is_allowed_provider` function
+  and allowed/blocked provider sets are unchanged.
 
-- **13 new test modules** — comprehensive pytest coverage across all US009 acceptance criteria:
-  user model, email verification, phone verification, MFA (TOTP), lockout, login field, logout,
-  password change, password policy, password reset, settings validation, social OAuth MFA bridge,
-  and token management.
+- **13 new test modules** — comprehensive pytest coverage across all US009 acceptance criteria: user
+  model, email verification, phone verification, MFA (TOTP), lockout, login field, logout, password
+  change, password policy, password reset, settings validation, social OAuth MFA bridge, and token
+  management.
 
 - **Sandbox Django project** — a minimal `sandbox/` Django project has been added to provide
   `manage.py` for the `syntek-dev db` CLI commands during local development.
