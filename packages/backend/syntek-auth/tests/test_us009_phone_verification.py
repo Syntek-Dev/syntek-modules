@@ -29,7 +29,7 @@ from syntek_auth.services.phone_verification import (
     verify_phone_otp,
 )
 
-pytestmark = pytest.mark.django_db
+pytestmark = [pytest.mark.django_db, pytest.mark.unit, pytest.mark.slow]
 
 
 def _make_user(email: str) -> Any:

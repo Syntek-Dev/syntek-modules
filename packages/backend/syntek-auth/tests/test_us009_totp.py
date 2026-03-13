@@ -35,6 +35,8 @@ from syntek_auth.services.totp import (
     verify_totp_code,
 )
 
+pytestmark = [pytest.mark.unit, pytest.mark.slow]
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------

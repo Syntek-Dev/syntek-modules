@@ -35,7 +35,7 @@ from syntek_auth.services.password_reset import (
     request_password_reset,
 )
 
-pytestmark = pytest.mark.django_db
+pytestmark = [pytest.mark.django_db, pytest.mark.unit, pytest.mark.slow]
 
 
 # ---------------------------------------------------------------------------

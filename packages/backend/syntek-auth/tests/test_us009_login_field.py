@@ -19,6 +19,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 from syntek_auth.backends.auth_backend import resolve_login_field
 
+pytestmark = [pytest.mark.unit, pytest.mark.slow]
+
 # ---------------------------------------------------------------------------
 # AC: LOGIN_FIELD='email' — only email lookup is performed
 # ---------------------------------------------------------------------------

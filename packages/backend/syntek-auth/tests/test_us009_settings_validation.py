@@ -28,6 +28,8 @@ import pytest
 from django.core.exceptions import ImproperlyConfigured
 from syntek_auth.conf import validate_settings
 
+pytestmark = pytest.mark.unit
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------

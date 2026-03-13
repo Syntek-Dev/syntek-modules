@@ -36,6 +36,8 @@ from syntek_auth.models import (
     User,
 )
 
+pytestmark = [pytest.mark.unit, pytest.mark.slow]
+
 # ---------------------------------------------------------------------------
 # AC: AbstractSyntekUser is abstract
 # ---------------------------------------------------------------------------

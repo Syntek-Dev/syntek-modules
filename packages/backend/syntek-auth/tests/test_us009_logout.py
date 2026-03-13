@@ -26,7 +26,7 @@ from syntek_auth.services.session import (
 )
 from syntek_auth.services.tokens import issue_token_pair, rotate_refresh_token
 
-pytestmark = pytest.mark.django_db
+pytestmark = [pytest.mark.django_db, pytest.mark.unit, pytest.mark.slow]
 
 
 # ---------------------------------------------------------------------------

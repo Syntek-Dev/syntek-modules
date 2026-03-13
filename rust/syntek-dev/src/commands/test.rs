@@ -50,7 +50,7 @@ pub async fn run(args: TestArgs) -> Result<()> {
         let marker = args.marker.clone().unwrap_or_default();
         let pattern = args.pattern.clone().unwrap_or_default();
 
-        let mut a: Vec<&str> = Vec::new();
+        let mut a: Vec<&str> = vec!["-n", "auto", "--reuse-db"];
         if let Some(ref p) = pkg {
             a.push(p.as_str());
         }

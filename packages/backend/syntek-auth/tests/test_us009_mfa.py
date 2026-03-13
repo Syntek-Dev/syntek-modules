@@ -22,12 +22,15 @@ Run with: ``syntek-dev test --python --python-package syntek-auth``
 
 from __future__ import annotations
 
+import pytest
 from syntek_auth.services.mfa import (
     MfaSessionState,
     enabled_mfa_methods,
     oidc_amr_satisfies_mfa,
     resolve_session_state,
 )
+
+pytestmark = pytest.mark.unit
 
 # ---------------------------------------------------------------------------
 # AC: enabled_mfa_methods — gating by MFA_METHODS list
