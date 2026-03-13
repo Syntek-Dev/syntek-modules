@@ -53,7 +53,14 @@ jobs:
       - name: Coverage (cargo llvm-cov)
         run: |
           cargo install cargo-llvm-cov@0.6.16
-          cargo llvm-cov --all --lcov --output-path lcov.info
+          # Scope to library crates only.
+          # syntek-dev is a CLI binary that wraps shell commands — 0% coverage is by design.
+          # syntek-pyo3 requires a Python interpreter (maturin) to test meaningfully.
+          cargo llvm-cov \
+            --package syntek-crypto \
+            --package syntek-graphql-crypto \
+            --fail-under-lines 80 \
+            --lcov --output-path lcov.info
 
       - name: Upload coverage artifact
         if: always()

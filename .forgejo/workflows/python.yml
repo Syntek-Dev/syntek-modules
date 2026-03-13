@@ -86,9 +86,11 @@ jobs:
 
           run_pytest() {
             local path="$1"
+            local fail_under="${2:-0}"
             EXIT_CODE=0
             uv run pytest "$path" -x -q \
               --cov="$path" \
+              --cov-fail-under="$fail_under" \
               --cov-report=xml:coverage.xml \
               --cov-report=term-missing \
               || EXIT_CODE=$?
@@ -100,10 +102,12 @@ jobs:
           }
 
           if [ "$RUN_ALL" = "true" ]; then
+            # Full-suite fallback (fires when no backend files changed) — no threshold
+            # enforced across all packages as most will have no tests yet.
             run_pytest packages/backend/
           else
             for PACKAGE in $CHANGED_PACKAGES; do
-              run_pytest "packages/backend/${PACKAGE}"
+              run_pytest "packages/backend/${PACKAGE}" 100
             done
           fi
 
