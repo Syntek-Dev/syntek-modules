@@ -29,9 +29,11 @@ repo.
 4. [AI Products](#ai-products)
 5. [Data Flow & Integration Map](#data-flow--integration-map)
 6. [Licensing & Access Model](#licensing--access-model)
-7. [Self-Hosting](#self-hosting)
-8. [Technology Stack Summary](#technology-stack-summary)
-9. [Development Conventions](#development-conventions)
+7. [Repository Visibility](#repository-visibility)
+8. [AI Developer Support](#ai-developer-support)
+9. [Self-Hosting](#self-hosting)
+10. [Technology Stack Summary](#technology-stack-summary)
+11. [Development Conventions](#development-conventions)
 
 ---
 
@@ -70,9 +72,9 @@ Syntek Organisation
 │
 ├── syntek-infrastructure     # NixOS / Hetzner — hosts Syntek-managed client services only
 │
-├── syntek-modules            # Foundation: reusable npm + Python packages (Apache 2.0)
+├── syntek-modules            # Foundation: reusable npm + Python packages (AGPL v3)
 │   │                         # All other Syntek products build on top of this
-│   ├── syntek-platform       # Free, self-hostable CMS core (AGPL v3)
+│   ├── syntek-platform       # Free, self-hostable CMS core (Apache 2.0)
 │   │   ├── syntek-extensions # Paid add-ons for the platform (commercial license)
 │   │   ├── syntek-templates  # Free starter templates
 │   │   └── syntek-premium    # Paid premium starter templates
@@ -90,6 +92,11 @@ Syntek Organisation
 │
 └── syntek-cli                # Consumer install CLI — `syntek add/remove/update/license`
                               # NOT for syntek-infrastructure (Syntek-internal only)
+│
+└── [Syntek-internal only — private, not accessible via syntek-cli]
+    ├── syntek-devices         # Internal: device management for Syntek-owned hardware
+    ├── syntek-networking      # Internal: network configuration and Defguard VPN management
+    └── syntek-website         # Internal: syntek-studio.com marketing site
 ```
 
 ---
@@ -168,12 +175,12 @@ products.
 - Packages are independently versioned and publishable
 - Each package declares its own license tier (free / licensed)
 
-**Licensing tiers:**
+**Licence:**
 
-- **Free packages (Apache 2.0):** Open source, available to anyone, usable in any project including
-  commercial and proprietary ones
-- **Licensed packages:** Require a valid developer license key verified against `syntek-licensing`;
-  Syntek clients get access automatically as part of their managed package
+All packages in `syntek-modules` are **AGPL v3** — fully open source, available to anyone, including
+commercial and proprietary projects (subject to AGPL copyleft obligations). There are no paid or
+licensed tiers within this repository. Paid functionality lives in `syntek-extensions`, `syntek-ai`,
+and `syntek-premium`.
 
 **`syntek-manifest` library:** This repo contains the `syntek-manifest` Rust crate — a shared
 manifest parser used by `syntek-cli` to read and validate every `syntek.manifest.toml` file.
@@ -310,9 +317,7 @@ platform assistant are provided by `syntek-ai` and can be overridden by develope
 own configs. Full detail: `docs/PLANS/PLAN-SYNTEK-AI-AND-MULTI-TENANCY.md` and
 `docs/PLANS/AI-LICENSING-REPO-SEPARATION.md`.
 
-**License:** AGPL v3. Modifications to the platform must be shared. Agencies that need a commercial
-license (to avoid AGPL obligations) purchase one from Syntek — as the copyright holder, Syntek can
-offer dual licensing.
+**Licence:** Apache 2.0. Free to use, modify, and distribute. No copyleft obligations.
 
 **Stack:** Django 6.0.4, Python 3.14.3, PostgreSQL 18.3, GraphQL (Strawberry), Next.js 16.1.6, React
 19.2, TypeScript 5.9, Tailwind CSS 4.2 (token-based), React Native 0.84.x (Expo), NativeWind 4
@@ -537,6 +542,23 @@ reference, extension development guide, template development guide, and licensin
 **Format:** Markdown source, rendered as a static documentation site (Docusaurus or equivalent)
 deployed to `syntek-infrastructure`.
 
+**AI discovery hub:** `syntek-docs` is the single source of truth for all AI tools across the entire
+ecosystem — including paid products whose source is private. It hosts:
+
+- `llms.txt` — structured Markdown index of all products and key docs for web-browsing AI agents
+  (ChatGPT, Perplexity, Claude web, etc.)
+- `llms-full.txt` — full concatenated documentation for AI ingestion in a single request
+- `ai-context/` — pre-built AI context files per product, ready to copy into developer projects:
+  - `AGENTS.md` — cross-tool agent instructions (OpenAI Codex, Claude Code, general)
+  - `CLAUDE.md` — Claude Code project instructions
+  - `.cursorrules` — Cursor IDE instructions
+  - `copilot-instructions.md` — GitHub Copilot workspace instructions
+
+Pre-built files cover all public products plus usage documentation for paid products (the source of
+paid products is private, but their API/usage docs are public so AI tools can guide developers
+correctly — including licensing warnings). `syntek-cli` can auto-install the appropriate context
+files via `syntek init --ai`.
+
 **Contribution model:**
 
 - Platform core changes must include a docs update in the same PR
@@ -570,7 +592,9 @@ for all styling. No custom CSS is required — all styling overrides go through 
   declaring required modules and minimum platform version
 - Zero custom CSS — token overrides only
 
-**Access model:** Free. No license required. Available to all `syntek-platform` users.
+**Licence:** Apache 2.0. Free to use, modify, and distribute.
+
+**Access model:** Free. No licence required. Available to all `syntek-platform` users.
 
 **Third-party templates:** Community developers can publish free templates to `syntek-store`. They
 follow the same manifest and structure format as official templates.
@@ -697,6 +721,11 @@ syntek list                         # show installed packages and their versions
 syntek auth login                   # authenticate with the Forgejo registry
 syntek auth logout
 
+# AI assistant setup
+syntek init --ai                    # install AI context files for chosen tools (AGENTS.md,
+                                    # CLAUDE.md, .cursorrules, copilot-instructions.md)
+                                    # pre-populated with installed packages and licence tier
+
 # Licence management
 syntek license activate <key>       # activate a commercial licence key
 syntek license status               # show all active licences and expiry dates
@@ -790,7 +819,7 @@ Full architecture and implementation detail: `docs/PLANS/PLAN-SYNTEK-AI-AND-MULT
                         ┌─────────────────────┐
                         │   syntek-modules     │  ← Foundation layer
                         │  (npm + PyPI pkgs)   │    All products build on this
-                        │    Apache 2.0        │
+                        │    AGPL v3           │
                         └──────────┬──────────┘
                                    │ consumed by
           ┌────────────────────────┼──────────────────────┐
@@ -798,7 +827,7 @@ Full architecture and implementation detail: `docs/PLANS/PLAN-SYNTEK-AI-AND-MULT
 ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐
 │  syntek-platform │   │   syntek-saas    │   │ syntek-templates │
 │  (CMS core)      │   │  (SaaS products) │   │ syntek-premium   │
-│  AGPL v3         │   │  (internal)      │   │ (starters)       │
+│  Apache 2.0      │   │  (internal)      │   │ (starters)       │
 └────────┬─────────┘   └──────────────────┘   └──────────────────┘
          │ hook system
          ▼
@@ -841,6 +870,111 @@ Internal dev tooling:
 
 ---
 
+## Repository Visibility
+
+Repository visibility determines both source privacy and AI discoverability. The rule is simple: if
+a developer needs to find, use, or build on a product, the repo is public. If the source is
+proprietary or the repo contains internal infrastructure, it is private.
+
+| Repository              | Visibility  | Licence    | Reason                                              |
+| ----------------------- | ----------- | ---------- | --------------------------------------------------- |
+| `syntek-modules`        | **Public**  | AGPL v3    | Fully OSS — source must be publicly accessible      |
+| `syntek-platform`       | **Public**  | Apache 2.0 | Free CMS core — self-hosting requires source access |
+| `syntek-templates`      | **Public**  | Apache 2.0 | Free starter templates                              |
+| `syntek-docs`           | **Public**  | —          | Documentation must be publicly discoverable         |
+| `syntek-store`          | **Public**  | —          | Marketplace — developers need to find and list here |
+| `syntek-cli`            | **Public**  | —          | Developers must be able to find and install the CLI |
+| `syntek-ai`             | **Private** | Commercial | Paid content — source privacy enforced              |
+| `syntek-extensions`     | **Private** | Commercial | Paid content — source privacy enforced              |
+| `syntek-premium`        | **Private** | Commercial | Paid content — source privacy enforced              |
+| `syntek-licensing`      | **Private** | Internal   | Internal infrastructure — not for external access   |
+| `syntek-infrastructure` | **Private** | Internal   | Syntek-only server configuration                    |
+| `syntek-devices`        | **Private** | Internal   | Syntek-only hardware management                     |
+| `syntek-networking`     | **Private** | Internal   | Syntek-only network configuration                   |
+| `syntek-website`        | **Private** | Internal   | Syntek-only marketing site                          |
+| `syntek-marketplace`    | **Private** | Internal   | Internal Claude Code plugins                        |
+| `syntek-saas`           | **Private** | Internal   | Syntek-owned SaaS products                          |
+
+### Registry access for paid packages
+
+Private repos alone do not gate installation — the **Forgejo package registry** is the install-time
+gate. Paid packages are published to a token-gated private registry. `syntek-cli` exchanges the
+developer's licence key with `syntek-licensing` for a short-lived registry token scoped to their
+tier. Without a valid token, the package cannot be downloaded regardless of repo visibility.
+
+Three enforcement layers working together:
+
+1. **Private repo** — source code is never publicly readable
+2. **Token-gated registry** — `syntek add` cannot download the package without a valid licence
+3. **`AppConfig.ready()` / runtime check** — the installed package validates `SYNTEK_LICENCE_KEY` on
+   every Django startup; refuses to run if absent or revoked
+
+---
+
+## AI Developer Support
+
+AI coding assistants (Claude Code, GitHub Copilot, Cursor, OpenAI Codex, Gemini CLI) need structured
+context to help developers use the Syntek ecosystem correctly — including directing them to
+licensing before scaffolding paid package code.
+
+### AI support by repo type
+
+**Public repos** (`syntek-modules`, `syntek-platform`, `syntek-templates`, `syntek-cli`) ship a full
+AI context stack in-repo:
+
+| File                              | Tool                               |
+| --------------------------------- | ---------------------------------- |
+| `AGENTS.md`                       | OpenAI Codex, Claude Code, general |
+| `CLAUDE.md`                       | Claude Code                        |
+| `.github/copilot-instructions.md` | GitHub Copilot                     |
+| `.cursorrules`                    | Cursor                             |
+
+`syntek-modules` additionally ships per-package `AGENTS.md` files inside complex packages (e.g.
+`packages/backend/syntek-auth/AGENTS.md`) so that AI tools working within a package directory have
+immediate, focused context.
+
+**Paid repos** (`syntek-ai`, `syntek-extensions`, `syntek-premium`) have private source. Their usage
+documentation — including API reference, configuration guide, and licensing instructions — is public
+in `syntek-docs`. AI tools can guide developers towards purchase and correct usage without ever
+having access to the source. The private repos carry a minimal `AGENTS.md` for licensed developers
+who have registry access.
+
+**Internal repos** (`syntek-infrastructure`, `syntek-devices`, `syntek-networking`,
+`syntek-website`, `syntek-marketplace`, `syntek-licensing`, `syntek-saas`) carry a `CLAUDE.md` for
+the internal development team only. They do not appear in `llms.txt` and are not referenced from any
+public AI context file.
+
+### Licensing enforcement in AI context
+
+Every paid package's entry in `syntek-docs` — and its `AGENTS.md` — includes an explicit instruction
+block for AI tools:
+
+```markdown
+## IMPORTANT — Licensing
+
+This package requires a paid licence. Before generating any code that imports or configures this
+package:
+
+1. Tell the developer a licence is required — purchase at syntek-store.com
+2. Remind them to run: syntek license activate <key>
+3. Remind them to set SYNTEK_LICENCE_KEY in their environment The package will not install or start
+   without a valid key.
+```
+
+This means AI tools will warn developers _before_ writing any code, not after they discover the
+runtime error. Combined with the registry gate and runtime check (see
+[Repository Visibility](#repository-visibility)), this creates a three-layer enforcement model.
+
+### syntek-docs as AI hub
+
+`syntek-docs` is the AI discovery hub for the entire ecosystem. It hosts `llms.txt` and
+`llms-full.txt` at the site root for web-browsing agents, and an `ai-context/` directory of
+pre-built context files for every product. Developers can copy these files manually or run
+`syntek init --ai` to have `syntek-cli` install the appropriate files automatically, pre-populated
+with their installed packages and licence tier.
+
+---
+
 ## Licensing & Access Model
 
 ### Developer License Model
@@ -853,8 +987,7 @@ client projects with no installation limit.
 | ------------------------------------ | -------------------------------------- | ---------------------------------------------- | --------------------- |
 | `syntek-platform` core               | ✅ Full access (AGPL)                  | ✅ Full access                                 | ✅ Full access        |
 | `syntek-templates`                   | ✅ All free templates                  | ✅ All free templates                          | ✅ All free templates |
-| `syntek-modules` (Apache 2.0)        | ✅ Full access                         | ✅ Full access                                 | ✅ Full access        |
-| `syntek-modules` (licensed tiers)    | ❌                                     | ✅ Per-developer annual license                | ✅ All included       |
+| `syntek-modules` (AGPL v3)           | ✅ Full access                         | ✅ Full access                                 | ✅ Full access        |
 | `syntek-extensions`                  | ❌                                     | ✅ Per-developer annual license                | ✅ All included       |
 | `syntek-premium` templates           | ❌                                     | ✅ Per-developer annual license                | ✅ All included       |
 | `syntek-store` free listings         | ✅                                     | ✅                                             | ✅                    |
@@ -972,6 +1105,11 @@ shared hosting platform for platform developers.
   passed as environment variables in CI. Never committed to any repository.
 - **Community revenue sharing.** When adding payment flows to `syntek-store`, the developer receives
   100% minus Square processing fees. Do not introduce a Syntek platform percentage.
+- **AI context files are part of the product.** Public repos ship `AGENTS.md`, `CLAUDE.md`,
+  `.github/copilot-instructions.md`, and `.cursorrules` as first-class deliverables alongside code.
+  When a public API changes, the AI context files update in the same PR. Paid products maintain
+  their usage documentation (and AI licensing warning blocks) in `syntek-docs` — not in the private
+  repo — so AI tools can guide developers correctly without source access.
 
 ---
 
