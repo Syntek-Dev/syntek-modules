@@ -22,6 +22,8 @@ from __future__ import annotations
 import pytest
 from syntek_auth.backends.auth_backend import SyntekAuthBackend, resolve_login_field
 
+pytestmark = [pytest.mark.unit, pytest.mark.slow]
+
 # ---------------------------------------------------------------------------
 # resolve_login_field — username
 # ---------------------------------------------------------------------------

@@ -20,7 +20,10 @@ Run with: ``syntek-dev test --python --python-package syntek-auth``
 
 from __future__ import annotations
 
+import pytest
 from syntek_auth.services.lockout import compute_lockout_duration, should_lock_account
+
+pytestmark = pytest.mark.unit
 
 # ---------------------------------------------------------------------------
 # AC: should_lock_account

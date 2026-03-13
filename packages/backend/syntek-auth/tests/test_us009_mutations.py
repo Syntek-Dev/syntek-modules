@@ -40,6 +40,8 @@ from syntek_auth.types.auth import (
     VerifyPhoneInput,
 )
 
+pytestmark = [pytest.mark.unit, pytest.mark.slow]
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------

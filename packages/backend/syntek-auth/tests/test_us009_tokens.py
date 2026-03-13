@@ -27,6 +27,8 @@ from syntek_auth.services.tokens import (
     validate_access_token,
 )
 
+pytestmark = pytest.mark.unit
+
 # ---------------------------------------------------------------------------
 # AC: issue_token_pair returns a valid token pair
 # ---------------------------------------------------------------------------

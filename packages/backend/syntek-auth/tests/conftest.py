@@ -43,6 +43,11 @@ def pytest_configure(config: object) -> None:
                 * 64,  # 64-char test key — never use in production
                 "FIELD_KEY": "b"
                 * 32,  # 32-char test key (32 bytes UTF-8 = AES-256) — never use in production
+                # Minimal Argon2id params for test speed — never use in production.
+                # Production defaults: m=65536, t=3, p=4 (deliberately slow).
+                "ARGON2ID_TIME_COST": 1,
+                "ARGON2ID_MEMORY_COST": 8,
+                "ARGON2ID_PARALLELISM": 1,
             },
             # auth.E003 requires USERNAME_FIELD unique=True at the DB level.
             # Email uniqueness is enforced via email_token instead. See ENCRYPTION-GUIDE.md.

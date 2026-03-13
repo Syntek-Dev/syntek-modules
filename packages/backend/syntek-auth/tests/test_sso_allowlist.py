@@ -31,6 +31,8 @@ from syntek_auth.backends.allowlist import (
     validate_oauth_providers,
 )
 
+pytestmark = pytest.mark.unit
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------

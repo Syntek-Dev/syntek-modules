@@ -23,17 +23,13 @@
 //! assert_eq!(plaintext, "hello@example.com");
 //! ```
 
+mod aes_gcm;
 pub mod key_versioning;
 
-use aes_gcm::{
-    Aes256Gcm, Key, Nonce,
-    aead::{Aead, AeadCore, KeyInit, Payload},
-};
 use argon2::{
     Algorithm, Argon2, Params, Version,
     password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
 };
-use base64ct::{Base64, Encoding};
 use hmac::{Hmac, Mac};
 use rand::rngs::OsRng;
 use sha2::Sha256;
@@ -41,7 +37,7 @@ use sha2::Sha256;
 type HmacSha256 = Hmac<Sha256>;
 
 /// Errors returned by cryptographic operations.
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, PartialEq, thiserror::Error)]
 pub enum CryptoError {
     /// Returned when AES-256-GCM encryption fails.
     #[error("encryption error: {0}")]
@@ -100,25 +96,8 @@ pub fn encrypt_field(
         )));
     }
 
-    let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(key));
-    let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
     let aad = format!("{}:{}", model, field);
-
-    let ciphertext_and_tag = cipher
-        .encrypt(
-            &nonce,
-            Payload {
-                msg: plaintext.as_bytes(),
-                aad: aad.as_bytes(),
-            },
-        )
-        .map_err(|_| CryptoError::EncryptionError("AES-256-GCM encryption failed".to_string()))?;
-
-    let mut blob = Vec::with_capacity(12 + ciphertext_and_tag.len());
-    blob.extend_from_slice(&nonce);
-    blob.extend_from_slice(&ciphertext_and_tag);
-
-    Ok(Base64::encode_string(&blob))
+    aes_gcm::aes_gcm_encrypt(plaintext, key, aad.as_bytes())
 }
 
 /// Decrypts a base64-encoded `ciphertext` produced by [`encrypt_field`].
@@ -147,6 +126,11 @@ pub fn decrypt_field(
     model: &str,
     field: &str,
 ) -> Result<String, CryptoError> {
+    // Validate base64 and minimum length before the key check so that the
+    // error variant order matches the original contract (tests assert
+    // DecryptionError for a wrong-length key, which is only reachable after
+    // the blob length guard).
+    use base64ct::{Base64, Encoding};
     let blob = Base64::decode_vec(ciphertext)
         .map_err(|_| CryptoError::DecryptionError("invalid base64 encoding".to_string()))?;
 
@@ -163,23 +147,8 @@ pub fn decrypt_field(
         )));
     }
 
-    let nonce = Nonce::from_slice(&blob[..12]);
     let aad = format!("{}:{}", model, field);
-
-    let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(key));
-    let plaintext_bytes = cipher
-        .decrypt(
-            nonce,
-            Payload {
-                msg: &blob[12..],
-                aad: aad.as_bytes(),
-            },
-        )
-        .map_err(|_| CryptoError::DecryptionError("AES-256-GCM decryption failed".to_string()))?;
-
-    String::from_utf8(plaintext_bytes).map_err(|_| {
-        CryptoError::DecryptionError("decrypted bytes are not valid UTF-8".to_string())
-    })
+    aes_gcm::aes_gcm_decrypt(ciphertext, key, aad.as_bytes())
 }
 
 /// Hashes `password` using Argon2id with Syntek standard parameters:
@@ -246,7 +215,11 @@ pub fn verify_password(password: &str, hash: &str) -> Result<bool, CryptoError> 
 
     let parsed_hash = PasswordHash::new(hash).map_err(|e| CryptoError::HashError(e.to_string()))?;
 
-    match Argon2::default().verify_password(password.as_bytes(), &parsed_hash) {
+    let params =
+        Params::new(65536, 3, 4, None).map_err(|e| CryptoError::HashError(e.to_string()))?;
+    let argon2 = Argon2::new(Algorithm::Argon2id, Version::V0x13, params);
+
+    match argon2.verify_password(password.as_bytes(), &parsed_hash) {
         Ok(()) => Ok(true),
         Err(argon2::password_hash::Error::Password) => Ok(false),
         Err(e) => Err(CryptoError::HashError(e.to_string())),
@@ -258,27 +231,45 @@ pub fn verify_password(password: &str, hash: &str) -> Result<bool, CryptoError> 
 /// The output is always a 64-character lowercase hex string (32 bytes encoded as hex).
 /// The function is deterministic: the same `data` and `key` always produce the same digest.
 ///
+/// # Key length
+///
+/// The recommended minimum key length is 32 bytes (256 bits) to match the
+/// security level of HMAC-SHA256. Keys shorter than the 64-byte SHA-256 block
+/// size are zero-padded internally (per RFC 2104); keys longer than 64 bytes
+/// are first hashed. An empty key is rejected with [`CryptoError::InvalidInput`]
+/// because it provides no authentication.
+///
+/// # Errors
+///
+/// Returns [`CryptoError::InvalidInput`] if `key` is empty.
+///
 /// # Examples
 ///
 /// ```rust
 /// use syntek_crypto::hmac_sign;
 ///
-/// let sig = hmac_sign(b"payload", b"key-material");
+/// let sig = hmac_sign(b"payload", b"key-material").unwrap();
 /// assert_eq!(sig.len(), 64);
 /// assert!(sig.chars().all(|c| c.is_ascii_hexdigit()));
 /// ```
-pub fn hmac_sign(data: &[u8], key: &[u8]) -> String {
+pub fn hmac_sign(data: &[u8], key: &[u8]) -> Result<String, CryptoError> {
+    if key.is_empty() {
+        return Err(CryptoError::InvalidInput(
+            "HMAC key must not be empty".to_string(),
+        ));
+    }
+
     let mut mac =
         <HmacSha256 as Mac>::new_from_slice(key).expect("HMAC accepts keys of any length");
     mac.update(data);
     let bytes = mac.finalize().into_bytes();
-    bytes
+    Ok(bytes
         .iter()
         .fold(String::with_capacity(64), |mut s: String, b| {
             use std::fmt::Write;
             write!(s, "{:02x}", b).unwrap();
             s
-        })
+        }))
 }
 
 /// Verifies a hex-encoded HMAC-SHA256 `sig` for `data` using `key`.
@@ -287,20 +278,39 @@ pub fn hmac_sign(data: &[u8], key: &[u8]) -> String {
 /// Returns `true` only when the signature is valid. Invalid hex or wrong-length inputs
 /// return `false` immediately (one-bit non-secret leakage — acceptable for MAC verification).
 ///
+/// The `sig` parameter accepts both lowercase and uppercase hex characters. The
+/// input is normalised to lowercase before comparison so that signatures stored
+/// or transmitted via systems that uppercase hex headers (e.g. HTTP header
+/// normalisation) are verified correctly.
+///
+/// # Key length
+///
+/// The recommended minimum key length is 32 bytes (256 bits). An empty key
+/// causes the function to return `false` immediately because it cannot provide
+/// any authentication.
+///
 /// # Examples
 ///
 /// ```rust
 /// use syntek_crypto::{hmac_sign, hmac_verify};
 ///
-/// let sig = hmac_sign(b"payload", b"key-material");
+/// let sig = hmac_sign(b"payload", b"key-material").unwrap();
 /// assert!(hmac_verify(b"payload", b"key-material", &sig));
 /// assert!(!hmac_verify(b"payload", b"key-material", "deadbeef"));
 /// ```
 pub fn hmac_verify(data: &[u8], key: &[u8], sig: &str) -> bool {
+    // Empty key provides no authentication — reject immediately.
+    if key.is_empty() {
+        return false;
+    }
+
+    // Normalise to lowercase to accept uppercase hex signatures transparently.
+    let sig_lower = sig.to_ascii_lowercase();
+
     // Decode the incoming hex signature. A non-64-char or non-hex input is a
     // non-constant-time early return — this leaks only that the format is wrong,
     // not anything about the key or data.
-    let Some(expected) = decode_hex_32(sig) else {
+    let Some(expected) = decode_hex_32(&sig_lower) else {
         return false;
     };
 
@@ -387,6 +397,13 @@ pub fn decrypt_fields_batch(
     key: &[u8],
     model: &str,
 ) -> Result<Vec<String>, CryptoError> {
+    if key.len() != 32 {
+        return Err(CryptoError::InvalidInput(format!(
+            "key must be 32 bytes, got {}",
+            key.len()
+        )));
+    }
+
     fields
         .iter()
         .map(|(field_name, ciphertext)| {

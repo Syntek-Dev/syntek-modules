@@ -1,7 +1,7 @@
 # uv workspace root — not a deployable app; shared tooling config only
 [project]
 name = "syntek-modules-workspace"
-version = "0.16.0"
+version = "0.16.2"
 description = "Workspace root — development tooling only, not published"
 requires-python = ">=3.14"
 dependencies = []
@@ -110,6 +110,7 @@ dev = [
     "pytest-bdd>=8.0",
     "pytest-django>=4.9",
     "pytest-cov>=6.0",
+    "pytest-xdist>=3.0",
     "factory-boy>=3.3",
     "testcontainers>=4.0",
     "hypothesis>=6.0",

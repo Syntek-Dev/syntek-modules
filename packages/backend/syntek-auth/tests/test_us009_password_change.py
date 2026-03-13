@@ -27,7 +27,7 @@ from syntek_auth.services.password_change import (
     verify_current_password,
 )
 
-pytestmark = pytest.mark.django_db
+pytestmark = [pytest.mark.django_db, pytest.mark.unit, pytest.mark.slow]
 
 
 # ---------------------------------------------------------------------------

@@ -17,7 +17,10 @@
 //! - Old ciphertexts remain readable as long as their version key is still held.
 //! - Once all rows have been migrated, old versions are retired and removed.
 
+use base64ct::{Base64, Encoding};
+
 use crate::CryptoError;
+use crate::aes_gcm::{aes_gcm_decrypt, aes_gcm_encrypt};
 
 // ---------------------------------------------------------------------------
 // KeyVersion newtype
@@ -52,6 +55,14 @@ impl KeyVersion {
 /// once from environment variables at startup).
 ///
 /// The *active* version is the highest version number stored in the ring.
+///
+/// # Capacity
+///
+/// The ring is designed for small key sets (typically 2–4 entries during a
+/// rotation cycle). Lookups are O(n) linear scans over the backing `Vec`.
+/// Do not populate the ring with a large number of entries; if more than
+/// ~10 versions are needed simultaneously, the backing store should be
+/// replaced with an indexed map.
 #[derive(Debug)]
 pub struct KeyRing {
     entries: Vec<(KeyVersion, [u8; 32])>,
@@ -69,12 +80,26 @@ impl KeyRing {
     ///
     /// # Errors
     ///
-    /// Returns [`CryptoError::InvalidInput`] if `key` is not exactly 32 bytes.
+    /// Returns [`CryptoError::InvalidInput`] if:
+    /// - `key` is not exactly 32 bytes
+    /// - `version` is `KeyVersion(0)` (reserved)
+    /// - `version` already exists in the ring
     pub fn add(&mut self, version: KeyVersion, key: &[u8]) -> Result<(), CryptoError> {
+        if version.0 == 0 {
+            return Err(CryptoError::InvalidInput(
+                "KeyVersion(0) is reserved; valid versions start at 1".to_string(),
+            ));
+        }
         if key.len() != 32 {
             return Err(CryptoError::InvalidInput(format!(
                 "key must be 32 bytes, got {}",
                 key.len()
+            )));
+        }
+        if self.entries.iter().any(|(v, _)| *v == version) {
+            return Err(CryptoError::InvalidInput(format!(
+                "key version {:?} already exists in ring",
+                version
             )));
         }
         let mut bytes = [0u8; 32];
@@ -147,35 +172,21 @@ pub fn encrypt_versioned(
     model: &str,
     field: &str,
 ) -> Result<String, CryptoError> {
-    use aes_gcm::{
-        Aes256Gcm, Key,
-        aead::{Aead, AeadCore, KeyInit, Payload},
-    };
-    use base64ct::{Base64, Encoding};
-    use rand::rngs::OsRng;
-
     let (active_version, key_bytes) = ring.active()?;
-
-    let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(key_bytes));
-    let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
     let aad = format!("{}:{}", model, field);
 
-    let ciphertext_and_tag = cipher
-        .encrypt(
-            &nonce,
-            Payload {
-                msg: plaintext.as_bytes(),
-                aad: aad.as_bytes(),
-            },
-        )
-        .map_err(|_| CryptoError::EncryptionError("AES-256-GCM encryption failed".to_string()))?;
+    // Obtain the unversioned blob: base64( nonce(12) || ciphertext || tag(16) )
+    let unversioned = aes_gcm_encrypt(plaintext, key_bytes, aad.as_bytes())?;
 
-    // Layout: version(2) || nonce(12) || ciphertext || tag(16)
+    // Decode, prepend the 2-byte version prefix, re-encode.
+    // Layout stored: base64( version(2) || nonce(12) || ciphertext || tag(16) )
+    let inner = Base64::decode_vec(&unversioned)
+        .map_err(|_| CryptoError::EncryptionError("internal base64 decode failed".to_string()))?;
+
     let version_bytes = active_version.to_bytes();
-    let mut blob = Vec::with_capacity(2 + 12 + ciphertext_and_tag.len());
+    let mut blob = Vec::with_capacity(2 + inner.len());
     blob.extend_from_slice(&version_bytes);
-    blob.extend_from_slice(&nonce);
-    blob.extend_from_slice(&ciphertext_and_tag);
+    blob.extend_from_slice(&inner);
 
     Ok(Base64::encode_string(&blob))
 }
@@ -195,12 +206,6 @@ pub fn decrypt_versioned(
     model: &str,
     field: &str,
 ) -> Result<String, CryptoError> {
-    use aes_gcm::{
-        Aes256Gcm, Key, Nonce,
-        aead::{Aead, KeyInit, Payload},
-    };
-    use base64ct::{Base64, Encoding};
-
     let blob = Base64::decode_vec(ciphertext)
         .map_err(|_| CryptoError::DecryptionError("invalid base64 encoding".to_string()))?;
 
@@ -217,23 +222,12 @@ pub fn decrypt_versioned(
         CryptoError::DecryptionError(format!("key version {:?} not found in ring", version))
     })?;
 
-    let nonce = Nonce::from_slice(&blob[2..14]);
     let aad = format!("{}:{}", model, field);
 
-    let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(key_bytes));
-    let plaintext_bytes = cipher
-        .decrypt(
-            nonce,
-            Payload {
-                msg: &blob[14..],
-                aad: aad.as_bytes(),
-            },
-        )
-        .map_err(|_| CryptoError::DecryptionError("AES-256-GCM decryption failed".to_string()))?;
-
-    String::from_utf8(plaintext_bytes).map_err(|_| {
-        CryptoError::DecryptionError("decrypted bytes are not valid UTF-8".to_string())
-    })
+    // Strip the 2-byte version prefix so the remaining bytes match the layout
+    // expected by the shared helper: base64( nonce(12) || ciphertext || tag(16) )
+    let inner_b64 = Base64::encode_string(&blob[2..]);
+    aes_gcm_decrypt(&inner_b64, key_bytes, aad.as_bytes())
 }
 
 /// Re-encrypt a ciphertext that was produced under an older key version so
@@ -256,8 +250,6 @@ pub fn reencrypt_to_active(
     model: &str,
     field: &str,
 ) -> Result<String, CryptoError> {
-    use base64ct::{Base64, Encoding};
-
     // Decode to check the version prefix without a full decrypt round-trip.
     let blob = Base64::decode_vec(ciphertext)
         .map_err(|_| CryptoError::DecryptionError("invalid base64 encoding".to_string()))?;
@@ -277,6 +269,8 @@ pub fn reencrypt_to_active(
     }
 
     // Decrypt under the old key, then re-encrypt under the active key.
-    let plaintext = decrypt_versioned(ciphertext, ring, model, field)?;
+    // Wrap in Zeroizing so the intermediate plaintext heap buffer is overwritten
+    // when this binding is dropped, maintaining the zero-plaintext-in-memory guarantee.
+    let plaintext = zeroize::Zeroizing::new(decrypt_versioned(ciphertext, ring, model, field)?);
     encrypt_versioned(&plaintext, ring, model, field)
 }

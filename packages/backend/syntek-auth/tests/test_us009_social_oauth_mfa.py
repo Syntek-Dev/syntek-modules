@@ -55,7 +55,7 @@ from syntek_auth.services.oauth_mfa import (
 )
 from syntek_auth.types.auth import OidcCallbackPayload
 
-pytestmark = pytest.mark.django_db
+pytestmark = [pytest.mark.django_db, pytest.mark.unit, pytest.mark.slow]
 
 
 # ---------------------------------------------------------------------------

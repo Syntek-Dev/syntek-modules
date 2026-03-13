@@ -33,7 +33,7 @@ from syntek_auth.services.email_verification import (
     verify_email_token,
 )
 
-pytestmark = pytest.mark.django_db
+pytestmark = [pytest.mark.django_db, pytest.mark.unit, pytest.mark.slow]
 
 
 def _make_verification_code(

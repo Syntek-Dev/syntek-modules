@@ -1,5 +1,70 @@
 # Releases
 
+## v0.16.2 — 13/03/2026
+
+**Branch**: `fix/us006/qa-report-11-03-2026`\
+**Type**: PATCH\
+**Story**: US006 — Syntek Crypto: further fixes + pytest performance
+
+### Highlights
+
+- **AES-GCM helper extraction** — a new `aes_gcm.rs` module (`pub(crate)`) consolidates the
+  canonical AES-256-GCM encrypt/decrypt primitives. Both `lib.rs` and `key_versioning.rs` now
+  delegate to these helpers, eliminating the previous code duplication and ensuring a single
+  implementation can be audited and tested in isolation.
+
+- **Remaining crypto fixes applied** — two further findings from the US006 QA review have been
+  resolved, bringing the total to 15 fixed out of 17 findings (2 marked no-fix after analysis). The
+  consolidated bug report in `docs/BUGS/BUG-US006-SYNTEK-CRYPTO-13-03-2026.md` reflects the final
+  status.
+
+- **Refactoring decision record** —
+  `docs/REFACTORING/REFACTOR-SYNTEK-CRYPTO-AES-GCM-HELPERS-2026-03-13.md` documents the rationale
+  and approach for the AES-GCM extraction.
+
+- **pytest-xdist parallelism** — `syntek-dev test --python` now runs the syntek-auth test suite in
+  parallel across all available CPU cores (`-n auto`). A fast Argon2id override (`m=8, t=1, p=1`)
+  eliminates password-hashing cost during test execution, significantly reducing wall-clock time.
+
+- **Test markers** — all 18 syntek-auth test modules now carry a `pytestmark` (`unit` or `slow`)
+  enabling targeted test selection and better xdist distribution.
+
+- **`syntek-auth 0.3.1`** — per-module patch bump to record the test suite improvements.
+
+---
+
+## v0.16.1 — 13/03/2026
+
+**Branch**: `fix/us006/qa-report-11-03-2026`\
+**Type**: PATCH\
+**Story**: US006 — Syntek Crypto: QA Security Review Fixes
+
+### Highlights
+
+- **13 QA findings resolved in `syntek-crypto`** — all findings raised in the US006 security review
+  have been addressed. Fixes span critical, high, medium, and low severity categories.
+
+- **Critical fixes** — `decrypt_fields_batch` now enforces a key-length guard upfront before any
+  decryption attempt; `KeyRing::add` now rejects duplicate key versions rather than silently
+  replacing them, preventing accidental key state corruption.
+
+- **High fixes** — `reencrypt_to_active` now wraps the temporary plaintext buffer in
+  `Zeroizing<String>` so memory is wiped on drop; `hmac_sign` and `hmac_verify` both guard against
+  empty keys and now return `Result` rather than panicking; `verify_password` now passes explicit
+  Argon2 parameters rather than relying on defaults; `syntek.manifest.toml` created (was missing).
+
+- **Medium fixes** — `hmac_verify` now normalises hex to lowercase before comparison, eliminating
+  false negatives from mixed-case input; `deny.toml` `unmaintained` policy changed from `"all"` to
+  `"warn"` to unblock CI; `KeyRing` capacity field documented.
+
+- **Low fixes** — `CryptoError` now derives `PartialEq` for assertion-friendly tests;
+  `KeyVersion(0)` is now rejected as an invalid version number; `examples/.gitkeep` added.
+
+- **Bug report** — all 17 findings (13 code, 4 informational) consolidated in
+  `docs/BUGS/BUG-US006-SYNTEK-CRYPTO-13-03-2026.md`.
+
+---
+
 ## v0.16.0 — 13/03/2026
 
 **Branch**: `us009/syntek-auth`\

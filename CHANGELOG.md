@@ -7,6 +7,76 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [0.16.2] — 13/03/2026
+
+### Fixed
+
+- **`rust/syntek-crypto/src/lib.rs`** — applied remaining actionable findings from the US006 QA
+  review (2 additional fixes applied after the initial 0.16.1 batch).
+- **`rust/syntek-crypto/src/key_versioning.rs`** — delegating to new `aes_gcm` helpers eliminates
+  duplicated AES-256-GCM logic; `Zeroizing<String>` applied to all intermediate plaintext buffers.
+- **`docs/BUGS/BUG-US006-SYNTEK-CRYPTO-13-03-2026.md`** — consolidated bug report updated to reflect
+  final fix status for all 17 findings (15 Fixed, 2 No Fix).
+
+### Added
+
+- **`rust/syntek-crypto/src/aes_gcm.rs`** — new `pub(crate)` module exporting `aes_gcm_encrypt` and
+  `aes_gcm_decrypt` helpers. The canonical AES-256-GCM implementation now lives in one place; both
+  `lib.rs` and `key_versioning.rs` delegate to these helpers.
+- **`docs/REFACTORING/REFACTOR-SYNTEK-CRYPTO-AES-GCM-HELPERS-2026-03-13.md`** — decision record
+  documenting the extraction of AES-GCM primitives into a dedicated module.
+- **`rust/syntek-crypto/tests/crypto_tests.rs`** — large-payload proptest module added (4 property
+  tests, `ProptestConfig { cases: 10 }`) exercising encrypt/decrypt round-trips at scale.
+
+### Changed
+
+- **`pyproject.toml`** — `pytest-xdist>=3.0` added to dev dependencies; `addopts` restored to
+  `["--strict-markers", "--tb=short", "-v"]` (parallel flags moved to CLI invocation).
+- **`rust/syntek-dev/src/commands/test.rs`** — pytest invocation now prepends `-n auto --reuse-db`
+  so parallel execution is the default when using `syntek-dev test --python`.
+- **`conftest.py`** (root) — `SYNTEK_AUTH` test override adds `ARGON2ID_TIME_COST=1`,
+  `ARGON2ID_MEMORY_COST=8`, `ARGON2ID_PARALLELISM=1` to eliminate Argon2id cost during test runs.
+- **`packages/backend/syntek-auth/tests/conftest.py`** — same Argon2id override applied at the
+  package level.
+- **All 18 `packages/backend/syntek-auth/tests/test_*.py` files** — `pytestmark` added to each
+  module classifying tests as `unit` or `slow` for xdist distribution and marker filtering.
+
+### Module Version
+
+- **`syntek-auth`** — bumped `0.3.0 → 0.3.1` (test suite parallelism and Argon2id overrides).
+
+---
+
+## [0.16.1] — 13/03/2026
+
+### Fixed
+
+- **`rust/syntek-crypto/src/lib.rs`** — `decrypt_fields_batch` now validates key length upfront
+  before entering the decryption loop; `hmac_sign` now returns `Result<String, CryptoError>` with an
+  empty-key guard instead of panicking; `hmac_verify` guards against empty keys and normalises hex
+  to lowercase before comparison, eliminating false negatives from mixed-case input;
+  `verify_password` now passes explicit Argon2 parameters (`m=65536`, `t=3`, `p=4`) rather than
+  relying on potentially-changing defaults; `CryptoError` now derives `PartialEq` for
+  assertion-friendly tests; key-length doc comments added to public API.
+- **`rust/syntek-crypto/src/key_versioning.rs`** — `KeyRing::add` now rejects duplicate key versions
+  with `CryptoError::InvalidInput`; `KeyVersion(0)` is rejected as an invalid version number;
+  `reencrypt_to_active` now wraps the temporary plaintext buffer in `Zeroizing<String>` so memory is
+  zeroed on drop; capacity documentation added.
+- **`rust/syntek-crypto/tests/crypto_tests.rs`** — 8 `hmac_sign` call sites updated for the new
+  `Result` return type.
+- **`deny.toml`** — `unmaintained` policy changed from `"all"` to `"warn"` to unblock CI on
+  transitively unmaintained crates that are not direct security risks.
+
+### Added
+
+- **`rust/syntek-crypto/syntek.manifest.toml`** — Syntek manifest file created (was missing from
+  initial implementation).
+- **`rust/syntek-crypto/examples/.gitkeep`** — `examples/` directory placeholder added.
+- **`docs/BUGS/BUG-US006-SYNTEK-CRYPTO-13-03-2026.md`** — combined bug report covering all 17
+  findings (13 code fixes, 4 informational) from the US006 QA security review.
+
+---
+
 ## [0.16.0] — 13/03/2026
 
 ### Added

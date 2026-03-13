@@ -49,6 +49,8 @@ from syntek_auth.services.oidc import (
     validate_id_token,
 )
 
+pytestmark = pytest.mark.unit
+
 # ---------------------------------------------------------------------------
 # Helpers — JWT construction
 # ---------------------------------------------------------------------------

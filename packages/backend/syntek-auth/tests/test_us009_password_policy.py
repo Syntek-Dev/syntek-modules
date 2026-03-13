@@ -23,6 +23,7 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
+import pytest
 from syntek_auth.services.password import (
     PasswordPolicyResult,
     check_password_history,
@@ -30,6 +31,8 @@ from syntek_auth.services.password import (
     is_password_expired,
     validate_password_policy,
 )
+
+pytestmark = pytest.mark.unit
 
 # ---------------------------------------------------------------------------
 # Helpers

@@ -1,6 +1,6 @@
 [project]
 name = "syntek-auth"
-version = "0.3.0"
+version = "0.3.1"
 description = "Authentication module for Syntek — MFA, passkeys, OAuth, Argon2id"
 requires-python = ">=3.14"
 dependencies = [
