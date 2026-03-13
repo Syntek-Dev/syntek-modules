@@ -33,6 +33,7 @@ line-length = 88
 target-version = "py314"
 src = ["packages/backend"]
 indent-width = 4
+exclude = ["**/migrations"]
 
 [tool.ruff.lint]
 select = [
