@@ -19,6 +19,8 @@
 - [Configuration Pattern](#configuration-pattern)
 - [Security Layer](#security-layer) — see also [Encryption Guide](.claude/ENCRYPTION-GUIDE.md)
 - [Versioning](#versioning)
+- [SEO & AI Discoverability](#seo--ai-discoverability) — see also
+  [SEO Checklist](.claude/SEO-CHECKLIST.md)
 - [Ecosystem Context](#ecosystem-context)
 
 ---
@@ -36,6 +38,7 @@
 | [`.claude/GIT-GUIDE.md`](.claude/GIT-GUIDE.md)               | Git workflow — lint before commit, CI before push                                  |
 | [`.claude/VERSIONING-GUIDE.md`](.claude/VERSIONING-GUIDE.md) | Versioning rules — root files, per-module files, increment types                   |
 | [`.claude/ENCRYPTION-GUIDE.md`](.claude/ENCRYPTION-GUIDE.md) | Encryption rules — EncryptedField, individual/batch, unique tokens, migration path |
+| [`.claude/SEO-CHECKLIST.md`](.claude/SEO-CHECKLIST.md)       | SEO & AI discoverability checklist — meta tags, structured data, sitemaps          |
 
 ---
 
@@ -547,6 +550,31 @@ changelog files.
 
 Use `/syntek-dev-suite:version` to manage all version bumps. See the Versioning Guide for the full
 workflow, decision table, and per-module bump procedure.
+
+---
+
+## SEO & AI Discoverability
+
+> **IMPORTANT:** Always follow [`.claude/SEO-CHECKLIST.md`](.claude/SEO-CHECKLIST.md) when
+> implementing SEO or AI discoverability features. Work through the tiers in order — Beginner, then
+> Intermediate, then Advanced.
+
+SEO applies to all web and mobile packages in `packages/web/` and `mobile/`. The checklist covers
+three tiers:
+
+| Tier             | Search Engine SEO                                      | AI Discoverability (GEO)                              |
+| ---------------- | ------------------------------------------------------ | ----------------------------------------------------- |
+| **Beginner**     | `robots.txt`, `sitemap.xml`, meta tags, on-page basics | `llms.txt`, `llms-full.txt`, BLUF content structure   |
+| **Intermediate** | Structured data (JSON-LD), Open Graph, Core Web Vitals | Question-format headings, FAQ sections, SSR, RSS      |
+| **Advanced**     | Edge SEO, IndexNow, log file analysis, advanced schema | GEO content strategy, AI citation tracking, RAG-ready |
+
+**Key rules:**
+
+- Every web package must have `robots.txt` and `sitemap.xml` as a minimum
+- Use `llms.txt` at site root for AI agent discoverability
+- Structured data uses JSON-LD (Schema.org) — never Microdata or RDFa
+- All SEO meta tags are server-rendered — never injected client-side only
+- Use `/syntek-dev-suite:seo` to implement any section of the checklist
 
 ---
 
