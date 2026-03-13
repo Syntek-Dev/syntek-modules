@@ -41,7 +41,7 @@ use sha2::Sha256;
 type HmacSha256 = Hmac<Sha256>;
 
 /// Errors returned by cryptographic operations.
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, PartialEq, thiserror::Error)]
 pub enum CryptoError {
     /// Returned when AES-256-GCM encryption fails.
     #[error("encryption error: {0}")]
@@ -246,7 +246,11 @@ pub fn verify_password(password: &str, hash: &str) -> Result<bool, CryptoError> 
 
     let parsed_hash = PasswordHash::new(hash).map_err(|e| CryptoError::HashError(e.to_string()))?;
 
-    match Argon2::default().verify_password(password.as_bytes(), &parsed_hash) {
+    let params =
+        Params::new(65536, 3, 4, None).map_err(|e| CryptoError::HashError(e.to_string()))?;
+    let argon2 = Argon2::new(Algorithm::Argon2id, Version::V0x13, params);
+
+    match argon2.verify_password(password.as_bytes(), &parsed_hash) {
         Ok(()) => Ok(true),
         Err(argon2::password_hash::Error::Password) => Ok(false),
         Err(e) => Err(CryptoError::HashError(e.to_string())),
@@ -258,27 +262,45 @@ pub fn verify_password(password: &str, hash: &str) -> Result<bool, CryptoError> 
 /// The output is always a 64-character lowercase hex string (32 bytes encoded as hex).
 /// The function is deterministic: the same `data` and `key` always produce the same digest.
 ///
+/// # Key length
+///
+/// The recommended minimum key length is 32 bytes (256 bits) to match the
+/// security level of HMAC-SHA256. Keys shorter than the 64-byte SHA-256 block
+/// size are zero-padded internally (per RFC 2104); keys longer than 64 bytes
+/// are first hashed. An empty key is rejected with [`CryptoError::InvalidInput`]
+/// because it provides no authentication.
+///
+/// # Errors
+///
+/// Returns [`CryptoError::InvalidInput`] if `key` is empty.
+///
 /// # Examples
 ///
 /// ```rust
 /// use syntek_crypto::hmac_sign;
 ///
-/// let sig = hmac_sign(b"payload", b"key-material");
+/// let sig = hmac_sign(b"payload", b"key-material").unwrap();
 /// assert_eq!(sig.len(), 64);
 /// assert!(sig.chars().all(|c| c.is_ascii_hexdigit()));
 /// ```
-pub fn hmac_sign(data: &[u8], key: &[u8]) -> String {
+pub fn hmac_sign(data: &[u8], key: &[u8]) -> Result<String, CryptoError> {
+    if key.is_empty() {
+        return Err(CryptoError::InvalidInput(
+            "HMAC key must not be empty".to_string(),
+        ));
+    }
+
     let mut mac =
         <HmacSha256 as Mac>::new_from_slice(key).expect("HMAC accepts keys of any length");
     mac.update(data);
     let bytes = mac.finalize().into_bytes();
-    bytes
+    Ok(bytes
         .iter()
         .fold(String::with_capacity(64), |mut s: String, b| {
             use std::fmt::Write;
             write!(s, "{:02x}", b).unwrap();
             s
-        })
+        }))
 }
 
 /// Verifies a hex-encoded HMAC-SHA256 `sig` for `data` using `key`.
@@ -287,20 +309,39 @@ pub fn hmac_sign(data: &[u8], key: &[u8]) -> String {
 /// Returns `true` only when the signature is valid. Invalid hex or wrong-length inputs
 /// return `false` immediately (one-bit non-secret leakage — acceptable for MAC verification).
 ///
+/// The `sig` parameter accepts both lowercase and uppercase hex characters. The
+/// input is normalised to lowercase before comparison so that signatures stored
+/// or transmitted via systems that uppercase hex headers (e.g. HTTP header
+/// normalisation) are verified correctly.
+///
+/// # Key length
+///
+/// The recommended minimum key length is 32 bytes (256 bits). An empty key
+/// causes the function to return `false` immediately because it cannot provide
+/// any authentication.
+///
 /// # Examples
 ///
 /// ```rust
 /// use syntek_crypto::{hmac_sign, hmac_verify};
 ///
-/// let sig = hmac_sign(b"payload", b"key-material");
+/// let sig = hmac_sign(b"payload", b"key-material").unwrap();
 /// assert!(hmac_verify(b"payload", b"key-material", &sig));
 /// assert!(!hmac_verify(b"payload", b"key-material", "deadbeef"));
 /// ```
 pub fn hmac_verify(data: &[u8], key: &[u8], sig: &str) -> bool {
+    // Empty key provides no authentication — reject immediately.
+    if key.is_empty() {
+        return false;
+    }
+
+    // Normalise to lowercase to accept uppercase hex signatures transparently.
+    let sig_lower = sig.to_ascii_lowercase();
+
     // Decode the incoming hex signature. A non-64-char or non-hex input is a
     // non-constant-time early return — this leaks only that the format is wrong,
     // not anything about the key or data.
-    let Some(expected) = decode_hex_32(sig) else {
+    let Some(expected) = decode_hex_32(&sig_lower) else {
         return false;
     };
 
@@ -387,6 +428,13 @@ pub fn decrypt_fields_batch(
     key: &[u8],
     model: &str,
 ) -> Result<Vec<String>, CryptoError> {
+    if key.len() != 32 {
+        return Err(CryptoError::InvalidInput(format!(
+            "key must be 32 bytes, got {}",
+            key.len()
+        )));
+    }
+
     fields
         .iter()
         .map(|(field_name, ciphertext)| {

@@ -1,0 +1,14 @@
+# syntek.manifest.toml — crate metadata for the `syntek add` CLI installer
+#
+# This file is read by the Rust CLI (`syntek-dev`) to locate and pin the
+# crate version from the Forgejo Cargo registry. It contains only crate
+# identity and registry coordinates — no configurable options.
+
+[crate]
+id = "syntek-crypto"
+description = "AES-256-GCM encryption, Argon2id hashing, and HMAC-SHA256 for Syntek modules"
+
+[registry]
+type = "cargo"
+url = "https://git.syntek-studio.com/syntek/_cargo-registry"
+index = "https://git.syntek-studio.com/syntek/_cargo-registry.git"

@@ -52,6 +52,14 @@ impl KeyVersion {
 /// once from environment variables at startup).
 ///
 /// The *active* version is the highest version number stored in the ring.
+///
+/// # Capacity
+///
+/// The ring is designed for small key sets (typically 2–4 entries during a
+/// rotation cycle). Lookups are O(n) linear scans over the backing `Vec`.
+/// Do not populate the ring with a large number of entries; if more than
+/// ~10 versions are needed simultaneously, the backing store should be
+/// replaced with an indexed map.
 #[derive(Debug)]
 pub struct KeyRing {
     entries: Vec<(KeyVersion, [u8; 32])>,
@@ -69,12 +77,26 @@ impl KeyRing {
     ///
     /// # Errors
     ///
-    /// Returns [`CryptoError::InvalidInput`] if `key` is not exactly 32 bytes.
+    /// Returns [`CryptoError::InvalidInput`] if:
+    /// - `key` is not exactly 32 bytes
+    /// - `version` is `KeyVersion(0)` (reserved)
+    /// - `version` already exists in the ring
     pub fn add(&mut self, version: KeyVersion, key: &[u8]) -> Result<(), CryptoError> {
+        if version.0 == 0 {
+            return Err(CryptoError::InvalidInput(
+                "KeyVersion(0) is reserved; valid versions start at 1".to_string(),
+            ));
+        }
         if key.len() != 32 {
             return Err(CryptoError::InvalidInput(format!(
                 "key must be 32 bytes, got {}",
                 key.len()
+            )));
+        }
+        if self.entries.iter().any(|(v, _)| *v == version) {
+            return Err(CryptoError::InvalidInput(format!(
+                "key version {:?} already exists in ring",
+                version
             )));
         }
         let mut bytes = [0u8; 32];
@@ -277,6 +299,8 @@ pub fn reencrypt_to_active(
     }
 
     // Decrypt under the old key, then re-encrypt under the active key.
-    let plaintext = decrypt_versioned(ciphertext, ring, model, field)?;
+    // Wrap in Zeroizing so the intermediate plaintext heap buffer is overwritten
+    // when this binding is dropped, maintaining the zero-plaintext-in-memory guarantee.
+    let plaintext = zeroize::Zeroizing::new(decrypt_versioned(ciphertext, ring, model, field)?);
     encrypt_versioned(&plaintext, ring, model, field)
 }

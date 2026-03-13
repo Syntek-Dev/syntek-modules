@@ -1,0 +1,3 @@
+# This directory is for temporary manual-testing example binaries.
+# Do not commit example binaries — they are created during manual QA
+# and deleted afterwards. See docs/TESTS/ for manual testing guides.

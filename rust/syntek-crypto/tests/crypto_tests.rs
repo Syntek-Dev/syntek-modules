@@ -485,7 +485,8 @@ fn test_nonce_uniqueness_10000_encryptions() {
 /// hmac_sign must return a non-empty hex string for any non-empty input.
 #[test]
 fn test_hmac_sign_returns_non_empty_hex_string() {
-    let sig = hmac_sign(b"payload", b"secret-key");
+    let sig =
+        hmac_sign(b"payload", b"secret-key").expect("hmac_sign must succeed for a non-empty key");
 
     assert!(!sig.is_empty(), "hmac_sign must return a non-empty string");
 
@@ -509,7 +510,7 @@ fn test_hmac_verify_valid_signature_returns_true() {
     let data = b"webhook-payload";
     let key = b"shared-secret";
 
-    let sig = hmac_sign(data, key);
+    let sig = hmac_sign(data, key).expect("hmac_sign must succeed");
     let valid = hmac_verify(data, key, &sig);
 
     assert!(valid, "hmac_verify must return true for a valid signature");
@@ -538,7 +539,7 @@ fn test_hmac_verify_invalid_signature_returns_false() {
 #[test]
 fn test_hmac_verify_mismatched_data_returns_false() {
     let key = b"shared-secret";
-    let sig = hmac_sign(b"original-payload", key);
+    let sig = hmac_sign(b"original-payload", key).expect("hmac_sign must succeed");
 
     let valid = hmac_verify(b"different-payload", key, &sig);
 
@@ -557,7 +558,7 @@ fn test_hmac_verify_constant_time_comparison_does_not_panic() {
     let data = b"timing-test-payload";
     let key = b"timing-test-key";
 
-    let correct_sig = hmac_sign(data, key);
+    let correct_sig = hmac_sign(data, key).expect("hmac_sign must succeed");
 
     // Signatures of different lengths — must not panic or short-circuit in a
     // length-dependent way.
@@ -616,8 +617,8 @@ proptest! {
     fn prop_hmac_sign_is_deterministic(data in prop::collection::vec(any::<u8>(), 0..256)) {
         let key = b"determinism-test-key";
 
-        let sig1 = hmac_sign(&data, key);
-        let sig2 = hmac_sign(&data, key);
+        let sig1 = hmac_sign(&data, key).expect("hmac_sign must succeed");
+        let sig2 = hmac_sign(&data, key).expect("hmac_sign must succeed");
 
         prop_assert_eq!(sig1, sig2, "hmac_sign must be deterministic");
     }
@@ -630,7 +631,7 @@ proptest! {
         wrong_sig in "[0-9a-f]{64}",
     ) {
         let key = b"rejection-test-key";
-        let correct_sig = hmac_sign(&data, key);
+        let correct_sig = hmac_sign(&data, key).expect("hmac_sign must succeed");
 
         // Only check when the generated signature happens to differ from the correct one.
         prop_assume!(wrong_sig != correct_sig);
