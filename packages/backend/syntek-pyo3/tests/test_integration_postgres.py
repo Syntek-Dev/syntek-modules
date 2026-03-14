@@ -18,9 +18,31 @@ from the standard CI run):
 
 from __future__ import annotations
 
+import contextlib
+
 import pytest
 
-pytestmark = pytest.mark.integration
+# Skip the entire module when neither psycopg (v3) nor psycopg2 is installed.
+# These tests require a real PostgreSQL adapter; without one Django's PostgreSQL
+# backend raises ImproperlyConfigured before any test can run.
+try:
+    import psycopg as _psycopg  # type: ignore[import-untyped]
+except ImportError:
+    try:
+        import psycopg2 as _psycopg  # type: ignore[no-redef]  # noqa: F401
+    except ImportError:
+        pytest.skip(
+            "PostgreSQL adapter not installed — run: uv add psycopg[binary] --dev",
+            allow_module_level=True,
+        )
+
+pytestmark = [
+    pytest.mark.integration,
+    # Keep all tests in this file on the same xdist worker so that the
+    # scope="module" testcontainers fixtures (postgres_dsn, pg_connection,
+    # encrypted_table) are shared correctly across the entire module.
+    pytest.mark.xdist_group("syntek_pyo3_postgres"),
+]
 
 # TEST KEY ONLY — NOT FOR PRODUCTION USE.  Generate from a CSPRNG in production.
 _TEST_KEY = bytes(range(32))
@@ -55,12 +77,22 @@ def pg_connection(postgres_dsn, django_db_blocker):
     access guard for the lifetime of this module-scoped fixture.  This is the
     correct pattern when bringing your own database (testcontainers) rather
     than letting pytest-django create a test database.
+
+    `connections.close_all()` is used (not just `connections["default"].close()`)
+    to reset Django's thread-local connection cache entirely, forcing a fresh
+    DatabaseWrapper to be created from the updated PostgreSQL settings on next
+    access.  Without this, a worker that previously ran SQLite tests retains the
+    old wrapper and ignores the settings update.
     """
     from django.conf import settings as django_settings
     from django.db import connection, connections
 
     django_settings.DATABASES["default"].update(postgres_dsn)
-    connections["default"].close()
+    # Delete the cached DatabaseWrapper so Django creates a fresh one from the
+    # updated settings on next access.  close_all() only closes the socket; the
+    # old wrapper (pointing at SQLite) would otherwise be reused.
+    with contextlib.suppress(KeyError):
+        del connections["default"]
 
     with django_db_blocker.unblock():
         # Verify the connection is usable before any test runs.
@@ -70,7 +102,8 @@ def pg_connection(postgres_dsn, django_db_blocker):
 
         yield
 
-    connections["default"].close()
+    with contextlib.suppress(KeyError):
+        del connections["default"]
 
 
 @pytest.fixture(scope="module")

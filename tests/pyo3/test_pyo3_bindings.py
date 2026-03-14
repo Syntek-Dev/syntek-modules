@@ -13,11 +13,14 @@ Run after `maturin develop`:
 from __future__ import annotations
 
 import pytest
+from syntek_pyo3 import KeyRing as _KeyRing
 
 pytestmark = pytest.mark.unit
 
 # 32-byte test key (non-secret — tests only; never use predictable keys in production).
-_KEY = bytes(range(32))
+_KEY_BYTES = bytes(range(32))
+_KEY = _KeyRing()
+_KEY.add(1, _KEY_BYTES)
 
 
 # ---------------------------------------------------------------------------
@@ -79,10 +82,11 @@ class TestEncryptField:
         assert ct1 != ct2
 
     def test_invalid_key_length_raises(self) -> None:
-        from syntek_pyo3 import encrypt_field
+        from syntek_pyo3 import KeyRing
 
         with pytest.raises(Exception):
-            encrypt_field("plaintext", b"too-short", "User", "email")
+            bad_ring = KeyRing()
+            bad_ring.add(1, b"too-short")
 
 
 # ---------------------------------------------------------------------------
@@ -120,11 +124,13 @@ class TestDecryptField:
             decrypt_field("not-valid-base64!!!", _KEY, "User", "email")
 
     def test_wrong_key_raises(self) -> None:
-        from syntek_pyo3 import decrypt_field, encrypt_field
+        from syntek_pyo3 import KeyRing, decrypt_field, encrypt_field
 
         ct = encrypt_field("secret", _KEY, "User", "email")
+        wrong_ring = KeyRing()
+        wrong_ring.add(1, bytes(32))  # all zeros — different from _KEY_BYTES
         with pytest.raises(Exception):
-            decrypt_field(ct, bytes(32), "User", "email")
+            decrypt_field(ct, wrong_ring, "User", "email")
 
     def test_aad_model_mismatch_raises(self) -> None:
         """Ciphertext bound to 'User' is rejected when decrypted as 'Order'."""
@@ -178,10 +184,11 @@ class TestEncryptFieldsBatch:
         assert encrypt_fields_batch([], _KEY, "User") == []
 
     def test_invalid_key_raises(self) -> None:
-        from syntek_pyo3 import encrypt_fields_batch
+        from syntek_pyo3 import KeyRing
 
         with pytest.raises(Exception):
-            encrypt_fields_batch([("email", "x@example.com")], b"bad", "User")
+            bad_ring = KeyRing()
+            bad_ring.add(1, b"bad")
 
 
 # ---------------------------------------------------------------------------
