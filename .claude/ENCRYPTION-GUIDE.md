@@ -111,16 +111,19 @@ Use `encrypt_field` / `decrypt_field` when a model has **one or two** sensitive 
 fields have different keys.
 
 ```python
-from syntek_pyo3 import encrypt_field, decrypt_field
+from syntek_pyo3 import KeyRing, decrypt_field, encrypt_field
 
-FIELD_KEY = settings.SYNTEK_FIELD_KEY_MY_MODEL  # 32-byte key from env var
+_raw_key = settings.SYNTEK_AUTH.get("FIELD_KEY", "")
+_field_key: bytes = _raw_key.encode("utf-8") if isinstance(_raw_key, str) else bytes(_raw_key)
+_ring = KeyRing()
+_ring.add(1, _field_key)  # version 1 = initial key; increment on rotation
 
 # Encrypt before save
-model.full_name = encrypt_field(plaintext_name, FIELD_KEY, "MyModel", "full_name")
+model.full_name = encrypt_field(plaintext_name, _ring, "MyModel", "full_name")
 model.save()
 
 # Decrypt after load
-plaintext_name = decrypt_field(model.full_name, FIELD_KEY, "MyModel", "full_name")
+plaintext_name = decrypt_field(model.full_name, _ring, "MyModel", "full_name")
 ```
 
 The `model` and `field` arguments are used as AAD (Additional Authenticated Data) so a ciphertext
@@ -135,9 +138,12 @@ fields that share the same key. Batch operations are more efficient and reduce t
 Rust→Python boundary crossings.
 
 ```python
-from syntek_pyo3 import encrypt_fields_batch, decrypt_fields_batch
+from syntek_pyo3 import KeyRing, decrypt_fields_batch, encrypt_fields_batch
 
-FIELD_KEY = settings.SYNTEK_FIELD_KEY_MY_MODEL
+_raw_key = settings.SYNTEK_AUTH.get("FIELD_KEY", "")
+_field_key: bytes = _raw_key.encode("utf-8") if isinstance(_raw_key, str) else bytes(_raw_key)
+_ring = KeyRing()
+_ring.add(1, _field_key)  # version 1 = initial key; increment on rotation
 
 # Encrypt before save
 encrypted = encrypt_fields_batch(
@@ -147,7 +153,7 @@ encrypted = encrypt_fields_batch(
         ("address_line_2", plaintext_addr2),
         ("postcode", plaintext_postcode),
     ],
-    FIELD_KEY,
+    _ring,
     "MyModel",
 )
 # encrypted is a list[str] in the same order as the input
@@ -162,7 +168,7 @@ decrypted = decrypt_fields_batch(
         ("address_line_2", model.address_line_2),
         ("postcode", model.postcode),
     ],
-    FIELD_KEY,
+    _ring,
     "MyModel",
 )
 plaintext_name, plaintext_addr1, plaintext_addr2, plaintext_postcode = decrypted
@@ -292,9 +298,13 @@ The model manager (or service layer) must compute the token and set both fields 
 ```python
 def create_record(email: str, ...) -> MyModel:
     from mymodule.services.lookup_tokens import make_email_token
+    from syntek_pyo3 import KeyRing, encrypt_field
+
+    _ring = KeyRing()
+    _ring.add(1, _field_key)  # _field_key loaded from SYNTEK_<MODULE>["FIELD_KEY"]
 
     obj = MyModel(
-        email=encrypt_field(email, FIELD_KEY, "MyModel", "email"),
+        email=encrypt_field(email, _ring, "MyModel", "email"),
         email_token=make_email_token(email),
         ...
     )
