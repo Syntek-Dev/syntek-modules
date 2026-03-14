@@ -151,11 +151,15 @@ def query_syntek_dev_help(context: dict) -> None:
 def cli_has_up_subcommand(context: dict) -> None:
     result = context["cli_help"]
     assert result.returncode == 0, f"syntek-dev --help failed:\n{result.stderr}"
-    assert "up" in result.stdout, "syntek-dev 'up' subcommand not found in --help output"
+    assert "up" in result.stdout, (
+        "syntek-dev 'up' subcommand not found in --help output"
+    )
 
 
 @then("the test subcommand is listed")
 def cli_has_test_subcommand(context: dict) -> None:
     result = context["cli_help"]
     assert result.returncode == 0, f"syntek-dev --help failed:\n{result.stderr}"
-    assert "test" in result.stdout, "syntek-dev 'test' subcommand not found in --help output"
+    assert "test" in result.stdout, (
+        "syntek-dev 'test' subcommand not found in --help output"
+    )

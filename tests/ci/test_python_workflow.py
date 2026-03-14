@@ -74,7 +74,9 @@ class TestPipAuditStep:
             "pip-audit must be run via 'uvx pip-audit' or 'uv run pip-audit'"
         )
 
-    def test_pip_audit_fails_on_high_severity(self, python_run_scripts: list[str]) -> None:
+    def test_pip_audit_fails_on_high_severity(
+        self, python_run_scripts: list[str]
+    ) -> None:
         """pip-audit must be present so the step fails when vulnerabilities are found.
 
         pip-audit exits non-zero on any finding by default — no explicit --fail-on
@@ -86,7 +88,9 @@ class TestPipAuditStep:
             "block the pipeline"
         )
 
-    def test_pip_audit_targets_high_and_critical(self, python_run_scripts: list[str]) -> None:
+    def test_pip_audit_targets_high_and_critical(
+        self, python_run_scripts: list[str]
+    ) -> None:
         """pip-audit must be invoked without suppressing high/critical findings.
 
         pip-audit reports and fails on all severities by default.  The test
@@ -135,7 +139,9 @@ class TestPerPackagePytest:
         not the sole invocation by asserting that at least one script references
         a package-level or affected-only pattern.
         """
-        blanket_run = _any_script_contains(python_run_scripts, "pytest packages/backend/")
+        blanket_run = _any_script_contains(
+            python_run_scripts, "pytest packages/backend/"
+        )
         affected_run = (
             _any_script_contains(python_run_scripts, "--affected")
             or _any_script_contains(python_run_scripts, "CHANGED_PACKAGES")
@@ -201,7 +207,9 @@ class TestCoverageReporting:
             "will be produced for PR comments"
         )
 
-    def test_coverage_xml_output_configured(self, python_run_scripts: list[str]) -> None:
+    def test_coverage_xml_output_configured(
+        self, python_run_scripts: list[str]
+    ) -> None:
         """Coverage must be written to an XML or LCOV file consumable by comment actions."""
         has_xml = _any_script_contains(python_run_scripts, "--cov-report=xml")
         has_lcov = _any_script_contains(python_run_scripts, "--cov-report=lcov")
@@ -210,7 +218,9 @@ class TestCoverageReporting:
             "no machine-readable coverage file will be produced"
         )
 
-    def test_coverage_comment_step_name_present(self, python_step_names: list[str]) -> None:
+    def test_coverage_comment_step_name_present(
+        self, python_step_names: list[str]
+    ) -> None:
         """A step that posts coverage as a PR comment must exist."""
         has_comment_step = (
             _any_name_contains(python_step_names, "comment")
@@ -224,9 +234,7 @@ class TestCoverageReporting:
             "'MishaKav/pytest-coverage-comment'"
         )
 
-    def test_coverage_comment_step_uses_action(
-        self, python_steps: list[dict]
-    ) -> None:
+    def test_coverage_comment_step_uses_action(self, python_steps: list[dict]) -> None:
         """The coverage comment step must use a recognised Actions action."""
         known_comment_actions = (
             "MishaKav/pytest-coverage-comment",
@@ -248,7 +256,9 @@ class TestCoverageReporting:
     ) -> None:
         """The workflow must trigger on pull_request so coverage comments can be posted."""
         # PyYAML (YAML 1.1) parses bare `on:` as boolean True — check both keys.
-        triggers = forgejo_python_workflow.get("on") or forgejo_python_workflow.get(True, {})
+        triggers = forgejo_python_workflow.get("on") or forgejo_python_workflow.get(
+            True, {}
+        )
         assert "pull_request" in triggers, (
             "python.yml does not trigger on pull_request — "
             "coverage PR comments cannot be posted"

@@ -225,9 +225,7 @@ class TestIndividualFieldRoundtrip:
             context_value=authenticated_context,
         )
 
-        assert not read_result.errors, (
-            f"Read query must succeed: {read_result.errors}"
-        )
+        assert not read_result.errors, f"Read query must succeed: {read_result.errors}"
         assert read_result.data["user"]["email"] == "alice@example.com"
 
 
@@ -314,7 +312,9 @@ class TestTamperedDbValue:
         """
         mock_pyo3 = MagicMock()
 
-        def _selective_decrypt(ciphertext: str, key: str, model: str, field: str) -> str:
+        def _selective_decrypt(
+            ciphertext: str, key: str, model: str, field: str
+        ) -> str:
             if field == "email":
                 raise RuntimeError("GCM tag mismatch")
             return f"PLAINTEXT_{field}"
@@ -346,10 +346,13 @@ class TestTamperedDbValue:
             )
 
         # ``email`` must be null.
+        assert result.data is not None
         assert result.data["user"]["email"] is None
 
         # A structured error must be present.
-        assert result.errors, "A structured error must be present for the tampered field"
+        assert result.errors, (
+            "A structured error must be present for the tampered field"
+        )
 
         # ``display_name`` must still be present.
         assert result.data["user"]["displayName"] == "Alice Smith"
