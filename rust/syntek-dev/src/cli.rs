@@ -43,6 +43,9 @@ pub enum Commands {
 
     /// Open a local service in the browser
     Open(OpenArgs),
+
+    /// Audit dependencies for vulnerabilities and outdated packages
+    Audit(AuditArgs),
 }
 
 // ---------------------------------------------------------------------------
@@ -259,6 +262,29 @@ pub enum DbCommand {
 
     /// Open a psql shell to the local database
     Shell,
+}
+
+// ---------------------------------------------------------------------------
+// Audit
+// ---------------------------------------------------------------------------
+
+#[derive(Args)]
+pub struct AuditArgs {
+    /// Audit Python dependencies (pip-audit via uv)
+    #[arg(long)]
+    pub python: bool,
+
+    /// Audit Rust dependencies (cargo audit — requires cargo-audit)
+    #[arg(long)]
+    pub rust: bool,
+
+    /// Audit JS/TS dependencies (pnpm audit)
+    #[arg(long)]
+    pub js: bool,
+
+    /// Also report outdated packages across selected layers
+    #[arg(long)]
+    pub outdated: bool,
 }
 
 // ---------------------------------------------------------------------------

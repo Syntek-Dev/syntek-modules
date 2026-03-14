@@ -18,6 +18,7 @@
   - [ci](#ci)
   - [db](#db)
   - [open](#open)
+  - [audit](#audit)
 - [Source Location](#source-location)
 
 ---
@@ -567,12 +568,63 @@ syntek-dev open admin
 
 ---
 
+### audit
+
+Scan all dependency manifests for known vulnerabilities and (optionally) outdated packages. With no
+layer flags, audits all three layers.
+
+```
+syntek-dev audit [--python] [--rust] [--js] [--outdated]
+```
+
+| Flag         | What it does                                                                                  |
+| ------------ | --------------------------------------------------------------------------------------------- |
+| `--python`   | Run `pip-audit` via `uv run --with pip-audit pip-audit` against `pyproject.toml` / `uv.lock`  |
+| `--rust`     | Run `cargo audit --deny unsound --deny yanked` against `Cargo.toml` / `Cargo.lock`            |
+| `--js`       | Run `pnpm audit --audit-level=moderate` against `package.json` / `pnpm-lock.yaml`             |
+| `--outdated` | Also report outdated packages for each selected layer (informational — does not fail the run) |
+
+**Prerequisites:**
+
+- Python audit: `uv` must be on PATH (`pip-audit` is injected ephemerally — no install needed)
+- Rust audit: `cargo-audit` must be installed — `cargo install cargo-audit`
+- Rust outdated: `cargo-outdated` must be installed — `cargo install cargo-outdated`
+- JS audit: `pnpm` must be on PATH
+
+**Exit codes:**
+
+- Exits non-zero if any vulnerability scan reports findings at or above the threshold.
+- Outdated-package checks are informational — they print a warning but do not cause a non-zero exit
+  on their own.
+
+**Examples:**
+
+```bash
+# Audit all layers for vulnerabilities
+syntek-dev audit
+
+# Audit all layers for vulnerabilities and outdated packages
+syntek-dev audit --outdated
+
+# Audit only Python
+syntek-dev audit --python
+
+# Audit only Rust
+syntek-dev audit --rust
+
+# Audit JS/TS and also show outdated packages
+syntek-dev audit --js --outdated
+```
+
+---
+
 ## Source Location
 
 | File                                     | Purpose                                              |
 | ---------------------------------------- | ---------------------------------------------------- |
 | `rust/syntek-dev/src/cli.rs`             | Clap command/flag definitions (authoritative source) |
 | `rust/syntek-dev/src/main.rs`            | Entry point                                          |
+| `rust/syntek-dev/src/commands/audit.rs`  | `audit` implementation                               |
 | `rust/syntek-dev/src/commands/up.rs`     | `up` implementation                                  |
 | `rust/syntek-dev/src/commands/test.rs`   | `test` implementation                                |
 | `rust/syntek-dev/src/commands/lint.rs`   | `lint` and `check` implementation                    |

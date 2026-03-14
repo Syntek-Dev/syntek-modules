@@ -927,7 +927,7 @@ dev = [
 
 [[package]]
 name = "syntek-pyo3"
-version = "0.12.1"
+version = "0.16.2"
 source = { editable = "rust/syntek-pyo3" }
 
 [[package]]
