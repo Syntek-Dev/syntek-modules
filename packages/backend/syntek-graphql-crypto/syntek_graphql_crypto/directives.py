@@ -14,7 +14,7 @@ class Encrypted:
     ``Encrypted(batch="group")`` for fields that share a batch decryption key.
     """
 
-    batch: str | None = strawberry.UNSET  # type: ignore[assignment]
+    batch: str | None = None
 
     def __init__(self, batch: str | None = None) -> None:
         self.batch = batch
