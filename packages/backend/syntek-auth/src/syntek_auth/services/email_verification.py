@@ -38,9 +38,11 @@ def _encrypt_token(plaintext: str) -> str:
         raw_key.encode("utf-8") if isinstance(raw_key, str) else bytes(raw_key)
     )
     try:
-        from syntek_pyo3 import encrypt_field  # type: ignore[import-not-found]
+        from syntek_pyo3 import KeyRing, encrypt_field  # type: ignore[import-not-found]
 
-        return encrypt_field(plaintext, field_key, "VerificationCode", "token")
+        _ring = KeyRing()
+        _ring.add(1, field_key)
+        return encrypt_field(plaintext, _ring, "VerificationCode", "token")
     except ImportError:
         return plaintext
 
