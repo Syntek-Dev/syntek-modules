@@ -1,4 +1,4 @@
-"""US007 — Red phase: Django EncryptedField model field tests.
+"""US007 — Django EncryptedField model field tests.
 
 Verifies the behaviour of `EncryptedField` and `EncryptedFieldDescriptor` as
 described in US007.  The architecture boundary is the GraphQL layer:
@@ -9,14 +9,12 @@ described in US007.  The architecture boundary is the GraphQL layer:
 `EncryptedField` is therefore a *storage-and-validation type only*.  It never
 encrypts on save or decrypts on load.  Its sole responsibility is:
 
-  1. Accept ciphertext (valid base64ct, decoded length >= 28 bytes) on pre_save.
-  2. Reject plaintext with `ValidationError` before the DB write.
+  1. Accept versioned ciphertext (base64ct, decoded >= 30 bytes, version >= 1)
+     on pre_save.
+  2. Reject plaintext and unversioned ciphertexts with `ValidationError`.
   3. Return raw ciphertext from `from_db_value` — no decryption.
-  4. Record model name and field name via `EncryptedFieldDescriptor` so the
+  4. Record model name and field name via the encrypted field registry so the
      GraphQL middleware can resolve the correct AAD without manual annotation.
-
-All tests FAIL during the red phase because `EncryptedField` and
-`EncryptedFieldDescriptor` are not yet implemented.
 
 Run with:
     pytest packages/backend/syntek-pyo3/tests/test_encrypted_field.py -v
@@ -25,6 +23,7 @@ Run with:
 from __future__ import annotations
 
 import base64
+import struct
 
 import pytest
 
@@ -34,10 +33,14 @@ pytestmark = pytest.mark.unit
 # Fixtures
 # ---------------------------------------------------------------------------
 
-# 30 zero-bytes → valid base64, decoded length = 30 >= 28 (minimum ciphertext shell).
-_VALID_CIPHERTEXT = base64.b64encode(b"\x00" * 30).decode()
+# Synthetic versioned ciphertext: version=1 (big-endian) + 28 zero-bytes = 30 bytes.
+# This passes is_valid_ciphertext_format (>= 30 bytes, version != 0).
+_VALID_CIPHERTEXT = base64.b64encode(struct.pack(">H", 1) + b"\x00" * 28).decode()
 
-# Values that look like plaintext and must be rejected.
+# TEST KEY ONLY — NOT FOR PRODUCTION USE.  Generate from a CSPRNG in production.
+_TEST_KEY = bytes(range(32))
+
+# Values that look like plaintext or unversioned blobs — all must be rejected.
 _PLAINTEXT_VALUES = [
     "hello@example.com",
     "plaintext value",
@@ -45,6 +48,8 @@ _PLAINTEXT_VALUES = [
     "not-base64!!!",
     "",
     " ",
+    # Unversioned-layout blob: 28 bytes all zeros → version = 0x0000 = 0 (reserved)
+    base64.b64encode(b"\x00" * 28).decode(),
 ]
 
 
@@ -60,28 +65,30 @@ class TestEncryptedFieldImport:
     def test_encrypted_field_descriptor_importable(self) -> None:
         from syntek_pyo3 import EncryptedFieldDescriptor  # noqa: F401
 
+    def test_key_ring_importable(self) -> None:
+        from syntek_pyo3 import KeyRing  # noqa: F401
+
 
 # ---------------------------------------------------------------------------
-# AC2: EncryptedField accepts a valid ciphertext without raising
+# AC2: EncryptedField accepts a valid versioned ciphertext without raising
 # ---------------------------------------------------------------------------
 
 
 class TestEncryptedFieldAcceptsCiphertext:
     def test_valid_ciphertext_fixture_passes_validation(self) -> None:
-        """Base64ct string with >= 28 decoded bytes passes validation."""
+        """Synthetic versioned ciphertext (version=1, >= 30 bytes) passes."""
         from syntek_pyo3 import EncryptedField
 
         field = EncryptedField()
         field.validate(_VALID_CIPHERTEXT, model_instance=None)
 
     def test_real_ciphertext_from_encrypt_field_passes(self) -> None:
-        """Ciphertext produced by `encrypt_field` must always pass
-        EncryptedField validation.
-        """
-        from syntek_pyo3 import EncryptedField, encrypt_field
+        """Ciphertext produced by encrypt_field (versioned API) passes validation."""
+        from syntek_pyo3 import EncryptedField, KeyRing, encrypt_field
 
-        key = bytes(range(32))
-        ct = encrypt_field("hello@example.com", key, "User", "email")
+        ring = KeyRing()
+        ring.add(1, _TEST_KEY)
+        ct = encrypt_field("hello@example.com", ring, "User", "email")
         field = EncryptedField()
         field.validate(ct, model_instance=None)
 
@@ -99,28 +106,28 @@ class TestEncryptedFieldAcceptsCiphertext:
 
 
 # ---------------------------------------------------------------------------
-# AC3: EncryptedField rejects plaintext before the DB write
+# AC3: EncryptedField rejects plaintext and unversioned blobs
 # ---------------------------------------------------------------------------
 
 
 class TestEncryptedFieldRejectsPlaintext:
-    @pytest.mark.parametrize("plaintext", _PLAINTEXT_VALUES)
-    def test_validate_raises_validation_error_for_plaintext(
-        self, plaintext: str
+    @pytest.mark.parametrize("bad_value", _PLAINTEXT_VALUES)
+    def test_validate_raises_validation_error_for_bad_values(
+        self, bad_value: str
     ) -> None:
-        """validate() must raise ValidationError for any plaintext-looking value."""
+        """validate() raises ValidationError for plaintext and unversioned blobs."""
         from django.core.exceptions import ValidationError
         from syntek_pyo3 import EncryptedField
 
         field = EncryptedField()
         with pytest.raises(ValidationError):
-            field.validate(plaintext, model_instance=None)
+            field.validate(bad_value, model_instance=None)
 
-    @pytest.mark.parametrize("plaintext", _PLAINTEXT_VALUES)
-    def test_pre_save_raises_validation_error_for_plaintext(
-        self, plaintext: str
+    @pytest.mark.parametrize("bad_value", _PLAINTEXT_VALUES)
+    def test_pre_save_raises_validation_error_for_bad_values(
+        self, bad_value: str
     ) -> None:
-        """pre_save() must raise ValidationError — plaintext must never reach the DB."""
+        """pre_save() raises ValidationError — bad values must never reach the DB."""
         from unittest.mock import MagicMock
 
         from django.core.exceptions import ValidationError
@@ -129,9 +136,50 @@ class TestEncryptedFieldRejectsPlaintext:
         field = EncryptedField()
         field.attname = "email"
         instance = MagicMock()
-        instance.email = plaintext
+        instance.email = bad_value
         with pytest.raises(ValidationError):
             field.pre_save(instance, add=False)
+
+
+# ---------------------------------------------------------------------------
+# C2 fix: unversioned ciphertext format is explicitly rejected
+# ---------------------------------------------------------------------------
+
+
+class TestCrossFormatRejection:
+    def test_unversioned_blob_version_zero_fails_validate(self) -> None:
+        """A 28-byte zero blob (unversioned layout, version=0) must fail validation.
+
+        This confirms the format check explicitly rejects unversioned ciphertexts
+        whose first 2 bytes happen to encode version 0.
+        """
+        from django.core.exceptions import ValidationError
+        from syntek_pyo3 import EncryptedField
+
+        unversioned_blob = base64.b64encode(b"\x00" * 28).decode()
+        field = EncryptedField()
+        with pytest.raises(ValidationError):
+            field.validate(unversioned_blob, model_instance=None)
+
+    def test_versioned_ciphertext_round_trip(self) -> None:
+        """A ciphertext produced by encrypt_field decrypts correctly via decrypt_field."""
+        from syntek_pyo3 import KeyRing, decrypt_field, encrypt_field
+
+        ring = KeyRing()
+        ring.add(1, _TEST_KEY)
+        ct = encrypt_field("secret@example.com", ring, "User", "email")
+        pt = decrypt_field(ct, ring, "User", "email")
+        assert pt == "secret@example.com"
+
+    def test_wrong_aad_fails_decryption(self) -> None:
+        """A ciphertext encrypted for User.email must not decrypt for User.phone."""
+        from syntek_pyo3 import DecryptionError, KeyRing, decrypt_field, encrypt_field
+
+        ring = KeyRing()
+        ring.add(1, _TEST_KEY)
+        ct = encrypt_field("secret", ring, "User", "email")
+        with pytest.raises(DecryptionError):
+            decrypt_field(ct, ring, "User", "phone")
 
 
 # ---------------------------------------------------------------------------
@@ -156,9 +204,7 @@ class TestFromDbValue:
         assert field.from_db_value(None, expression=None, connection=None) is None
 
     def test_does_not_call_decrypt_field(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        """Decryption is the GraphQL middleware's job —
-        from_db_value must not decrypt.
-        """
+        """Decryption is the GraphQL middleware's job — from_db_value must not decrypt."""
         import syntek_pyo3
         from syntek_pyo3 import EncryptedField
 
@@ -181,13 +227,9 @@ class TestFromDbValue:
 
 
 class TestEncryptedFieldDescriptor:
-    def test_contribute_to_class_sets_descriptor_with_model_and_field_name(
-        self,
-    ) -> None:
-        """After contribute_to_class, the descriptor must expose
-        model_name and field_name.
-        """
-        from syntek_pyo3 import EncryptedField
+    def test_contribute_to_class_registers_in_registry(self) -> None:
+        """After contribute_to_class, (model_name, field_name) is in the registry."""
+        from syntek_pyo3 import EncryptedField, get_encrypted_field_registry
 
         class FakeModel:
             pass
@@ -195,21 +237,89 @@ class TestEncryptedFieldDescriptor:
         field = EncryptedField()
         field.contribute_to_class(FakeModel, "email")
 
-        descriptor = FakeModel.__dict__.get("email")
-        assert descriptor is not None, (
-            "EncryptedField did not set a descriptor on the model class"
-        )
-        assert descriptor.model_name == "FakeModel"
-        assert descriptor.field_name == "email"
+        registry = get_encrypted_field_registry()
+        assert ("FakeModel", "email") in registry
 
-    def test_descriptor_is_instance_of_encrypted_field_descriptor(self) -> None:
-        from syntek_pyo3 import EncryptedField, EncryptedFieldDescriptor
+    def test_field_object_not_overwritten_on_class(self) -> None:
+        """contribute_to_class must not replace the field on the model class."""
+        from syntek_pyo3 import EncryptedField
 
         class FakeModel:
             pass
 
         field = EncryptedField()
-        field.contribute_to_class(FakeModel, "phone")
+        FakeModel.email = field  # type: ignore[attr-defined]
+        field.contribute_to_class(FakeModel, "email")
 
-        descriptor = FakeModel.__dict__.get("phone")
-        assert isinstance(descriptor, EncryptedFieldDescriptor)
+        # The original EncryptedField instance must still be on the class.
+        assert isinstance(FakeModel.email, EncryptedField)  # type: ignore[attr-defined]
+
+
+# ---------------------------------------------------------------------------
+# KeyRing: basic Python-level sanity checks
+# ---------------------------------------------------------------------------
+
+
+class TestKeyRing:
+    def test_empty_ring_is_empty(self) -> None:
+        from syntek_pyo3 import KeyRing
+
+        ring = KeyRing()
+        assert ring.is_empty()
+        assert len(ring) == 0
+
+    def test_add_key_increases_length(self) -> None:
+        from syntek_pyo3 import KeyRing
+
+        ring = KeyRing()
+        ring.add(1, _TEST_KEY)
+        assert not ring.is_empty()
+        assert len(ring) == 1
+
+    def test_version_zero_rejected(self) -> None:
+        from syntek_pyo3 import KeyRing
+
+        ring = KeyRing()
+        with pytest.raises(ValueError, match="version"):
+            ring.add(0, _TEST_KEY)
+
+    def test_duplicate_version_rejected(self) -> None:
+        from syntek_pyo3 import KeyRing
+
+        ring = KeyRing()
+        ring.add(1, _TEST_KEY)
+        with pytest.raises(ValueError, match="already"):
+            ring.add(1, _TEST_KEY)
+
+    def test_wrong_key_length_rejected(self) -> None:
+        from syntek_pyo3 import KeyRing
+
+        ring = KeyRing()
+        with pytest.raises(ValueError, match="32 bytes"):
+            ring.add(1, b"\x00" * 16)  # 16 bytes, not 32
+
+    def test_nullable_field_pre_save_returns_none(self) -> None:
+        """EncryptedField(null=True) returns None from pre_save when value is None."""
+        from unittest.mock import MagicMock
+
+        from syntek_pyo3 import EncryptedField
+
+        field = EncryptedField(null=True, blank=True)
+        field.attname = "email"
+        instance = MagicMock()
+        instance.email = None
+        assert field.pre_save(instance, add=False) is None
+
+    def test_non_nullable_field_pre_save_raises_for_none(self) -> None:
+        """EncryptedField() (non-nullable) raises ValidationError for None."""
+        from unittest.mock import MagicMock
+
+        from django.core.exceptions import ValidationError
+        from syntek_pyo3 import EncryptedField
+
+        field = EncryptedField()
+        field.attname = "email"
+        instance = MagicMock()
+        instance.email = None
+        with pytest.raises(ValidationError):
+            field.pre_save(instance, add=False)
