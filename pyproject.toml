@@ -129,4 +129,5 @@ dev = [
     "freezegun>=1.5.5",
     "cryptography>=46.0.5",
     "responses>=0.26.0",
+    "psycopg[binary]>=3.3.3",
 ]
