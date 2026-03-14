@@ -25,8 +25,6 @@ AC coverage:
 
 from __future__ import annotations
 
-import os
-from base64 import b64decode
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -114,11 +112,12 @@ class TestWritePathIndividualField:
 
     def test_encrypt_field_called_with_correct_model_field_and_key(self) -> None:
         """``encrypt_field`` must receive the plaintext as the first argument,
-        the resolved key as the second, the model name as the third, and the
+        a ``KeyRing`` as the second, the model name as the third, and the
         field name as the fourth (AC1).
         """
+        from syntek_pyo3 import KeyRing
+
         mock_pyo3 = _make_mock_pyo3()
-        expected_key = b64decode(os.environ["SYNTEK_FIELD_KEY_USER_EMAIL"])
 
         with patch("syntek_graphql_crypto.middleware.syntek_pyo3", mock_pyo3):
             from syntek_graphql_crypto.middleware import (
@@ -132,12 +131,12 @@ class TestWritePathIndividualField:
                 batch_group=None,
             )
 
-        mock_pyo3.encrypt_field.assert_called_once_with(
-            "alice@example.com",
-            expected_key,
-            "User",
-            "email",
-        )
+        mock_pyo3.encrypt_field.assert_called_once()
+        call_args = mock_pyo3.encrypt_field.call_args[0]
+        assert call_args[0] == "alice@example.com"
+        assert isinstance(call_args[1], KeyRing)
+        assert call_args[2] == "User"
+        assert call_args[3] == "email"
 
     def test_non_encrypted_field_value_unchanged(self) -> None:
         """A field with no ``@encrypted`` directive must pass through the
