@@ -24,6 +24,7 @@ AC coverage:
 
 from __future__ import annotations
 
+import typing
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -122,9 +123,15 @@ def _execute_query_with_mock_pyo3(mock_pyo3: MagicMock) -> dict:
         query=Query, extensions=[EncryptionMiddleware], types=[ErrorUserType]
     )
 
+    # Pass an authenticated context so the middleware's fail-closed auth
+    # guard does not null all encrypted fields before the error paths fire.
+    context = MagicMock()
+    context.user.is_authenticated = True
+
     with patch("syntek_graphql_crypto.middleware.syntek_pyo3", mock_pyo3):
         result = schema.execute_sync(
-            "{ user { email firstName lastName displayName } }"
+            "{ user { email firstName lastName displayName } }",
+            context_value=context,
         )
 
     response: dict = {"data": result.data, "errors": result.errors or []}
@@ -273,7 +280,7 @@ class TestEncryptFailureMutation:
             @strawberry.mutation
             def update_email(
                 self,
-                email: strawberry.annotated[str, Encrypted()],  # type: ignore[valid-type]
+                email: typing.Annotated[str, Encrypted()],
             ) -> str:
                 resolver_called["value"] = True
                 return "ok"
@@ -314,8 +321,8 @@ class TestEncryptFailureMutation:
             @strawberry.mutation
             def update_profile(
                 self,
-                first_name: strawberry.annotated[str, Encrypted(batch="profile")],  # type: ignore[valid-type]
-                last_name: strawberry.annotated[str, Encrypted(batch="profile")],  # type: ignore[valid-type]
+                first_name: typing.Annotated[str, Encrypted(batch="profile")],
+                last_name: typing.Annotated[str, Encrypted(batch="profile")],
             ) -> str:
                 resolver_called["value"] = True
                 return "ok"
@@ -356,7 +363,7 @@ class TestEncryptFailureMutation:
             @strawberry.mutation
             def update_email(
                 self,
-                email: strawberry.annotated[str, Encrypted()],  # type: ignore[valid-type]
+                email: typing.Annotated[str, Encrypted()],
             ) -> str:
                 return "ok"
 

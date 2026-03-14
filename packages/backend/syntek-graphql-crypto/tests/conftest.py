@@ -30,6 +30,7 @@ def pytest_configure(config: object) -> None:
     """Configure minimal Django for syntek-graphql-crypto unit tests."""
     # Set encryption key env vars before Django starts so any AppConfig.ready()
     # validation passes.
+    # Individual field keys
     os.environ.setdefault("SYNTEK_FIELD_KEY_USER_EMAIL", _TEST_KEY)
     os.environ.setdefault("SYNTEK_FIELD_KEY_USER_FIRST_NAME", _TEST_KEY)
     os.environ.setdefault("SYNTEK_FIELD_KEY_USER_LAST_NAME", _TEST_KEY)
@@ -37,6 +38,11 @@ def pytest_configure(config: object) -> None:
     os.environ.setdefault("SYNTEK_FIELD_KEY_USER_ADDRESS_LINE_1", _TEST_KEY)
     os.environ.setdefault("SYNTEK_FIELD_KEY_USER_ADDRESS_LINE_2", _TEST_KEY)
     os.environ.setdefault("SYNTEK_FIELD_KEY_USER_POSTCODE", _TEST_KEY)
+
+    # Batch group keys — batch groups share a single key resolved from
+    # SYNTEK_FIELD_KEY_<MODEL>_<BATCH_GROUP>
+    os.environ.setdefault("SYNTEK_FIELD_KEY_USER_PROFILE", _TEST_KEY)
+    os.environ.setdefault("SYNTEK_FIELD_KEY_USER_ADDRESS", _TEST_KEY)
 
     if not settings.configured:
         settings.configure(
