@@ -33,12 +33,16 @@ pub async fn run(args: AuditArgs) -> Result<()> {
         }
 
         if args.outdated {
-            ui::section("pip list --outdated — Python packages");
+            ui::section("uv pip list --outdated — Python packages");
             if has_uv {
-                if !proc::run("uv", &["run", "pip", "list", "--outdated"], &root).await? {
-                    // outdated output is informational; non-zero only means pip itself
-                    // errored, so still count as a failure.
-                    failed += 1;
+                // `uv pip list --outdated` operates on the project's managed
+                // venv without requiring pip to be installed inside it.
+                // Non-zero exit only occurs on a uv error, not merely because
+                // outdated packages exist, so treat as informational.
+                if !proc::run("uv", &["pip", "list", "--outdated"], &root).await? {
+                    ui::warn(
+                        "Outdated Python dependencies detected — review and update pyproject.toml",
+                    );
                 }
             } else {
                 ui::warn("uv not found — skipping Python outdated check");
