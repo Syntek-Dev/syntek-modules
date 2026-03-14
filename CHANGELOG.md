@@ -7,6 +7,71 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [0.17.0] — 14/03/2026
+
+### Breaking Change
+
+- **`syntek-pyo3` public API** — `encrypt_field(plaintext, key)` and
+  `decrypt_field(ciphertext, key)` no longer accept a raw `key: bytes` parameter. Both functions now
+  require `ring: PyKeyRing` as the first argument. Consumers must construct a `PyKeyRing` via
+  `PyKeyRing.from_bytes(version, key_bytes)` or `PyKeyRing()` + `add_key(version, key_bytes)` before
+  calling these functions. All three consumer packages in this repository (`syntek-auth`,
+  `syntek-graphql-crypto`, and the `syntek-pyo3` Python wrapper) have been updated accordingly.
+
+### Added
+
+- **`rust/syntek-pyo3/src/lib.rs`** — `PyKeyRing` class exposed to Python: wraps the Rust `KeyRing`
+  type, provides `from_bytes(version, key_bytes)`, `add_key`, `get_version`, `active_version`, and
+  `rotate`. Key material stored in `Zeroizing<Vec<u8>>` buffers and cleared on drop.
+- **`rust/syntek-pyo3/src/lib.rs`** — `SyntekCryptoError` and `SyntekKeyError` now proper Python
+  exception classes (via `pyo3::create_exception!`) rather than opaque `RuntimeError` instances.
+- **`rust/syntek-pyo3/src/lib.rs`** — `encrypt_field_versioned`, `decrypt_field_versioned` exposed;
+  `get_encrypted_field_registry()` returning `dict[str, str]` for introspection.
+- **`rust/syntek-crypto/src/key_versioning.rs`** — `encrypt_fields_batch_versioned` and
+  `decrypt_fields_batch_versioned` added to support batch operations over a `KeyRing`.
+- **`packages/backend/syntek-pyo3/tests/test_integration_postgres.py`** — 11 new PostgreSQL
+  integration tests (via `testcontainers[postgres]`) covering round-trips, key rotation, batch
+  versioned ops, error propagation, and concurrency.
+- **`rust/syntek-dev/src/commands/audit.rs`** — new `syntek-dev audit` command: runs `pip-audit`,
+  `cargo audit`, and `pnpm audit` across all dependency layers. `--outdated` flag adds informational
+  outdated-package reports. See `.claude/CLI-TOOLING.md` for full usage reference.
+- **`docs/BUGS/BUG-US007-SYNTEK-PYO3-14-03-2026.md`** — bug report documenting all US007 QA findings
+  and their resolution status.
+
+### Fixed
+
+- **`rust/syntek-pyo3/src/lib.rs`** — empty-plaintext and empty-key guards added to `encrypt_field`
+  / `decrypt_field` (H3).
+- **`rust/syntek-pyo3/Cargo.toml`** — `zeroize` added as dependency; `PyKeyRing` clears key material
+  on drop (H1).
+- **`rust/syntek-crypto/src/lib.rs`** — empty-hash guard added to `verify_password`; returns
+  `Ok(false)` rather than propagating a parse error on an empty hash string.
+- **`stubs/syntek_pyo3.pyi`** — all stubs updated to match the new `PyKeyRing`-based signatures,
+  exception classes, and versioned API functions.
+- **`rust/syntek-dev/src/commands/audit.rs`** — `uv pip list --outdated` corrected from the
+  erroneous `uv run pip list --outdated` invocation.
+
+### Changed
+
+- **`packages/backend/syntek-auth`** — all 8 source files and 4 test files updated to pass
+  `PyKeyRing` to `encrypt_field` / `decrypt_field` (no logic changes).
+- **`packages/backend/syntek-graphql-crypto/syntek_graphql_crypto/middleware.py`** — `_resolve_key`
+  replaced by `_resolve_ring` returning `PyKeyRing`.
+- **`.claude/ENCRYPTION-GUIDE.md`** — all code examples updated to show the new `PyKeyRing`-based
+  API.
+- **`package.json`** — turbo bumped to 2.8.17.
+
+### Module Versions
+
+- **`syntek-pyo3`** (Rust + Python wrapper) — inherits root workspace version; bumped to `0.17.0`
+  via `version.workspace = true`.
+- **`syntek-auth`** — bumped `0.3.1 → 0.4.0` (breaking dependency on new `syntek-pyo3` API; all call
+  sites migrated).
+- **`syntek-graphql-crypto`** — bumped `0.1.0 → 0.2.0` (breaking dependency on new `syntek-pyo3`
+  API; middleware updated).
+
+---
+
 ## [0.16.2] — 13/03/2026
 
 ### Fixed

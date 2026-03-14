@@ -583,6 +583,7 @@ syntek-dev audit [--python] [--rust] [--js] [--outdated]
 | `--rust`     | Run `cargo audit --deny unsound --deny yanked` against `Cargo.toml` / `Cargo.lock`            |
 | `--js`       | Run `pnpm audit --audit-level=moderate` against `package.json` / `pnpm-lock.yaml`             |
 | `--outdated` | Also report outdated packages for each selected layer (informational — does not fail the run) |
+| `--update`   | Apply safe (semver-compatible) updates and regenerate lock files for each selected layer      |
 
 **Prerequisites:**
 
@@ -591,9 +592,18 @@ syntek-dev audit [--python] [--rust] [--js] [--outdated]
 - Rust outdated: `cargo-outdated` must be installed — `cargo install cargo-outdated`
 - JS audit: `pnpm` must be on PATH
 
+**What "safe updates" means per layer:**
+
+| Layer  | Command             | What it updates                                                                                             |
+| ------ | ------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Python | `uv sync --upgrade` | All packages to the latest version allowed by `pyproject.toml` ranges; regenerates `uv.lock`                |
+| Rust   | `cargo update`      | All crates to the latest semver-compatible version; regenerates `Cargo.lock` only (no `Cargo.toml` changes) |
+| JS/TS  | `pnpm update`       | All packages to the latest version within `package.json` ranges; regenerates `pnpm-lock.yaml`               |
+
 **Exit codes:**
 
-- Exits non-zero if any vulnerability scan reports findings at or above the threshold.
+- Exits non-zero if any vulnerability scan reports findings at or above the threshold, or if an
+  `--update` command itself fails.
 - Outdated-package checks are informational — they print a warning but do not cause a non-zero exit
   on their own.
 
@@ -614,6 +624,12 @@ syntek-dev audit --rust
 
 # Audit JS/TS and also show outdated packages
 syntek-dev audit --js --outdated
+
+# Apply safe updates across all layers
+syntek-dev audit --update
+
+# Audit everything, show outdated, and apply safe updates in one pass
+syntek-dev audit --outdated --update
 ```
 
 ---

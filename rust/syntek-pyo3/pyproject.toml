@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "syntek-pyo3"
-version = "0.16.2"
+version = "0.17.0"
 description = "PyO3 Django bindings exposing syntek-crypto field encryption"
 requires-python = ">=3.14"
 license = { text = "AGPL-3.0-only" }

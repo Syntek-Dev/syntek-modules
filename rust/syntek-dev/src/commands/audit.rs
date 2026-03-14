@@ -48,6 +48,22 @@ pub async fn run(args: AuditArgs) -> Result<()> {
                 ui::warn("uv not found — skipping Python outdated check");
             }
         }
+
+        if args.update {
+            ui::section("uv sync --upgrade — Python safe updates");
+            if has_uv {
+                // Upgrades all packages to the latest version allowed by the
+                // constraints in pyproject.toml, then regenerates uv.lock and
+                // syncs the venv. Stays within declared semver ranges.
+                if !proc::run("uv", &["sync", "--upgrade"], &root).await? {
+                    failed += 1;
+                } else {
+                    ui::ok("uv.lock updated");
+                }
+            } else {
+                ui::warn("uv not found — skipping Python update");
+            }
+        }
     }
 
     // -----------------------------------------------------------------------
@@ -78,21 +94,35 @@ pub async fn run(args: AuditArgs) -> Result<()> {
         if args.outdated {
             ui::section("cargo outdated — Rust packages");
             if has_cargo {
-                if proc::exists("cargo-outdated") || cargo_subcommand_exists("outdated") {
+                if cargo_subcommand_exists("outdated") {
                     // --exit-code 1 makes cargo-outdated exit non-zero when any
                     // crate has an update available, treating it as a soft failure.
                     if !proc::run("cargo", &["outdated", "--exit-code", "1"], &root).await? {
                         ui::warn(
                             "Outdated Rust dependencies detected — review and update Cargo.toml",
                         );
-                        // Informational only: do not increment `failed` so that
-                        // outdated packages do not block a `syntek-dev audit` run.
+                        // Informational only: do not increment `failed`.
                     }
                 } else {
                     ui::warn("cargo-outdated not installed — run: cargo install cargo-outdated");
                 }
             } else {
                 ui::warn("cargo not found — skipping Rust outdated check");
+            }
+        }
+
+        if args.update {
+            ui::section("cargo update — Rust safe updates");
+            if has_cargo {
+                // Updates all crates in Cargo.lock to the latest semver-compatible
+                // version allowed by Cargo.toml. Does not touch Cargo.toml itself.
+                if !proc::run("cargo", &["update"], &root).await? {
+                    failed += 1;
+                } else {
+                    ui::ok("Cargo.lock updated");
+                }
+            } else {
+                ui::warn("cargo not found — skipping Rust update");
             }
         }
     }
@@ -114,6 +144,17 @@ pub async fn run(args: AuditArgs) -> Result<()> {
             // Treat as informational: warn but do not fail the overall audit.
             if !proc::run("pnpm", &["outdated"], &root).await? {
                 ui::warn("Outdated JS/TS dependencies detected — review and update package.json");
+            }
+        }
+
+        if args.update {
+            ui::section("pnpm update — JS/TS safe updates");
+            // Updates all packages to the latest version within the ranges
+            // declared in package.json, then regenerates pnpm-lock.yaml.
+            if !proc::run("pnpm", &["update"], &root).await? {
+                failed += 1;
+            } else {
+                ui::ok("pnpm-lock.yaml updated");
             }
         }
     }

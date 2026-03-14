@@ -285,6 +285,10 @@ pub struct AuditArgs {
     /// Also report outdated packages across selected layers
     #[arg(long)]
     pub outdated: bool,
+
+    /// Apply safe (semver-compatible) updates and regenerate lock files
+    #[arg(long)]
+    pub update: bool,
 }
 
 // ---------------------------------------------------------------------------
