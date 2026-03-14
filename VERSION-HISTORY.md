@@ -2,6 +2,7 @@
 
 | Version | Date       | Type  | Summary                                                                                                          |
 | ------- | ---------- | ----- | ---------------------------------------------------------------------------------------------------------------- |
+| 0.17.1  | 14/03/2026 | PATCH | `syntek-graphql-crypto` US008 QA fixes — 20 findings resolved (auth guard, batch key, error sanitisation, tests) |
 | 0.17.0  | 14/03/2026 | MINOR | `syntek-pyo3` US007 QA fixes — KeyRing API (breaking), zeroize, exception classes, audit CLI command             |
 | 0.16.2  | 13/03/2026 | PATCH | AES-GCM helper extraction, 2 further crypto fixes, pytest-xdist parallelism, fast Argon2id test params           |
 | 0.16.1  | 13/03/2026 | PATCH | `syntek-crypto` QA fixes — 13 security findings resolved from US006 review                                       |

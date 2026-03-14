@@ -7,6 +7,73 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 
 ---
 
+## [0.17.1] — 14/03/2026
+
+### Fixed
+
+- **`packages/backend/syntek-graphql-crypto/syntek_graphql_crypto/middleware.py`** — auth guard
+  (`_is_authenticated`) is now fail-closed: returns `False` for any absent or malformed context
+  rather than raising (C1). Encrypt failure handler catches `RuntimeError` from key resolution and
+  re-raises a generic message so internal details never reach clients (C2/C3). `_decrypt_object`
+  recurses into nested dicts and lists to decrypt `@encrypted` fields on related objects (H3).
+  Write-path `resolve` logs a `WARNING` when an unauthenticated mutation carries `@encrypted`
+  arguments (H4). All `zip()` calls use `strict=True` to detect list-length mismatches (L1-L4).
+- **`packages/backend/syntek-graphql-crypto/syntek_graphql_crypto/__init__.py`** — removed
+  monkey-patch of `strawberry.annotated`; consumers now use `typing.Annotated` directly (H1).
+- **`packages/backend/syntek-graphql-crypto/syntek_graphql_crypto/directives.py`** — `Encrypted.batch`
+  default corrected to `None`; was previously set to `UNSET` sentinel from an earlier prototype,
+  causing batch-group detection to silently mismatch (M6/L3).
+- **`packages/backend/syntek-graphql-crypto/syntek_graphql_crypto/middleware.py`** —
+  `_build_encrypted_map` is now called once per schema instance and cached in
+  `_encrypted_map_cache` (keyed by `id(schema)`), eliminating the repeated schema-walk on every
+  field resolution (H2). Batch key resolution uses the batch group name via the new
+  `_resolve_batch_ring` helper (`SYNTEK_FIELD_KEY_<MODEL>_<BATCH_GROUP>`) rather than the first
+  field name (M3/M11). `_camelToSnake` applied consistently on both write and read paths; unmatched
+  annotated args emit a `WARNING` log entry instead of silently skipping (M4).
+  `_get_encrypted_args_from_method` logs `ERROR` and returns `{}` on reflection failure instead of
+  swallowing the exception (M7). `on_execute` handles list-returning query roots (M5).
+- **`packages/backend/syntek-graphql-crypto/syntek_graphql_crypto/apps.py`** — new
+  `SyntekGraphqlCryptoConfig` Django `AppConfig`. `ready()` validates all `SYNTEK_FIELD_KEY_*`
+  environment variables at startup and raises `ImproperlyConfigured` on bad base64 or wrong key
+  length (M1 — previously these errors only surfaced at request time).
+- **`packages/backend/syntek-graphql-crypto/pyproject.toml`** — added `syntek-pyo3>=0.17.0` as a
+  runtime dependency and `testcontainers[postgres]` as a dev dependency (L5).
+- **`pyproject.toml`** (root workspace) — `psycopg[binary]>=3.3.3` added to the `dev` dependency
+  group for PostgreSQL integration test support.
+- **`rust/syntek-graphql-crypto/syntek.manifest.toml`** — version aligned to `0.17.1` (was one
+  release behind at `0.17.0` after H5 correction in previous commit).
+
+### Added
+
+- **`packages/backend/syntek-graphql-crypto/tests/test_edge_cases.py`** — 6 new tests covering M5
+  (empty encrypted map), M6 (list-returning queries), H3 (nested encrypted objects), H4
+  (unauthenticated mutation write-path), M7 (reflection failure logging), and nonce uniqueness
+  (AES-GCM random nonces produce distinct ciphertexts for identical plaintexts).
+- **`packages/backend/syntek-graphql-crypto/tests/test_postgres_integration.py`** — PostgreSQL
+  integration tests (AC1 individual field round-trip, AC2 batch field round-trip) against a
+  `postgres:18.3-alpine` container via `testcontainers-python`. Skipped automatically when
+  `syntek_pyo3` is not built or `testcontainers` is not installed (M4 from QA report).
+- **`docs/BUGS/BUG-US008-SYNTEK-GRAPHQL-CRYPTO-14-03-2026.md`** — root-cause analysis, fix summary,
+  and prevention recommendations for all 20 findings from the US008 QA review.
+
+### Changed
+
+- **`packages/backend/syntek-graphql-crypto/tests/conftest.py`** — added
+  `SYNTEK_FIELD_KEY_USER_PROFILE` and `SYNTEK_FIELD_KEY_USER_ADDRESS` batch-group key env vars so
+  batch decryption tests resolve a valid key at startup.
+- **`packages/backend/syntek-graphql-crypto/tests/test_integration.py`** and
+  **`tests/test_error_handling.py`** — migrated `Annotated` import from `strawberry.annotated` to
+  `typing.Annotated` following removal of the monkey-patch.
+
+### Module Versions
+
+- **`syntek-graphql-crypto`** (Python package) — bumped `0.2.0 → 0.2.1` (PATCH — 20 bug fixes, no
+  new features, no breaking changes).
+- **`syntek-graphql-crypto`** (Rust crate) — inherits root workspace version `0.17.1` via
+  `version.workspace = true`.
+
+---
+
 ## [0.17.0] — 14/03/2026
 
 ### Breaking Change
