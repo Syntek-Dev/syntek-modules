@@ -74,7 +74,7 @@ skip-magic-trailing-comma = false
 # Coverage
 # ---------------------------------------------------------------------------
 [tool.coverage.run]
-omit = ["*/migrations/*"]
+omit = ["*/migrations/*", "*/test_integration_*.py"]
 
 [tool.coverage.report]
 exclude_lines = [
