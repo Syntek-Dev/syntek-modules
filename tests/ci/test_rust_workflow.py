@@ -112,7 +112,9 @@ class TestCargoAuditStep:
             "vulnerabilities will be reported but the step will not fail"
         )
 
-    def test_cargo_audit_denies_vulnerabilities(self, rust_run_scripts: list[str]) -> None:
+    def test_cargo_audit_denies_vulnerabilities(
+        self, rust_run_scripts: list[str]
+    ) -> None:
         """--deny must reference at least one advisory category to block merges.
 
         Accepted values: warnings, vulnerabilities, unmaintained, unsound, yanked.
@@ -137,14 +139,8 @@ class TestCargoAuditStep:
                 [s.get("run", "") for s in rust_steps],
                 "cargo install cargo-audit",
             )
-            or any(
-                "audit" in step.get("uses", "")
-                for step in rust_steps
-            )
-            or any(
-                "rustsec" in step.get("uses", "")
-                for step in rust_steps
-            )
+            or any("audit" in step.get("uses", "") for step in rust_steps)
+            or any("rustsec" in step.get("uses", "") for step in rust_steps)
         )
         assert has_install, (
             "cargo-audit is not installed or referenced via an action in rust.yml — "
@@ -180,10 +176,9 @@ class TestRustCoverage:
 
     def test_coverage_produces_lcov_output(self, rust_run_scripts: list[str]) -> None:
         """Coverage must be output in lcov format for PR comment actions."""
-        has_lcov = (
-            _any_script_contains(rust_run_scripts, "--lcov")
-            or _any_script_contains(rust_run_scripts, "lcov")
-        )
+        has_lcov = _any_script_contains(
+            rust_run_scripts, "--lcov"
+        ) or _any_script_contains(rust_run_scripts, "lcov")
         assert has_lcov, (
             "rust.yml coverage step does not produce lcov output — "
             "add --lcov flag to cargo llvm-cov invocation"
@@ -221,7 +216,9 @@ class TestRustCoveragePRComment:
             f"expected one of: {', '.join(known_comment_actions)}"
         )
 
-    def test_coverage_comment_step_name_present(self, rust_step_names: list[str]) -> None:
+    def test_coverage_comment_step_name_present(
+        self, rust_step_names: list[str]
+    ) -> None:
         """A step that posts coverage as a PR comment must exist."""
         has_comment_step = (
             _any_name_contains(rust_step_names, "comment")
@@ -239,7 +236,9 @@ class TestRustCoveragePRComment:
     ) -> None:
         """The workflow must trigger on pull_request for PR comment posting."""
         # PyYAML (YAML 1.1) parses bare `on:` as boolean True — check both keys.
-        triggers = forgejo_rust_workflow.get("on") or forgejo_rust_workflow.get(True, {})
+        triggers = forgejo_rust_workflow.get("on") or forgejo_rust_workflow.get(
+            True, {}
+        )
         assert "pull_request" in triggers, (
             "rust.yml does not trigger on pull_request — "
             "coverage PR comments cannot be posted"

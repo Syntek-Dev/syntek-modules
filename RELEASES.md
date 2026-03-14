@@ -1,5 +1,52 @@
 # Releases
 
+## v0.17.1 — 14/03/2026
+
+**Branch**: `fix/us008/syntek-graphql-crypto`\
+**Type**: PATCH (bug fixes only)\
+**Story**: US008 — syntek-graphql-crypto QA Fixes: 20 findings resolved
+
+### Highlights
+
+- **Fail-closed auth guard** — the middleware's `_is_authenticated()` method now returns `False`
+  whenever context is absent or malformed. Previously it could raise an unhandled `AttributeError`,
+  which allowed requests through. All exceptions other than `AttributeError` and `TypeError` still
+  propagate for visibility.
+
+- **Error sanitisation on encrypt failure** — `RuntimeError` raised by key resolution is caught and
+  replaced with a generic `"An internal error occurred"` message before it reaches the GraphQL
+  response. Internal error strings (including environment variable names) no longer leak to clients.
+
+- **Batch key resolution corrected** — batch groups now resolve their encryption key from
+  `SYNTEK_FIELD_KEY_<MODEL>_<BATCH_GROUP>` as documented. Previously the key for the first field in
+  the batch was used, causing incorrect decryption when batch fields had different individual keys.
+
+- **Schema map cached** — the encrypted-field map is built once per schema instance and stored in a
+  process-level cache keyed by `id(schema)`. Previously `_build_encrypted_map` walked the full
+  schema type map on every field resolution.
+
+- **Nested object recursion** — `_decrypt_object` now recurses into nested dicts and lists so
+  `@encrypted` fields on related objects are decrypted correctly.
+
+- **Startup key validation** — the new `SyntekGraphqlCryptoConfig.ready()` validates all
+  `SYNTEK_FIELD_KEY_*` environment variables at Django startup, raising `ImproperlyConfigured` on
+  bad base64 or wrong key length rather than deferring the error to request time.
+
+- **Monkey-patch removed** — `__init__.py` no longer patches `strawberry.annotated`. Write-path
+  argument scanning uses `typing.Annotated` directly.
+
+- **PostgreSQL integration tests** — new `test_postgres_integration.py` validates the full
+  write→DB→read pipeline against a live `postgres:18.3-alpine` container via `testcontainers`.
+
+### Module Versions
+
+| Module                           | Previous | New    | Reason                            |
+| -------------------------------- | -------- | ------ | --------------------------------- |
+| `syntek-graphql-crypto` (Python) | 0.2.0    | 0.2.1  | 20 bug fixes — no new API surface |
+| `syntek-graphql-crypto` (Rust)   | 0.17.0   | 0.17.1 | Workspace version inheritance     |
+
+---
+
 ## v0.17.0 — 14/03/2026
 
 **Branch**: `fix/us007/syntek-pyo3`\

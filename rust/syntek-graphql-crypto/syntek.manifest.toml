@@ -6,7 +6,7 @@
 # the consumer's Cargo.toml, and prints the post-install steps below.
 
 id      = "syntek-graphql-crypto"
-version = "0.14.0"
+version = "0.17.1"
 kind    = "rust-crate"
 
 # ---------------------------------------------------------------------------

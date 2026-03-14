@@ -21,6 +21,7 @@ AC coverage:
 
 from __future__ import annotations
 
+import typing
 from unittest.mock import MagicMock
 
 import pytest
@@ -110,7 +111,7 @@ class _Mutation:
     @strawberry.mutation
     def create_user(
         self,
-        email: strawberry.annotated[str, Encrypted()],  # type: ignore[valid-type]
+        email: typing.Annotated[str, Encrypted()],
         display_name: str,
     ) -> int:
         """Resolver receives ciphertext (encrypted by middleware); saves to DB."""
@@ -120,12 +121,8 @@ class _Mutation:
     @strawberry.mutation
     def create_user_profile(
         self,
-        first_name: strawberry.annotated[  # type: ignore[valid-type]
-            str, Encrypted(batch="profile")  # type: ignore
-        ],
-        last_name: strawberry.annotated[  # type: ignore[valid-type]
-            str, Encrypted(batch="profile")  # type: ignore
-        ],
+        first_name: typing.Annotated[str, Encrypted(batch="profile")],
+        last_name: typing.Annotated[str, Encrypted(batch="profile")],
         display_name: str,
     ) -> int:
         """Both first_name and last_name encrypted in one batch call."""

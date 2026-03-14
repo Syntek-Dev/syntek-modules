@@ -61,7 +61,9 @@ class TestPnpmAuditStep:
             "pnpm audit is not invoked in any run script in web.yml"
         )
 
-    def test_pnpm_audit_fails_on_high_severity(self, web_run_scripts: list[str]) -> None:
+    def test_pnpm_audit_fails_on_high_severity(
+        self, web_run_scripts: list[str]
+    ) -> None:
         """pnpm audit must be configured to fail on high/critical findings.
 
         The correct flag is --audit-level=high.
@@ -71,7 +73,9 @@ class TestPnpmAuditStep:
             "the pipeline will not fail when high/critical CVEs are found"
         )
 
-    def test_pnpm_audit_level_is_high_or_critical(self, web_run_scripts: list[str]) -> None:
+    def test_pnpm_audit_level_is_high_or_critical(
+        self, web_run_scripts: list[str]
+    ) -> None:
         """--audit-level must be set to high or critical."""
         scripts_with_audit = [s for s in web_run_scripts if "--audit-level" in s]
         assert scripts_with_audit, "No run script in web.yml contains --audit-level"
@@ -137,12 +141,8 @@ class TestTurboAffectedWeb:
         If an --affected invocation is also present that is fine.  But
         'pnpm test' alone without --affected means the full suite runs.
         """
-        bare_pnpm_test = _any_script_contains(web_run_scripts, "pnpm test\n") or (
-            "pnpm test" in " ".join(web_run_scripts)
-            and not _any_script_contains(web_run_scripts, "--affected")
-        )
-        # Invert: we want to confirm affected IS present.  The test above
-        # already covers this; this assertion is a belt-and-braces check.
+        # Confirm --affected IS present — belt-and-braces check alongside the
+        # test_turbo_affected_flag_present_in_test_step assertion.
         assert _any_script_contains(web_run_scripts, "--affected"), (
             "'pnpm test' is the sole test invocation in web.yml with no --affected — "
             "all packages are always tested regardless of what changed"
@@ -189,8 +189,7 @@ class TestCoverageReportingWeb:
         assert False, (  # noqa: PT015
             "web.yml has no coverage PR comment step — the existing 'Coverage report' "
             "step only runs pnpm test --coverage but does not post to the PR. "
-            "Add a step using one of: "
-            + ", ".join(known_comment_actions)
+            "Add a step using one of: " + ", ".join(known_comment_actions)
         )
 
     def test_coverage_comment_step_uses_action(self, web_steps: list[dict]) -> None:

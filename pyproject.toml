@@ -1,7 +1,7 @@
 # uv workspace root — not a deployable app; shared tooling config only
 [project]
 name = "syntek-modules-workspace"
-version = "0.17.0"
+version = "0.17.1"
 description = "Workspace root — development tooling only, not published"
 requires-python = ">=3.14"
 dependencies = []
@@ -62,6 +62,10 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "*/tests/*" = ["S101", "ARG001", "ARG002", "S106", "E501", "TC002"]
+"tests/**" = [
+    "S101", "ARG001", "ARG002", "ARG005", "S106", "S603", "S607",
+    "E501", "TC002", "B011", "B017", "PT001", "PT011", "PT012", "PT019",
+]
 "*/migrations/*" = ["E501", "N806", "RUF012"]
 
 [tool.ruff.format]
@@ -129,4 +133,5 @@ dev = [
     "freezegun>=1.5.5",
     "cryptography>=46.0.5",
     "responses>=0.26.0",
+    "psycopg[binary]>=3.3.3",
 ]
