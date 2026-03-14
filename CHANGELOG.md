@@ -20,18 +20,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
   arguments (H4). All `zip()` calls use `strict=True` to detect list-length mismatches (L1-L4).
 - **`packages/backend/syntek-graphql-crypto/syntek_graphql_crypto/__init__.py`** — removed
   monkey-patch of `strawberry.annotated`; consumers now use `typing.Annotated` directly (H1).
-- **`packages/backend/syntek-graphql-crypto/syntek_graphql_crypto/directives.py`** — `Encrypted.batch`
-  default corrected to `None`; was previously set to `UNSET` sentinel from an earlier prototype,
-  causing batch-group detection to silently mismatch (M6/L3).
+- **`packages/backend/syntek-graphql-crypto/syntek_graphql_crypto/directives.py`** —
+  `Encrypted.batch` default corrected to `None`; was previously set to `UNSET` sentinel from an
+  earlier prototype, causing batch-group detection to silently mismatch (M6/L3).
 - **`packages/backend/syntek-graphql-crypto/syntek_graphql_crypto/middleware.py`** —
-  `_build_encrypted_map` is now called once per schema instance and cached in
-  `_encrypted_map_cache` (keyed by `id(schema)`), eliminating the repeated schema-walk on every
-  field resolution (H2). Batch key resolution uses the batch group name via the new
-  `_resolve_batch_ring` helper (`SYNTEK_FIELD_KEY_<MODEL>_<BATCH_GROUP>`) rather than the first
-  field name (M3/M11). `_camelToSnake` applied consistently on both write and read paths; unmatched
-  annotated args emit a `WARNING` log entry instead of silently skipping (M4).
-  `_get_encrypted_args_from_method` logs `ERROR` and returns `{}` on reflection failure instead of
-  swallowing the exception (M7). `on_execute` handles list-returning query roots (M5).
+  `_build_encrypted_map` is now called once per schema instance and cached in `_encrypted_map_cache`
+  (keyed by `id(schema)`), eliminating the repeated schema-walk on every field resolution (H2).
+  Batch key resolution uses the batch group name via the new `_resolve_batch_ring` helper
+  (`SYNTEK_FIELD_KEY_<MODEL>_<BATCH_GROUP>`) rather than the first field name (M3/M11).
+  `_camelToSnake` applied consistently on both write and read paths; unmatched annotated args emit a
+  `WARNING` log entry instead of silently skipping (M4). `_get_encrypted_args_from_method` logs
+  `ERROR` and returns `{}` on reflection failure instead of swallowing the exception (M7).
+  `on_execute` handles list-returning query roots (M5).
 - **`packages/backend/syntek-graphql-crypto/syntek_graphql_crypto/apps.py`** — new
   `SyntekGraphqlCryptoConfig` Django `AppConfig`. `ready()` validates all `SYNTEK_FIELD_KEY_*`
   environment variables at startup and raises `ImproperlyConfigured` on bad base64 or wrong key

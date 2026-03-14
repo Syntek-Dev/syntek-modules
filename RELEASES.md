@@ -40,10 +40,10 @@
 
 ### Module Versions
 
-| Module                          | Previous | New   | Reason                              |
-| ------------------------------- | -------- | ----- | ----------------------------------- |
-| `syntek-graphql-crypto` (Python) | 0.2.0   | 0.2.1 | 20 bug fixes — no new API surface   |
-| `syntek-graphql-crypto` (Rust)  | 0.17.0   | 0.17.1| Workspace version inheritance       |
+| Module                           | Previous | New    | Reason                            |
+| -------------------------------- | -------- | ------ | --------------------------------- |
+| `syntek-graphql-crypto` (Python) | 0.2.0    | 0.2.1  | 20 bug fixes — no new API surface |
+| `syntek-graphql-crypto` (Rust)   | 0.17.0   | 0.17.1 | Workspace version inheritance     |
 
 ---
 
