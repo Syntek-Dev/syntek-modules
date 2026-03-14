@@ -116,7 +116,13 @@ pub async fn run() -> Result<()> {
     step += 1;
     ui::section(&format!("{step}/{total}  Python — ruff check"));
     if has_uv {
-        if !proc::run("uv", &["run", "ruff", "check", "packages/backend/"], &root).await? {
+        if !proc::run(
+            "uv",
+            &["run", "ruff", "check", "packages/backend/", "tests/"],
+            &root,
+        )
+        .await?
+        {
             failed.push("ruff-check");
         }
     } else {
@@ -129,7 +135,14 @@ pub async fn run() -> Result<()> {
     if has_uv {
         if !proc::run(
             "uv",
-            &["run", "ruff", "format", "--check", "packages/backend/"],
+            &[
+                "run",
+                "ruff",
+                "format",
+                "--check",
+                "packages/backend/",
+                "tests/",
+            ],
             &root,
         )
         .await?
@@ -144,7 +157,13 @@ pub async fn run() -> Result<()> {
     step += 1;
     ui::section(&format!("{step}/{total}  Python — basedpyright"));
     if has_uv {
-        if !proc::run("uv", &["run", "basedpyright", "packages/backend/"], &root).await? {
+        if !proc::run(
+            "uv",
+            &["run", "basedpyright", "packages/backend/", "tests/"],
+            &root,
+        )
+        .await?
+        {
             failed.push("basedpyright");
         }
     } else {
@@ -173,10 +192,10 @@ pub async fn run() -> Result<()> {
             .args([
                 "run",
                 "pytest",
-                "packages/backend/",
                 "-x",
                 "-q",
                 "--cov=packages/backend/",
+                "--cov=tests/",
                 "--cov-report=xml:coverage.xml",
                 "--cov-report=term-missing",
             ])
