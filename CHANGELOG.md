@@ -51,8 +51,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Version
 - **`rust/syntek-dev/src/commands/audit.rs`** — `uv pip list --outdated` corrected from the
   erroneous `uv run pip list --outdated` invocation.
 - **`tests/pyo3/test_pyo3_bindings.py`** — migrated from raw `bytes` key to `KeyRing` instances;
-  `test_invalid_key_length_raises`, `test_invalid_key_raises`, and `test_wrong_key_raises` updated to
-  construct `PyKeyRing` via `from_bytes`, matching the 0.17.0 API change.
+  `test_invalid_key_length_raises`, `test_invalid_key_raises`, and `test_wrong_key_raises` updated
+  to construct `PyKeyRing` via `from_bytes`, matching the 0.17.0 API change.
 - **`packages/backend/syntek-graphql-crypto/tests/test_integration.py`** — added `try/except` guard
   on teardown to suppress cross-worker xdist `ScopeMismatch` errors during session-scoped container
   cleanup.
