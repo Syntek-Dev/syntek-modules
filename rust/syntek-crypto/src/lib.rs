@@ -213,6 +213,10 @@ pub fn verify_password(password: &str, hash: &str) -> Result<bool, CryptoError> 
         return Ok(false);
     }
 
+    if hash.is_empty() {
+        return Ok(false);
+    }
+
     let parsed_hash = PasswordHash::new(hash).map_err(|e| CryptoError::HashError(e.to_string()))?;
 
     let params =

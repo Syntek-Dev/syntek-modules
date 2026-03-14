@@ -230,6 +230,67 @@ pub fn decrypt_versioned(
     aes_gcm_decrypt(&inner_b64, key_bytes, aad.as_bytes())
 }
 
+/// Encrypt a batch of `(field_name, plaintext)` pairs using the active key from `ring`.
+///
+/// Each field is encrypted independently with its own random nonce and
+/// field-specific AAD (`model:field_name`). Results are in the same order as
+/// the input slice. If any field fails the entire batch fails atomically.
+///
+/// # Errors
+///
+/// Returns [`CryptoError::InvalidInput`] when the ring is empty.
+/// Returns [`CryptoError::BatchError`] if an individual field operation fails.
+pub fn encrypt_fields_batch_versioned(
+    fields: &[(&str, &str)],
+    ring: &KeyRing,
+    model: &str,
+) -> Result<Vec<String>, CryptoError> {
+    if ring.is_empty() {
+        return Err(CryptoError::InvalidInput("keyring is empty".to_string()));
+    }
+    fields
+        .iter()
+        .map(|(field_name, plaintext)| {
+            encrypt_versioned(plaintext, ring, model, field_name).map_err(|e| {
+                CryptoError::BatchError {
+                    field: field_name.to_string(),
+                    reason: e.to_string(),
+                }
+            })
+        })
+        .collect()
+}
+
+/// Decrypt a batch of `(field_name, ciphertext)` pairs using keys from `ring`.
+///
+/// Each field is decrypted independently. Results are in the same order as
+/// the input slice. If any field fails the entire batch fails atomically.
+///
+/// # Errors
+///
+/// Returns [`CryptoError::InvalidInput`] when the ring is empty.
+/// Returns [`CryptoError::BatchError`] if an individual field operation fails.
+pub fn decrypt_fields_batch_versioned(
+    fields: &[(&str, &str)],
+    ring: &KeyRing,
+    model: &str,
+) -> Result<Vec<String>, CryptoError> {
+    if ring.is_empty() {
+        return Err(CryptoError::InvalidInput("keyring is empty".to_string()));
+    }
+    fields
+        .iter()
+        .map(|(field_name, ciphertext)| {
+            decrypt_versioned(ciphertext, ring, model, field_name).map_err(|e| {
+                CryptoError::BatchError {
+                    field: field_name.to_string(),
+                    reason: e.to_string(),
+                }
+            })
+        })
+        .collect()
+}
+
 /// Re-encrypt a ciphertext that was produced under an older key version so
 /// that it uses the current active key.
 ///
