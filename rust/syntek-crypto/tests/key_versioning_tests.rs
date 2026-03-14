@@ -18,7 +18,8 @@
 
 use syntek_crypto::CryptoError;
 use syntek_crypto::key_versioning::{
-    KeyRing, KeyVersion, decrypt_versioned, encrypt_versioned, reencrypt_to_active,
+    KeyRing, KeyVersion, decrypt_fields_batch_versioned, decrypt_versioned,
+    encrypt_fields_batch_versioned, encrypt_versioned, reencrypt_to_active,
 };
 
 // ---------------------------------------------------------------------------
@@ -173,6 +174,42 @@ fn test_keyring_get_unknown_version_returns_error() {
     );
     match result.unwrap_err() {
         CryptoError::InvalidInput(_) => {}
+        other => panic!("expected CryptoError::InvalidInput, got {:?}", other),
+    }
+}
+
+/// add() rejects KeyVersion(0) which is reserved.
+#[test]
+fn test_keyring_add_version_zero_returns_error() {
+    let mut ring = KeyRing::new();
+    let result = ring.add(KeyVersion(0), &[0xAAu8; 32]);
+    assert!(result.is_err(), "KeyVersion(0) must be rejected");
+    match result.unwrap_err() {
+        CryptoError::InvalidInput(msg) => {
+            assert!(
+                msg.contains("reserved"),
+                "error must mention reserved: {msg}"
+            );
+        }
+        other => panic!("expected CryptoError::InvalidInput, got {:?}", other),
+    }
+}
+
+/// add() rejects a duplicate version.
+#[test]
+fn test_keyring_add_duplicate_version_returns_error() {
+    let mut ring = KeyRing::new();
+    ring.add(KeyVersion(1), &key_v1())
+        .expect("first add must succeed");
+    let result = ring.add(KeyVersion(1), &[0xBBu8; 32]);
+    assert!(result.is_err(), "duplicate version must be rejected");
+    match result.unwrap_err() {
+        CryptoError::InvalidInput(msg) => {
+            assert!(
+                msg.contains("already exists"),
+                "error must mention already exists: {msg}"
+            );
+        }
         other => panic!("expected CryptoError::InvalidInput, got {:?}", other),
     }
 }
@@ -571,4 +608,58 @@ fn test_encrypt_versioned_nonce_uniqueness_1000_encryptions() {
     }
 
     assert_eq!(nonces.len(), ITERATIONS);
+}
+
+// ---------------------------------------------------------------------------
+// Batch versioned encrypt / decrypt
+// ---------------------------------------------------------------------------
+
+/// encrypt_fields_batch_versioned round-trips correctly through
+/// decrypt_fields_batch_versioned.
+#[test]
+fn test_batch_versioned_roundtrip() {
+    let ring = single_key_ring();
+    let fields = [("email", "user@example.com"), ("phone", "+441234567890")];
+
+    let encrypted =
+        encrypt_fields_batch_versioned(&fields, &ring, MODEL).expect("batch encrypt must succeed");
+    assert_eq!(encrypted.len(), 2, "must return one ciphertext per field");
+
+    let ct_fields: Vec<(&str, &str)> = fields
+        .iter()
+        .zip(encrypted.iter())
+        .map(|((name, _), ct)| (*name, ct.as_str()))
+        .collect();
+
+    let decrypted = decrypt_fields_batch_versioned(&ct_fields, &ring, MODEL)
+        .expect("batch decrypt must succeed");
+
+    assert_eq!(decrypted[0], "user@example.com");
+    assert_eq!(decrypted[1], "+441234567890");
+}
+
+/// encrypt_fields_batch_versioned on an empty ring returns an error.
+#[test]
+fn test_batch_versioned_encrypt_empty_ring_returns_error() {
+    let ring = KeyRing::new();
+    let fields = [("email", "user@example.com")];
+    let result = encrypt_fields_batch_versioned(&fields, &ring, MODEL);
+    assert!(result.is_err(), "empty ring must return Err");
+    match result.unwrap_err() {
+        CryptoError::InvalidInput(_) => {}
+        other => panic!("expected InvalidInput, got {:?}", other),
+    }
+}
+
+/// decrypt_fields_batch_versioned on an empty ring returns an error.
+#[test]
+fn test_batch_versioned_decrypt_empty_ring_returns_error() {
+    let ring = KeyRing::new();
+    let fields = [("email", "not-real-ciphertext")];
+    let result = decrypt_fields_batch_versioned(&fields, &ring, MODEL);
+    assert!(result.is_err(), "empty ring must return Err");
+    match result.unwrap_err() {
+        CryptoError::InvalidInput(_) => {}
+        other => panic!("expected InvalidInput, got {:?}", other),
+    }
 }

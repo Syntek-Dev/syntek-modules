@@ -1,6 +1,6 @@
 # QA Report: US009 — `syntek-auth` Authentication Module
 
-**Date:** 11/03/2026 — **Updated:** 13/03/2026 **Analyst:** QA Agent (The Breaker) **Branch:**
+**Date:** 11/03/2026 — **Updated:** 14/03/2026 **Analyst:** QA Agent (The Breaker) **Branch:**
 `us009/syntek-auth` **Status:** CRITICAL ISSUES FOUND
 
 ---
@@ -29,6 +29,9 @@ services, and mutations have been substantially expanded. Key changes:
   — any user's valid OTP satisfies another user's MFA challenge).
 - NEW-C3 — `oidcCallback` accepts `provider_id` from client without verifying against the stored
   session provider ID (allows provider substitution to bypass MFA gating).
+- NEW-C4 — `_SIGNING_SECRET` is ephemeral (generated at process startup with `secrets.token_bytes`)
+  — tokens are invalidated on every restart and cannot be validated across workers in a
+  multi-process deployment (critical correctness failure).
 - NEW-H1 — No MFA retry limit in `complete_oauth_mfa` — unlimited brute force of pending OTPs.
 - NEW-H2 — `make_jti_token` requires `FIELD_HMAC_KEY` at runtime; missing key raises
   `ImproperlyConfigured` mid-request during token rotation.
@@ -36,6 +39,10 @@ services, and mutations have been substantially expanded. Key changes:
   key isolation violated.
 - NEW-H4 — `_get_or_create_oidc_user` silently falls through `oidc_sub_hash` lookup (field does not
   exist on model); cross-provider account collision via email is unguarded.
+- NEW-O1 — HS256 (symmetric) is the wrong algorithm choice for a distributed system. ES256
+  (asymmetric ECDSA/P-256) should replace it: eliminates the shared-secret problem, enables a JWKS
+  endpoint, is consistent with the RS256/ES256 the OIDC client already accepts, and produces smaller
+  tokens than RS256. Recorded as an architectural observation pending design decision.
 
 ---
 
@@ -45,9 +52,11 @@ The `syntek-auth` module has solid structural foundations — settings validatio
 gating, companion token columns for encrypted field uniqueness, and the allowlist are all
 well-designed for this stage. However, the expanded OAuth MFA flow introduces multiple new critical
 issues including a Python syntax error that prevents import, a cross-user MFA bypass (IDOR), and a
-provider-substitution attack vector in `oidcCallback`. Earlier critical issues (token service design
-flaws, progressive lockout overflow) remain unresolved. Fifteen original issues plus seven new
-issues are identified.
+provider-substitution attack vector in `oidcCallback`. The token signing architecture has two
+critical flaws: an ephemeral per-process signing key (breaks multi-worker deployments entirely) and
+a symmetric HS256 design that should migrate to asymmetric ES256 before the green phase. Earlier
+critical issues (progressive lockout overflow, in-process revocation store) remain unresolved.
+Fifteen original issues plus nine new issues are identified.
 
 ---
 
@@ -86,9 +95,25 @@ forge arbitrary payloads.
 signature using HS256 with the known secret. Submit. Current code rejects this because the HMAC
 mismatch still fires — but add an RS256 path and it breaks.
 
-**Recommended fix direction:** `_decode_jwt` must extract the `alg` field from the decoded header
-and assert it is exactly `"HS256"` before computing the HMAC. Reject any token whose header
-specifies a different algorithm.
+**Recommended fix direction:** Two separate actions are required.
+
+Immediate: `_decode_jwt` must decode the incoming token header, extract the `alg` field, and assert
+it is exactly `"HS256"` before computing the HMAC. Reject any token whose header specifies a
+different algorithm with a constant-time path to avoid timing oracle leaks.
+
+Architectural (before green phase sign-off): Migrate from HS256 to **ES256** (ECDSA/P-256). HS256 is
+symmetric — any process that can verify tokens can also forge them, the secret must be shared across
+all workers, and no JWKS endpoint is possible. ES256 eliminates all three problems: the private key
+signs, a derivable public key verifies, resource services never see the private key, and a
+`/.well-known/jwks.json` endpoint becomes possible for downstream consumers. ES256 is already
+supported on the inbound side (the OIDC client accepts RS256 and ES256), produces smaller tokens
+than RS256, and is the correct choice for any system that may eventually expose token validation to
+external parties. Migration requires replacing the hand-rolled `_make_jwt` / `_decode_jwt` with
+`PyJWT` + `cryptography`, loading the private key from `SYNTEK_AUTH['JWT_SIGNING_KEY']` (PEM, from
+env), and exposing the public key via `SYNTEK_AUTH['JWT_PUBLIC_KEY']`. The hand-rolled
+implementation is acceptable for HS256 but must not be extended to handle asymmetric algorithms
+without a dedicated JWT library, as algorithm confusion is trivially exploitable in custom
+implementations.
 
 ---
 
@@ -323,6 +348,59 @@ provider_id substitution on the inbound callback request.
 **Recommended fix direction:** Retrieve `session.get("oidc_provider_id")` in `oidc_callback` and
 assert `input.provider_id == stored_provider_id` using `_constant_time_eq` before any discovery or
 token exchange.
+
+---
+
+### NEW-C4 — `_SIGNING_SECRET` Is Ephemeral — Tokens Invalidated on Every Restart, Broken Across Workers
+
+**Location:** `src/syntek_auth/services/tokens.py:29`
+
+```python
+_SIGNING_SECRET: bytes = secrets.token_bytes(32)
+```
+
+This secret is generated once at module import time and stored in a module-level variable. It is
+never read from configuration, never persisted, and differs between processes. This creates two
+distinct production failures:
+
+**Process-restart invalidation:** Every time the Django process restarts (deploy, crash, OOM kill,
+`gunicorn --reload`), a new `_SIGNING_SECRET` is generated. All previously issued access and refresh
+tokens are immediately invalid because they were signed with the old secret. Every logged-in user is
+silently logged out on the next request with no warning. The 7-day refresh token lifetime becomes
+meaningless — effective token lifetime is bounded by process uptime.
+
+**Multi-worker signing incompatibility:** Gunicorn runs multiple worker processes (typically 4–8).
+Each worker imports `tokens.py` independently and generates its own random `_SIGNING_SECRET`. A
+token signed by worker 1 carries a signature computed with worker 1's secret. When worker 2 receives
+a subsequent request from the same client, it computes the expected HMAC with its own different
+secret, the `hmac.compare_digest` check fails, and the request is rejected with 401. This is not a
+timing-dependent race — it is a deterministic failure for every request handled by a different
+worker than the one that issued the token. In a standard Gunicorn deployment, this effectively means
+~75% of authenticated requests fail after the initial token issuance.
+
+The docstring at line 9 acknowledges that `_REVOKED_TOKENS` needs to be replaced with a shared cache
+for multi-process use, but does not mention the signing secret issue at all — the more severe of the
+two problems.
+
+**Impact:** Functionally breaks authentication in any standard production deployment. Not a subtle
+timing issue or edge case — any multi-worker or restarted process fails to validate tokens
+deterministically.
+
+**Reproduce:**
+
+1. Start two Django processes with distinct `_SIGNING_SECRET` values (simulate two Gunicorn workers
+   by importing `tokens` in two separate Python sessions).
+2. Call `issue_token_pair` in process 1 to obtain an access token.
+3. Call `validate_access_token` with that token in process 2. Raises
+   `ValueError: JWT signature verification failed`.
+
+**Recommended fix direction:** Load the signing secret from `SYNTEK_AUTH['JWT_SIGNING_SECRET']`
+(bytes or hex string, minimum 32 bytes, from env var). Validate this key is present and correctly
+sized in `AppConfig.ready()` — raise `ImproperlyConfigured` at startup if absent. Remove the
+module-level `secrets.token_bytes(32)` fallback entirely; there must be no code path that allows a
+randomly generated per-process secret in any environment. When the architectural migration to ES256
+described in Issue 1 is completed, this key becomes the private key PEM — the startup validation
+must be updated accordingly.
 
 ---
 
@@ -770,6 +848,14 @@ The following scenarios are entirely absent from the current test suite:
     correct key (NEW-H3)
 21. **NEW** — Two OIDC logins from different providers with the same email — verify explicit linking
     is required, not silent account merge (NEW-H4)
+22. **NEW** — Start two processes with independent `_SIGNING_SECRET` values, issue a token in
+    process 1, validate in process 2 — verify `ValueError` is raised with the current code, and that
+    the fix (loading from config) resolves it (NEW-C4)
+23. **NEW** — Restart the Django process (re-import `tokens.py`) after issuing a token — verify the
+    token is invalid post-restart with the current code, and valid post-restart after the config-key
+    fix (NEW-C4)
+24. **NEW** — `SYNTEK_AUTH` missing `JWT_SIGNING_SECRET` (or `JWT_SIGNING_KEY` post-ES256 migration)
+    — verify `ImproperlyConfigured` raised at startup, not at first token issuance (NEW-C4)
 
 ---
 
@@ -779,13 +865,21 @@ The following scenarios are entirely absent from the current test suite:
   - Fix Python 2 `except` syntax in `oauth_mfa.py` (NEW-C1) — blocks all other OAuth MFA work
   - Add user binding to `_verify_mfa_proof` email_otp (NEW-C2)
   - Add `session["oidc_provider_id"]` check in `oidcCallback` (NEW-C3)
+  - Replace ephemeral `_SIGNING_SECRET` with a stable key loaded from
+    `SYNTEK_AUTH['JWT_SIGNING_SECRET']` validated at startup (NEW-C4) — fix this before the ES256
+    migration so the fix path is clean
+  - Add `alg` header validation to `_decode_jwt` (Issue 1 immediate fix)
   - Add MFA attempt counter to `PendingOAuthSession` (NEW-H1)
   - Make `FIELD_HMAC_KEY` a required key validated at startup (NEW-H2)
   - Clarify and fix per-field key isolation in `SyntekUserManager` (NEW-H3)
   - Add `oidc_sub_hash` field and gate OIDC user creation on email verification (NEW-H4)
   - Implement green phase with all critical issues as blocking requirements.
+- Run `/syntek-dev-suite:backend` (separate pass, post-stabilisation) to migrate JWT signing from
+  HS256 to ES256 via PyJWT + cryptography (Issue 1 architectural fix, NEW-O1). Sequencing: stable
+  config key first (NEW-C4), then `alg` header validation, then ES256 migration. Do not attempt the
+  ES256 migration while the ephemeral secret or hand-rolled `_decode_jwt` are in place.
 - Run `/syntek-dev-suite:test-writer` to add the missing test scenarios above, particularly items
-  15–21 (new), items 1–2 (typ claim tests), and item 13 (concurrent rotation).
+  15–24 (new), items 1–2 (typ claim tests), and item 13 (concurrent rotation).
 - Run `/syntek-dev-suite:debug` to investigate the `OIDC_PROVIDERS` vs `OAUTH_PROVIDERS` key
   mismatch (Issue 8) and determine the authoritative key name before the green phase writes any
   further code against either.

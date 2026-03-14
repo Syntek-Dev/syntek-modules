@@ -125,10 +125,15 @@ def logout(refresh_token: str, access_token: str) -> LogoutResult:
                 else bytes(_raw_key)
             )
             try:
-                from syntek_pyo3 import encrypt_field  # type: ignore[import-not-found]
+                from syntek_pyo3 import (  # type: ignore[import-not-found]
+                    KeyRing,
+                    encrypt_field,
+                )
 
+                _ring = KeyRing()
+                _ring.add(1, _field_key)
                 _encrypted_jti: str = encrypt_field(
-                    access_jti, _field_key, "AccessTokenDenylist", "jti"
+                    access_jti, _ring, "AccessTokenDenylist", "jti"
                 )
             except ImportError:
                 _encrypted_jti = access_jti

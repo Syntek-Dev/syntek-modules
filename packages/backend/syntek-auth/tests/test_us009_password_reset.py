@@ -95,9 +95,11 @@ def _make_verification_code(
         raw_key.encode("utf-8") if isinstance(raw_key, str) else bytes(raw_key)
     )
     try:
-        from syntek_pyo3 import encrypt_field  # type: ignore[import-not-found]
+        from syntek_pyo3 import KeyRing, encrypt_field  # type: ignore[import-not-found]
 
-        encrypted = encrypt_field(token, field_key, "VerificationCode", "token")
+        _ring = KeyRing()
+        _ring.add(1, field_key)
+        encrypted = encrypt_field(token, _ring, "VerificationCode", "token")
     except ImportError:
         encrypted = token
 

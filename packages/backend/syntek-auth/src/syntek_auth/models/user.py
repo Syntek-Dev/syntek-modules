@@ -180,7 +180,8 @@ class SyntekUserManager(BaseUserManager["AbstractSyntekUser"]):
         # Encrypt PII fields before save — tokens are computed from plaintext above.
         try:
             from syntek_pyo3 import (
-                encrypt_fields_batch,  # type: ignore[import-not-found]
+                KeyRing,  # type: ignore[import-not-found]
+                encrypt_fields_batch,
             )
 
             _cfg: dict = getattr(settings, "SYNTEK_AUTH", {})  # type: ignore[type-arg]
@@ -198,9 +199,9 @@ class SyntekUserManager(BaseUserManager["AbstractSyntekUser"]):
             if username:
                 _fields_to_encrypt.append(("username", str(username)))
 
-            _encrypted = encrypt_fields_batch(
-                _fields_to_encrypt, _field_key, _model_name
-            )
+            _ring = KeyRing()
+            _ring.add(1, _field_key)
+            _encrypted = encrypt_fields_batch(_fields_to_encrypt, _ring, _model_name)
             email = _encrypted[0]
             _idx = 1
             if phone:

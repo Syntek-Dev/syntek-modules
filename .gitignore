@@ -114,6 +114,7 @@ junit.xml
 *.db
 *.sqlite
 *.sqlite3
+/test
 
 # Keep .gitkeep files
 !.gitkeep

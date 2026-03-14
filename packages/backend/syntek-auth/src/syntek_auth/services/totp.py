@@ -256,11 +256,14 @@ def store_backup_codes(user_id: int, codes: list[str]) -> None:
         _raw_key.encode("utf-8") if isinstance(_raw_key, str) else bytes(_raw_key)
     )
     try:
-        from syntek_pyo3 import encrypt_field  # type: ignore[import-not-found]
+        from syntek_pyo3 import KeyRing, encrypt_field  # type: ignore[import-not-found]
+
+        _ring = KeyRing()
+        _ring.add(1, _field_key)
 
         def _hash_and_encrypt(plaintext_code: str) -> str:
             return encrypt_field(
-                make_password(plaintext_code), _field_key, "BackupCode", "code_hash"
+                make_password(plaintext_code), _ring, "BackupCode", "code_hash"
             )
 
     except ImportError:
@@ -316,11 +319,14 @@ def consume_backup_code(user_id: int, code: str) -> bool:
         stored_hash = backup.code_hash
         # Decrypt the stored ciphertext to retrieve the Argon2id hash.
         with contextlib.suppress(Exception):
-            from syntek_pyo3 import decrypt_field  # type: ignore[import-not-found]
-
-            stored_hash = decrypt_field(
-                stored_hash, _field_key, "BackupCode", "code_hash"
+            from syntek_pyo3 import (  # type: ignore[import-not-found]
+                KeyRing,
+                decrypt_field,
             )
+
+            _ring = KeyRing()
+            _ring.add(1, _field_key)
+            stored_hash = decrypt_field(stored_hash, _ring, "BackupCode", "code_hash")
 
         if check_password(code, stored_hash):
             backup.delete()
@@ -373,16 +379,16 @@ def enable_totp_for_user(
     stored_secret: str = secret
     try:
         from django.conf import settings as _settings
-        from syntek_pyo3 import encrypt_field  # type: ignore[import-not-found]
+        from syntek_pyo3 import KeyRing, encrypt_field  # type: ignore[import-not-found]
 
         _cfg: dict = getattr(_settings, "SYNTEK_AUTH", {})  # type: ignore[type-arg]
         _raw_key = _cfg.get("FIELD_KEY", "")
         _field_key: bytes = (
             _raw_key.encode("utf-8") if isinstance(_raw_key, str) else bytes(_raw_key)
         )
-        stored_secret = encrypt_field(
-            secret, _field_key, type(user).__name__, "totp_secret"
-        )
+        _ring = KeyRing()
+        _ring.add(1, _field_key)
+        stored_secret = encrypt_field(secret, _ring, type(user).__name__, "totp_secret")
     except ImportError:
         pass
 

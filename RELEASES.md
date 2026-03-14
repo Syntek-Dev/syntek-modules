@@ -1,5 +1,49 @@
 # Releases
 
+## v0.17.0 — 14/03/2026
+
+**Branch**: `fix/us007/syntek-pyo3`\
+**Type**: MINOR (breaking API change)\
+**Story**: US007 — syntek-pyo3 QA Fixes: KeyRing API, exception classes, audit CLI
+
+### Highlights
+
+- **Breaking: `key: bytes` → `ring: PyKeyRing`** — `encrypt_field` and `decrypt_field` now require a
+  `PyKeyRing` object instead of raw key bytes. This removes direct key material from Python call
+  sites and enforces key versioning at the API boundary. All three consumer packages in this
+  repository have been updated. Consumers outside this repository must construct a `PyKeyRing` via
+  `PyKeyRing.from_bytes(version, key_bytes)` before calling these functions.
+
+- **`PyKeyRing` class** — a new Python class wrapping the Rust `KeyRing` type. Supports
+  multi-version key management, active-version promotion, and secure key storage (`zeroize` on
+  drop). Enables key rotation without decrypting/re-encrypting all data in a single transaction.
+
+- **Proper Python exception classes** — `SyntekCryptoError` and `SyntekKeyError` replace the
+  previous opaque `RuntimeError` for all cryptographic failures. Consumers can now catch these
+  specific exception types for fine-grained error handling.
+
+- **Versioned batch API** — `encrypt_field_versioned`, `decrypt_field_versioned`, and the new
+  `encrypt_fields_batch_versioned` / `decrypt_fields_batch_versioned` in `syntek-crypto` provide
+  explicit version tracking on every ciphertext, enabling safe key rotation across large datasets.
+
+- **PostgreSQL integration tests** — 11 new integration tests run against a live PostgreSQL 18.3
+  container (via `testcontainers`), covering round-trips, key rotation, batch versioned operations,
+  error propagation, and concurrency.
+
+- **`syntek-dev audit`** — new CLI command scanning Python (`pip-audit`), Rust (`cargo audit`), and
+  JS/TS (`pnpm audit`) dependencies for known vulnerabilities. `--outdated` flag adds informational
+  reports for outdated packages.
+
+### Module Versions
+
+| Module                  | Previous | New    | Reason                                       |
+| ----------------------- | -------- | ------ | -------------------------------------------- |
+| `syntek-pyo3` (Rust)    | 0.16.2   | 0.17.0 | Workspace version inheritance — breaking API |
+| `syntek-auth`           | 0.3.1    | 0.4.0  | Migrated to new KeyRing API (breaking dep)   |
+| `syntek-graphql-crypto` | 0.1.0    | 0.2.0  | Migrated to new KeyRing API (breaking dep)   |
+
+---
+
 ## v0.16.2 — 13/03/2026
 
 **Branch**: `fix/us006/qa-report-11-03-2026`\

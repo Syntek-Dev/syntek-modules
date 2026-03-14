@@ -96,10 +96,12 @@ def _make_pending_session(
     )
 
     try:
-        from syntek_pyo3 import encrypt_field  # type: ignore[import-not-found]
+        from syntek_pyo3 import KeyRing, encrypt_field  # type: ignore[import-not-found]
 
+        _ring = KeyRing()
+        _ring.add(1, field_key)
         encrypted_provider: str = encrypt_field(
-            provider_normalised, field_key, "PendingOAuthSession", "provider"
+            provider_normalised, _ring, "PendingOAuthSession", "provider"
         )
     except ImportError:
         encrypted_provider = provider_normalised

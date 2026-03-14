@@ -156,8 +156,13 @@ def crypto_user_table(django_db_setup, django_db_blocker):  # type: ignore[retur
     with django_db_blocker.unblock(), connection.schema_editor() as editor:
         editor.create_model(CryptoUser)
     yield
-    with django_db_blocker.unblock(), connection.schema_editor() as editor:
-        editor.delete_model(CryptoUser)
+    # Guard against the in-memory DB being reset by Django's test runner before
+    # session teardown fires (common when multi-package test runs share a session).
+    try:
+        with django_db_blocker.unblock(), connection.schema_editor() as editor:
+            editor.delete_model(CryptoUser)
+    except Exception:  # noqa: S110
+        pass
 
 
 # ---------------------------------------------------------------------------

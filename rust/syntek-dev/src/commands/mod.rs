@@ -2,6 +2,7 @@ use anyhow::Result;
 
 use crate::cli::{Cli, Commands};
 
+mod audit;
 mod build;
 mod check;
 mod ci;
@@ -23,5 +24,6 @@ pub async fn run(cli: Cli) -> Result<()> {
         Commands::Check(args) => check::run(args).await,
         Commands::Ci => ci::run().await,
         Commands::Open(args) => open::run(args).await,
+        Commands::Audit(args) => audit::run(args).await,
     }
 }

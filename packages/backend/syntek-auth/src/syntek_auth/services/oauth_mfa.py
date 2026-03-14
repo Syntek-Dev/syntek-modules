@@ -220,10 +220,12 @@ def issue_oauth_pending_session(user_id: int, provider: str) -> OAuthMfaPendingR
         _raw_key.encode("utf-8") if isinstance(_raw_key, str) else bytes(_raw_key)
     )
     try:
-        from syntek_pyo3 import encrypt_field
+        from syntek_pyo3 import KeyRing, encrypt_field
 
+        _ring = KeyRing()
+        _ring.add(1, _field_key)
         encrypted_provider: str = encrypt_field(
-            provider_normalised, _field_key, "PendingOAuthSession", "provider"
+            provider_normalised, _ring, "PendingOAuthSession", "provider"
         )
     except ImportError:
         encrypted_provider = provider_normalised  # fallback: tests without pyo3

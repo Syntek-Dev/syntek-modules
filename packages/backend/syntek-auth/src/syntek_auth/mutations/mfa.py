@@ -113,7 +113,10 @@ class MfaMutations:
             plaintext_secret: str = stored_secret
             try:
                 from django.conf import settings as _settings
-                from syntek_pyo3 import decrypt_field  # type: ignore[import-not-found]
+                from syntek_pyo3 import (  # type: ignore[import-not-found]
+                    KeyRing,
+                    decrypt_field,
+                )
 
                 _cfg: dict = getattr(_settings, "SYNTEK_AUTH", {})  # type: ignore[type-arg]
                 _raw_key = _cfg.get("FIELD_KEY", "")
@@ -122,8 +125,10 @@ class MfaMutations:
                     if isinstance(_raw_key, str)
                     else bytes(_raw_key)
                 )
+                _ring = KeyRing()
+                _ring.add(1, _field_key)
                 plaintext_secret = decrypt_field(
-                    stored_secret, _field_key, type(user).__name__, "totp_secret"
+                    stored_secret, _ring, type(user).__name__, "totp_secret"
                 )
             except ImportError:
                 pass

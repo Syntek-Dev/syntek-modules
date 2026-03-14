@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING, Any
 
 import syntek_pyo3
 from strawberry.extensions import SchemaExtension
+from syntek_pyo3 import KeyRing
 
 from syntek_graphql_crypto.directives import Encrypted
 
@@ -30,16 +31,19 @@ if TYPE_CHECKING:
 logger = logging.getLogger("syntek_graphql_crypto")
 
 
-def _resolve_key(model: str, field: str) -> bytes:
-    """Look up ``SYNTEK_FIELD_KEY_<MODEL>_<FIELD>`` and base64-decode it."""
+def _resolve_ring(model: str, field: str) -> KeyRing:
+    """Resolve ``SYNTEK_FIELD_KEY_<MODEL>_<FIELD>`` and return a KeyRing."""
     env_var = f"SYNTEK_FIELD_KEY_{model.upper()}_{field.upper()}"
     raw = os.environ.get(env_var)
     if not raw:
         raise RuntimeError(f"Missing encryption key env var: {env_var}")
     try:
-        return base64.b64decode(raw)
+        key_bytes = base64.b64decode(raw)
     except Exception as exc:
         raise RuntimeError(f"Invalid base64 key in {env_var}: {exc}") from exc
+    ring = KeyRing()
+    ring.add(1, key_bytes)
+    return ring
 
 
 def _camel_to_snake(name: str) -> str:
@@ -118,8 +122,8 @@ class EncryptionMiddleware(SchemaExtension):
         """
         if not is_encrypted:
             return value
-        key = _resolve_key(self._model, field_name)
-        result = syntek_pyo3.encrypt_field(value, key, self._model, field_name)
+        ring = _resolve_ring(self._model, field_name)
+        result = syntek_pyo3.encrypt_field(value, ring, self._model, field_name)
         if capture is not None:
             capture(result)
         return result
@@ -131,10 +135,10 @@ class EncryptionMiddleware(SchemaExtension):
         fields: list[tuple[Any, str]],
     ) -> list[Any]:
         """Encrypt a batch of mutation input fields in one call."""
-        key = _resolve_key(self._model, fields[0][1])
+        ring = _resolve_ring(self._model, fields[0][1])
         # Rust: (field_name, value); public API: (value, field_name).
         return syntek_pyo3.encrypt_fields_batch(
-            [(fn, v) for v, fn in fields], key, self._model
+            [(fn, v) for v, fn in fields], ring, self._model
         )
 
     def process_output(
@@ -151,8 +155,8 @@ class EncryptionMiddleware(SchemaExtension):
         """
         if not is_encrypted:
             return value
-        key = _resolve_key(self._model, field_name)
-        return syntek_pyo3.decrypt_field(value, key, self._model, field_name)
+        ring = _resolve_ring(self._model, field_name)
+        return syntek_pyo3.decrypt_field(value, ring, self._model, field_name)
 
     def process_batch_output(
         self,
@@ -161,10 +165,10 @@ class EncryptionMiddleware(SchemaExtension):
         fields: list[tuple[Any, str]],
     ) -> list[Any]:
         """Decrypt a batch of query output fields in one call."""
-        key = _resolve_key(self._model, fields[0][1])
+        ring = _resolve_ring(self._model, fields[0][1])
         # Rust: (field_name, ciphertext); public API: (ciphertext, field_name).
         return syntek_pyo3.decrypt_fields_batch(
-            [(fn, ct) for ct, fn in fields], key, self._model
+            [(fn, ct) for ct, fn in fields], ring, self._model
         )
 
     # ------------------------------------------------------------------
@@ -216,9 +220,9 @@ class EncryptionMiddleware(SchemaExtension):
                 try:
                     for kw_name, kw_val, _d in individual:
                         snake = _camel_to_snake(kw_name)
-                        key = _resolve_key(self._model, snake)
+                        ring = _resolve_ring(self._model, snake)
                         kwargs[kw_name] = syntek_pyo3.encrypt_field(
-                            kw_val, key, self._model, snake
+                            kw_val, ring, self._model, snake
                         )
                     for batch_group, batch_pairs in batches.items():
                         first_snake = (
@@ -226,10 +230,10 @@ class EncryptionMiddleware(SchemaExtension):
                             if batch_pairs
                             else batch_group
                         )
-                        key = _resolve_key(self._model, first_snake)
+                        ring = _resolve_ring(self._model, first_snake)
                         ciphertexts = syntek_pyo3.encrypt_fields_batch(
                             [(_camel_to_snake(k), v) for k, v in batch_pairs],
-                            key,
+                            ring,
                             self._model,
                         )
                         for (kw_name, _), ct in zip(  # noqa: B905
@@ -312,9 +316,9 @@ class EncryptionMiddleware(SchemaExtension):
         # Decrypt individual fields.
         for camel_name, snake, value in individual:
             try:
-                key = _resolve_key(self._model, snake)
+                ring = _resolve_ring(self._model, snake)
                 obj[camel_name] = syntek_pyo3.decrypt_field(
-                    value, key, self._model, snake
+                    value, ring, self._model, snake
                 )
             except Exception as exc:
                 obj[camel_name] = None
@@ -331,10 +335,10 @@ class EncryptionMiddleware(SchemaExtension):
         for batch_group, batch_fields in batches.items():
             first_snake = batch_fields[0][1]
             try:
-                key = _resolve_key(self._model, first_snake)
+                ring = _resolve_ring(self._model, first_snake)
                 # Rust expects (field_name, ciphertext) order.
                 pairs = [(snake, obj[camel]) for camel, snake, _ in batch_fields]
-                plaintexts = syntek_pyo3.decrypt_fields_batch(pairs, key, self._model)
+                plaintexts = syntek_pyo3.decrypt_fields_batch(pairs, ring, self._model)
                 for (camel_name, _, _), plaintext in zip(  # noqa: B905
                     batch_fields, plaintexts
                 ):

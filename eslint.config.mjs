@@ -18,9 +18,9 @@ export default [
   {
     ignores: [
       "node_modules/**",
-      "dist/**",
-      ".next/**",
-      "out/**",
+      "**/dist/**",
+      "**/.next/**",
+      "**/out/**",
       "coverage/**",
       ".turbo/**",
       "target/**",
@@ -33,6 +33,17 @@ export default [
 
   // Base JS rules
   js.configs.recommended,
+
+  // CommonJS files (local ESLint rule definitions and their tests)
+  {
+    files: ["eslint-rules/**/*.js"],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.commonjs,
+      },
+    },
+  },
 
   // TypeScript + React files
   {

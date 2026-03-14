@@ -18,6 +18,7 @@
   - [ci](#ci)
   - [db](#db)
   - [open](#open)
+  - [audit](#audit)
 - [Source Location](#source-location)
 
 ---
@@ -567,12 +568,79 @@ syntek-dev open admin
 
 ---
 
+### audit
+
+Scan all dependency manifests for known vulnerabilities and (optionally) outdated packages. With no
+layer flags, audits all three layers.
+
+```
+syntek-dev audit [--python] [--rust] [--js] [--outdated]
+```
+
+| Flag         | What it does                                                                                  |
+| ------------ | --------------------------------------------------------------------------------------------- |
+| `--python`   | Run `pip-audit` via `uv run --with pip-audit pip-audit` against `pyproject.toml` / `uv.lock`  |
+| `--rust`     | Run `cargo audit --deny unsound --deny yanked` against `Cargo.toml` / `Cargo.lock`            |
+| `--js`       | Run `pnpm audit --audit-level=moderate` against `package.json` / `pnpm-lock.yaml`             |
+| `--outdated` | Also report outdated packages for each selected layer (informational — does not fail the run) |
+| `--update`   | Apply safe (semver-compatible) updates and regenerate lock files for each selected layer      |
+
+**Prerequisites:**
+
+- Python audit: `uv` must be on PATH (`pip-audit` is injected ephemerally — no install needed)
+- Rust audit: `cargo-audit` must be installed — `cargo install cargo-audit`
+- Rust outdated: `cargo-outdated` must be installed — `cargo install cargo-outdated`
+- JS audit: `pnpm` must be on PATH
+
+**What "safe updates" means per layer:**
+
+| Layer  | Command             | What it updates                                                                                             |
+| ------ | ------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Python | `uv sync --upgrade` | All packages to the latest version allowed by `pyproject.toml` ranges; regenerates `uv.lock`                |
+| Rust   | `cargo update`      | All crates to the latest semver-compatible version; regenerates `Cargo.lock` only (no `Cargo.toml` changes) |
+| JS/TS  | `pnpm update`       | All packages to the latest version within `package.json` ranges; regenerates `pnpm-lock.yaml`               |
+
+**Exit codes:**
+
+- Exits non-zero if any vulnerability scan reports findings at or above the threshold, or if an
+  `--update` command itself fails.
+- Outdated-package checks are informational — they print a warning but do not cause a non-zero exit
+  on their own.
+
+**Examples:**
+
+```bash
+# Audit all layers for vulnerabilities
+syntek-dev audit
+
+# Audit all layers for vulnerabilities and outdated packages
+syntek-dev audit --outdated
+
+# Audit only Python
+syntek-dev audit --python
+
+# Audit only Rust
+syntek-dev audit --rust
+
+# Audit JS/TS and also show outdated packages
+syntek-dev audit --js --outdated
+
+# Apply safe updates across all layers
+syntek-dev audit --update
+
+# Audit everything, show outdated, and apply safe updates in one pass
+syntek-dev audit --outdated --update
+```
+
+---
+
 ## Source Location
 
 | File                                     | Purpose                                              |
 | ---------------------------------------- | ---------------------------------------------------- |
 | `rust/syntek-dev/src/cli.rs`             | Clap command/flag definitions (authoritative source) |
 | `rust/syntek-dev/src/main.rs`            | Entry point                                          |
+| `rust/syntek-dev/src/commands/audit.rs`  | `audit` implementation                               |
 | `rust/syntek-dev/src/commands/up.rs`     | `up` implementation                                  |
 | `rust/syntek-dev/src/commands/test.rs`   | `test` implementation                                |
 | `rust/syntek-dev/src/commands/lint.rs`   | `lint` and `check` implementation                    |
